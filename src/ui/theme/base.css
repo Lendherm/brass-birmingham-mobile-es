@@ -131,6 +131,14 @@ button.selected {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-padding-bottom: 12px;
+}
+
+.board-symbol-legend,
+.game-history,
+.game-history-reopen,
+.board-symbol-legend-reopen {
+  flex-shrink: 0;
 }
 
 .game-hud {

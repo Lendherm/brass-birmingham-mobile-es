@@ -20,7 +20,8 @@ describe('MatTile helpers', () => {
   it('describes beer as sell cost for pottery, not production', () => {
     const spec = tileSpec('pottery', 1);
     const title = matTileTitle(spec, 'canal', 1);
-    expect(title).toContain('Al vender: 1 cerveza');
-    expect(title).not.toContain('Produce');
+    expect(title).toContain('Gasta 1 cerveza al vender');
+    expect(title).toContain('no produce');
+    expect(title).not.toMatch(/Produce.*cerveza/);
   });
 });

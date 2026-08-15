@@ -2,7 +2,8 @@ import type { CityId, LocationId, PlayerId } from './types';
 import { tileSpec } from './data/industries';
 import { COAL_MARKET, IRON_MARKET, buyCost, nextBuyPrice } from './market';
 import { bumpSpaces } from './income';
-import { AUTOMA, isPayingPlayer, log, playerLabel, spendMoney, type GameState } from './state';
+import { logForPlayer } from './logFormat';
+import { AUTOMA, isPayingPlayer, spendMoney, type GameState } from './state';
 import { CITIES } from './data/board';
 import { connectedToMarket, distancesFrom } from './connectivity';
 import { industria } from './messages';
@@ -22,7 +23,7 @@ export function flipResourceTile(state: GameState, city: CityId, slot: number): 
   if (isPayingPlayer(state, tile.owner)) {
     state.players[tile.owner].incomeSpace = bumpSpaces(state.players[tile.owner].incomeSpace, spec.incomeBump);
   }
-  log(state, `${playerLabel(state, tile.owner)} volteó ${industria(tile.industry)} N${tile.level} en ${CITIES[city].name}.`);
+  logForPlayer(state, tile.owner, `volteó ${industria(tile.industry)} N${tile.level} en ${CITIES[city].name}.`);
 }
 
 function removeFromTile(state: GameState, city: CityId, slot: number, n: number): number {

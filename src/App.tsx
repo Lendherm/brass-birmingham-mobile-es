@@ -13,6 +13,7 @@ import { useActionFlow } from './ui/ActionPanel';
 import { useGame, useTheme } from './ui/useGame';
 import { useAccessibility } from './ui/useAccessibility';
 import { usePlayAssistant } from './ui/usePlayAssistant';
+import { useLayoutMode } from './ui/useLayoutMode';
 import { TutorialLauncher } from './ui/Tutorial';
 import { FirstVisitPrompt } from './ui/FirstVisitPrompt';
 import { StrategyGuideButton } from './ui/StrategyGuide';
@@ -26,7 +27,7 @@ import { PlayerPanel, ToastStack, useGameFeedback } from './ui/PlayerPanel';
 import { PlayerMat } from './ui/PlayerMat';
 import { MarketDisplay } from './ui/MarketDisplay';
 import { ZoneLegend } from './ui/ZoneLegend';
-import { AutomaFeed } from './ui/AutomaFeed';
+import { GameHistory } from './ui/GameHistory';
 import { PlayAssistant } from './ui/PlayAssistant';
 import { BoardSymbolLegend } from './ui/BoardSymbolLegend';
 import { CityMapOverlay } from './ui/CityMapOverlay';
@@ -37,6 +38,8 @@ import { formatBuildCost, formatNetworkCost } from './ui/formatCost';
 import { ACCIONES, DEFAULT_PLAYER_NAMES, PLAYER_COLORS, type AccionId, eraNombre, industria, linkLabel } from './i18n/es';
 import { industryCssClass } from './ui/visual/industryTheme';
 import { ProjectCredits } from './ui/ProjectCredits';
+import { TapInfoBubble } from './ui/TapInfoBubble';
+import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
 import { APP_NAME_SHORT } from './i18n/projectMeta';
 
@@ -46,7 +49,8 @@ export default function App() {
   const game = useGame();
   const { theme, toggle } = useTheme();
   const { largeText, toggleLargeText } = useAccessibility();
-  const { assistantEnabled, toggleAssistant } = usePlayAssistant();
+  const { assistantEnabled, assistantRefresh, pressAssistant, disableAssistant } = usePlayAssistant();
+  const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
   return (
     <div className={`app${game.state && !game.screenHidden ? ' in-game' : ''}`}>
@@ -81,7 +85,14 @@ export default function App() {
             <button onClick={game.undo} disabled={!game.canUndo} data-testid="undo">
               ⎌ Deshacer
             </button>
-            <button onClick={game.reset} data-testid="new-game">
+            <button
+              onClick={() => {
+                if (window.confirm('¿Empezar una partida nueva? Se perderá el progreso de la partida actual.')) {
+                  game.reset();
+                }
+              }}
+              data-testid="new-game"
+            >
               Nueva partida
             </button>
           </>
@@ -105,13 +116,28 @@ export default function App() {
         {game.state && !game.screenHidden && (
           <button
             type="button"
-            onClick={toggleAssistant}
+            onClick={cycleLayout}
+            data-testid="layout-toggle"
+            aria-pressed={layoutMode !== 'auto'}
+            title={`Orientación: ${layoutLabel}. Toca para cambiar.`}
+            className={`topbar-compact-btn topbar-layout-btn${layoutMode !== 'auto' ? ' active' : ''}`}
+          >
+            {layoutMode === 'landscape' ? '⬒' : layoutMode === 'portrait' ? '⬓' : '↻'}
+          </button>
+        )}
+        {game.state && !game.screenHidden && (
+          <button
+            type="button"
+            onClick={pressAssistant}
             data-testid="assistant-toggle"
             aria-pressed={assistantEnabled}
-            title={assistantEnabled ? 'Desactivar asistente' : 'Activar asistente de jugadas'}
-            className={`topbar-compact-btn${assistantEnabled ? ' active' : ''}`}
+            title={assistantEnabled ? 'Actualizar sugerencias de jugada' : 'Activar asistente de jugadas'}
+            className={`topbar-compact-btn topbar-assistant-btn${assistantEnabled ? ' active' : ''}`}
           >
-            💡
+            <span className="assistant-btn-icon" aria-hidden>
+              ✦
+            </span>
+            <span className="assistant-btn-label">Sugerencias</span>
           </button>
         )}
         <button onClick={toggle} data-testid="theme-toggle" aria-label="Cambiar modo oscuro">
@@ -140,6 +166,8 @@ export default function App() {
           onReset={game.reset}
           onDismissEraScore={game.dismissEraScore}
           assistantEnabled={assistantEnabled}
+          assistantRefresh={assistantRefresh}
+          onDisableAssistant={disableAssistant}
         />
       )}
     </div>
@@ -293,6 +321,8 @@ function GameScreen({
   onReset,
   onDismissEraScore,
   assistantEnabled,
+  assistantRefresh,
+  onDisableAssistant,
 }: {
   state: GameState;
   dispatch: (a: PlayerAction) => string | null;
@@ -303,10 +333,13 @@ function GameScreen({
   onReset: () => void;
   onDismissEraScore: () => void;
   assistantEnabled: boolean;
+  assistantRefresh: number;
+  onDisableAssistant: () => void;
 }) {
   const inTutorial = tutorialStep !== null && isTutorial(state);
   const [inspectCity, setInspectCity] = useState<CityId | null>(null);
   const [inspectMerchant, setInspectMerchant] = useState<MerchantId | null>(null);
+  const [mapInfo, setMapInfo] = useState<string | null>(null);
   const playerId = activePlayer(state);
   const hand = state.players[playerId].hand;
 
@@ -394,8 +427,11 @@ function GameScreen({
                 const choice = flow.networks.find((n) => n.option.linkIds[0] === linkId);
                 if (choice) flow.chooseNetwork(choice);
               }}
+              onMapInfo={setMapInfo}
             />
           </PanZoomBoard>
+          <TapInfoBubble text={mapInfo} onClose={() => setMapInfo(null)} className="map-tap-info" />
+          {!inTutorial && <CanalEraMapAlert state={state} enabled={mapInfo == null} />}
           {inspectMerchant && !inTutorial && (
             <MerchantMapOverlay
               state={state}
@@ -424,11 +460,13 @@ function GameScreen({
         <div className="side side-scroll">
           <div className="game-hud">
             <PlayerPanel state={state} />
+            <CanalEraSidebarWarning state={state} />
             <ZoneLegend />
             <PlayerMat state={state} />
             <MarketDisplay coalCubes={state.coalCubes} ironCubes={state.ironCubes} />
-            {isVsAutoma(state) && <AutomaFeed state={state} />}
-            {assistantEnabled && !inTutorial && <PlayAssistant state={state} />}
+            {assistantEnabled && !inTutorial && (
+              <PlayAssistant state={state} refreshKey={assistantRefresh} onClose={onDisableAssistant} />
+            )}
           </div>
 
           <div className="game-play-dock panel action-panel" data-testid="action-panel">
@@ -583,17 +621,7 @@ function GameScreen({
           </div>
 
           <BoardSymbolLegend />
-
-          <details className="panel log-panel log-collapsible">
-            <summary>Registro de partida</summary>
-            <div className="log" data-testid="log">
-              {[...state.log].reverse().map((line, i) => (
-                <div key={state.log.length - i} className={i < 6 ? 'recent log-line' : 'log-line'}>
-                  {line}
-                </div>
-              ))}
-            </div>
-          </details>
+          <GameHistory state={state} />
         </div>
       </div>
 

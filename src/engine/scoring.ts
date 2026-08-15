@@ -1,6 +1,7 @@
 import type { CityId, LocationId, PlayerId } from './types';
 import { LINKS, MERCHANTS, isMerchant } from './data/board';
 import { tileSpec } from './data/industries';
+import { logForPlayer } from './logFormat';
 import { automaOpponentIds, isSolo, log, playerLabel, type GameState } from './state';
 
 /** Link VP contributed by one location (city tiles' link icons, merchants = 2). */
@@ -20,7 +21,7 @@ export function scoreLinks(state: GameState): void {
     let vp = 0;
     for (const end of link.endpoints) vp += locationLinkVP(state, end);
     state.players[owner].vp += vp;
-    log(state, `${playerLabel(state, owner)} sumó ${vp} PV por el enlace ${link.id}.`);
+    logForPlayer(state, owner, `sumó ${vp} PV por el enlace ${link.id}.`);
   }
 }
 

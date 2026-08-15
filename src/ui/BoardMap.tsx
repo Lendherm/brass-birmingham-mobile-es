@@ -27,6 +27,7 @@ interface Props {
   onCityClick?: (city: CityId) => void;
   onMerchantClick?: (merchant: MerchantId) => void;
   onLinkClick?: (linkId: string) => void;
+  onMapInfo?: (text: string) => void;
 }
 
 function linkActiveInEra(link: (typeof LINKS)[number], era: GameState['era']): boolean {
@@ -270,7 +271,7 @@ function FarmBreweryMarker({
   );
 }
 
-export function BoardMap({ state, highlightCities, highlightBuildSlots, highlightLinks, cardFocusCity, selectedCity, onCityClick, onMerchantClick, onLinkClick }: Props) {
+export function BoardMap({ state, highlightCities, highlightBuildSlots, highlightLinks, cardFocusCity, selectedCity, onCityClick, onMerchantClick, onLinkClick, onMapInfo }: Props) {
   return (
     <svg viewBox="0 0 900 860" width={900} height={860} role="img" aria-label="Tablero de juego" data-testid="board" className="board-svg" shapeRendering="geometricPrecision" textRendering="optimizeLegibility">
       <defs>
@@ -296,19 +297,24 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
         const midB = LAYOUT[link.endpoints[link.endpoints.length - 1]];
         const mx = (midA.x + midB.x) / 2;
         const my = (midA.y + midB.y) / 2;
+        const linkInfo =
+          isCanalOnly && canalEra && owner == null
+            ? `${linkLabel(link.id)} — solo canal (desaparece en era ferrocarril si no se construye)`
+            : owner != null
+              ? `${linkLabel(link.id)} — construido`
+              : `${linkLabel(link.id)} — toca para ver detalles`;
         return (
           <g
             key={link.id}
             data-testid={`link-${link.id}`}
             className={highlighted ? 'board-highlight-pulse' : ''}
-            style={{ cursor: highlighted && onLinkClick ? 'pointer' : 'default' }}
-            onClick={() => highlighted && onLinkClick?.(link.id)}
+            style={{ cursor: onLinkClick || onMapInfo ? 'pointer' : 'default' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (highlighted && onLinkClick) onLinkClick(link.id);
+              else onMapInfo?.(linkInfo);
+            }}
           >
-            <title>
-              {isCanalOnly && canalEra && owner == null
-                ? `${linkLabel(link.id)} — solo canal (desaparece en era ferrocarril si no se construye)`
-                : linkLabel(link.id)}
-            </title>
             {linkSegments(link.endpoints).map(([a, b], i) => (
               <line
                 key={i}
@@ -395,6 +401,7 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
             className={cityClass}
             style={{ cursor: onCityClick ? 'pointer' : 'default' }}
             onClick={() => onCityClick?.(city.id)}
+            aria-label={`${city.name}. Toca para detalles.`}
           >
             {isCardFocus && (
               <rect
@@ -469,7 +476,6 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
             style={{ cursor: onMerchantClick ? 'pointer' : 'default' }}
             onClick={() => onMerchantClick?.(m.id)}
           >
-            <title>{`${m.name} — ${merchantBonusLabel(m.bonus)} · Toca para detalles`}</title>
             <MerchantLinkVPBadgeRow cx={pos.x} y={boxTop - 2} count={m.slotCount} size={11} />
             <rect
               x={pos.x - 36}

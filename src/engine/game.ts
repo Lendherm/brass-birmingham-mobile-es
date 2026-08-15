@@ -1,6 +1,7 @@
 import type { IndustryType, PlayerId } from './types';
 import { tileSpec } from './data/industries';
 import { levelForSpace } from './income';
+import { logForPlayer } from './logFormat';
 import {
   HUMAN,
   activePlayer,
@@ -78,7 +79,7 @@ export function applyPlayerAction(state: GameState, action: PlayerAction): void 
       applyScout(state, player, action.extraDiscards);
       break;
     case 'pass':
-      log(state, `${playerLabel(state, player)} pasó.`);
+      logForPlayer(state, player, 'pasó.');
       break;
   }
   discardCardForAction(state, player, action);

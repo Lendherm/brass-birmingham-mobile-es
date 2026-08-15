@@ -3,7 +3,8 @@ import { CITIES, LINKS, MERCHANTS } from './data/board';
 import { tileSpec } from './data/industries';
 import { COAL_MARKET, IRON_MARKET, sellToMarket } from './market';
 import { LOAN_AMOUNT, bumpSpaces, canTakeLoan, levelForSpace, loanDrop } from './income';
-import { isPayingPlayer, log, playerLabel, spendMoney, type Card, type GameState, type PlacedTile } from './state';
+import { isPayingPlayer, log, spendMoney, type Card, type GameState, type PlacedTile } from './state';
+import { logForPlayer } from './logFormat';
 import { enlaceTipo, industria } from './messages';
 import { areConnected, connectedToMarket, hasNoNetwork, playerNetwork } from './connectivity';
 import { playerLinksRemaining } from './links';
@@ -81,7 +82,7 @@ export function placeTile(state: GameState, player: PlayerId, city: CityId, slot
   if (spec.producesIron) tile.resources = spec.producesIron;
   if (spec.producesBeer) tile.resources = spec.producesBeer[state.era];
   state.board[city][slot] = tile;
-  log(state, `${playerLabel(state, player)} construyó ${industria(industry)} N${level} en ${CITIES[city].name}.`);
+  logForPlayer(state, player, `construyó ${industria(industry)} N${level} en ${CITIES[city].name}.`);
 
   if (industry === 'iron' && tile.resources > 0) {
     const { revenue, absorbed, cubesAfter } = sellToMarket(IRON_MARKET, state.ironCubes, tile.resources);
@@ -164,7 +165,7 @@ export function buildOption(state: GameState, player: PlayerId, city: CityId, in
 export function applyBuild(state: GameState, player: PlayerId, option: BuildOption): void {
   if (option.overbuild) {
     const old = state.board[option.city][option.slot]!;
-    log(state, `${playerLabel(state, player)} reconstruyó sobre ${industria(old.industry)} N${old.level} en ${CITIES[option.city].name}.`);
+    logForPlayer(state, player, `reconstruyó sobre ${industria(old.industry)} N${old.level} en ${CITIES[option.city].name}.`);
     state.board[option.city][option.slot] = null;
   }
   if (isPayingPlayer(state, player)) {
@@ -233,7 +234,7 @@ export function applyNetworkSingle(state: GameState, player: PlayerId, option: N
     state.players[player].spent += option.totalCost;
   }
   for (const plan of option.coalPlans) executeCoalPlan(state, plan, player);
-  log(state, `${playerLabel(state, player)} construyó un enlace de ${enlaceTipo(state.era)}: ${linkId}.`);
+  logForPlayer(state, player, `construyó un enlace de ${enlaceTipo(state.era)}: ${linkId}.`);
 }
 
 // ---------------------------------------------------------------- beer
@@ -372,7 +373,7 @@ export function sellBuilding(state: GameState, player: PlayerId, sale: SellableB
   if (isPayingPlayer(state, player)) {
     state.players[player].incomeSpace = bumpSpaces(state.players[player].incomeSpace, spec.incomeBump);
   }
-  log(state, `${playerLabel(state, player)} vendió ${industria(tile.industry)} N${tile.level} en ${CITIES[sale.city].name}.`);
+  logForPlayer(state, player, `vendió ${industria(tile.industry)} N${tile.level} en ${CITIES[sale.city].name}.`);
 }
 
 // ---------------------------------------------------------------- develop / loan / scout / pass
@@ -415,7 +416,7 @@ export function applyDevelop(state: GameState, player: PlayerId, industries: Ind
   if (isPayingPlayer(state, player)) state.players[player].spent += plan.marketCost;
   for (const removal of removals) {
     mat[removal.industry][removal.level - 1] -= 1;
-    log(state, `${playerLabel(state, player)} desarrolló ${industria(removal.industry)} N${removal.level}.`);
+    logForPlayer(state, player, `desarrolló ${industria(removal.industry)} N${removal.level}.`);
   }
 }
 
@@ -424,7 +425,7 @@ export function applyLoan(state: GameState, player: PlayerId): void {
   assert(canTakeLoan(p.incomeSpace), 'Income would drop below -10');
   p.money += LOAN_AMOUNT;
   p.incomeSpace = loanDrop(p.incomeSpace);
-  log(state, `${playerLabel(state, player)} pidió un préstamo de £30 (ingresos ahora ${levelForSpace(p.incomeSpace)}).`);
+  logForPlayer(state, player, `pidió un préstamo de £30 (ingresos ahora ${levelForSpace(p.incomeSpace)}).`);
 }
 
 export function canScout(state: GameState, player: PlayerId): boolean {
@@ -442,5 +443,5 @@ export function applyScout(state: GameState, player: PlayerId, extraDiscards: [n
   hand.splice(a, 1);
   hand.splice(b, 1);
   hand.push({ kind: 'wildLocation' }, { kind: 'wildIndustry' });
-  log(state, `${playerLabel(state, player)} exploró: obtuvo cartas comodín de ubicación e industria.`);
+  logForPlayer(state, player, 'exploró: obtuvo cartas comodín de ubicación e industria.');
 }

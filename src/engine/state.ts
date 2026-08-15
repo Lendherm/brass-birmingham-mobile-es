@@ -1,4 +1,6 @@
 import type { CityId, Era, IndustryType, LocationId, MerchantId, MerchantTileKind, PlayerId } from './types';
+
+export type { PlayerId } from './types';
 import {
   CITIES,
   INDUSTRY_CARDS,
@@ -235,6 +237,12 @@ export function dealSoloHumanDeck(state: GameState): void {
 
 export type AutomaOpponents = 1 | 2 | 3;
 
+const DIFFICULTY_ES: Record<MautomaDifficulty, string> = {
+  easy: 'Fácil',
+  medium: 'Media',
+  hard: 'Difícil',
+};
+
 export function newGame(seed: number, difficulty: MautomaDifficulty, automaOpponents: AutomaOpponents = 1): GameState {
   const playerCount = (1 + automaOpponents) as PlayerCount;
   const rng = makeRng(seed);
@@ -279,7 +287,7 @@ export function newGame(seed: number, difficulty: MautomaDifficulty, automaOppon
   for (let id = 1; id <= automaOpponents; id++) initAutomaPlayer(state, id);
   dealSoloHumanDeck(state);
   state.log.push(
-    `Nueva partida — dificultad ${difficulty}, ${automaOpponents} Automa(s), semilla ${seed}. Comienza la Era Canal.`,
+    `Partida iniciada — ${DIFFICULTY_ES[difficulty]}, ${automaOpponents} Automa(s), semilla ${seed}. Era Canal.`,
   );
   return state;
 }

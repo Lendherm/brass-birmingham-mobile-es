@@ -1,0 +1,115 @@
+/* Forzar layout horizontal/vertical cuando el giro automático del teléfono falla */
+@media (max-width: 900px) {
+  html[data-layout='landscape'] .app.in-game {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 2px 4px 0;
+  }
+
+  html[data-layout='landscape'] .app.in-game .topbar {
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+  }
+
+  html[data-layout='landscape'] .app.in-game .app-title {
+    font-size: 0.85rem;
+    flex: 0 1 auto;
+    max-width: 28vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  html[data-layout='landscape'] .app.in-game .topbar .stat {
+    order: 0;
+    flex: 1 1 auto;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 6px;
+    line-height: 1.2;
+  }
+
+  html[data-layout='landscape'] .game-layout {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 34vw, 320px);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 4px;
+    align-items: stretch;
+  }
+
+  html[data-layout='landscape'] .game-map-zone {
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  html[data-layout='landscape'] .board-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  html[data-layout='landscape'] .board-viewport-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  html[data-layout='landscape'] .board-viewport {
+    flex: 1;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  html[data-layout='landscape'] .board-pan-hint {
+    display: none;
+  }
+
+  html[data-layout='landscape'] .side {
+    order: 0;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 12px;
+    border-left: 1px solid var(--border);
+  }
+
+  html[data-layout='landscape'] .game-play-dock {
+    position: static;
+    z-index: auto;
+    margin: 0;
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: none;
+    background: var(--panel);
+  }
+
+  html[data-layout='landscape'] .toast-stack {
+    bottom: 8px;
+    right: calc(clamp(240px, 34vw, 320px) + 12px);
+    left: 8px;
+  }
+
+  html[data-layout='portrait'] .game-layout {
+    display: flex;
+    flex-direction: column;
+  }
+}

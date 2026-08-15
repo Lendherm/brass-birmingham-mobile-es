@@ -34,6 +34,7 @@ function buildSuggestion(b: BuildChoice, labels: { city: string; industry: strin
 export function computePlaySuggestions(
   state: GameState,
   labelFn: (city: CityId, industry: BuildChoice['option']['industry']) => { city: string; industry: string },
+  refreshSeed = 0,
 ): PlaySuggestion[] {
   if (state.gameOver) return [];
   const player = activePlayer(state);
@@ -118,7 +119,12 @@ export function computePlaySuggestions(
     });
   }
 
-  return out.sort((a, b) => b.priority - a.priority).slice(0, 6);
+  const sorted = out.sort((a, b) => b.priority - a.priority);
+  if (refreshSeed > 0 && sorted.length > 1) {
+    const offset = refreshSeed % sorted.length;
+    return [...sorted.slice(offset), ...sorted.slice(0, offset)].slice(0, 6);
+  }
+  return sorted.slice(0, 6);
 }
 
 export function cityInspectLines(state: GameState, cityId: CityId, industryLabel: (i: string) => string): string[] {

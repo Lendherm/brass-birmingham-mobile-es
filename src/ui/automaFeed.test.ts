@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { classifyGameLog } from '../engine/gameHistory';
 import { newGame } from '../engine/state';
 import { computeEraScoreBreakdown } from '../engine/scoring';
-import { automaFeedLines } from './AutomaFeed';
 
 describe('computeEraScoreBreakdown', () => {
   it('returns zero totals on empty board', () => {
@@ -12,11 +12,12 @@ describe('computeEraScoreBreakdown', () => {
   });
 });
 
-describe('automaFeedLines', () => {
-  it('extracts automa log lines', () => {
+describe('classifyGameLog', () => {
+  it('extracts automa log lines with player id', () => {
     const state = newGame(2, 'easy', 1);
     const automaName = state.playerNames[1];
     state.log.push(`${automaName} construyó un enlace de canal: belper-derby.`);
-    expect(automaFeedLines(state).some((l) => l.includes('belper-derby'))).toBe(true);
+    const line = classifyGameLog(state).find((l) => l.text.includes('belper-derby'));
+    expect(line?.playerId).toBe(1);
   });
 });

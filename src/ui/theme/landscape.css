@@ -115,6 +115,7 @@
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    scroll-padding-bottom: 12px;
     border-left: 1px solid var(--border);
   }
 

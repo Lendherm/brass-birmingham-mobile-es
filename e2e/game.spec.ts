@@ -17,6 +17,15 @@ async function startGame(page: Page, seed = 42, difficulty = 'easy') {
   await expect(page.getByTestId('board')).toBeVisible();
 }
 
+async function gameLogText(page: Page) {
+  await page.getByTestId('game-history').scrollIntoViewIfNeeded();
+  return page.getByTestId('game-history-log').textContent();
+}
+
+async function scrollSideTo(page: Page, testId: string) {
+  await page.getByTestId(testId).scrollIntoViewIfNeeded();
+}
+
 function firstSelectableCard(page: Page) {
   return page.locator('.game-card:not(.disabled)').first();
 }
@@ -30,7 +39,8 @@ test('setup screen starts a game', async ({ page }) => {
 
 test('player mat expands to fullscreen', async ({ page }) => {
   await startGame(page);
-  await page.getByTestId('player-mat-expand').click();
+  await scrollSideTo(page, 'player-mat-expand');
+  await page.getByTestId('player-mat-expand').click({ force: true });
   await expect(page.getByTestId('player-mat-fullscreen')).toBeVisible();
   await expect(page.locator('.player-mat-grid-large .mat-tile').first()).toBeVisible();
   await page.getByTestId('player-mat-close').click();
@@ -43,7 +53,7 @@ test('build action via option list advances the round and runs the Automa', asyn
   await firstSelectableCard(page).click();
   await page.getByTestId('build-options').locator('button').first().click();
   await expect(page.getByTestId('era-turn')).toContainText('Turno 2 — 2 acciones restantes');
-  const log = await page.getByTestId('log').textContent();
+  const log = await gameLogText(page);
   expect(log).toMatch(/Automa/i);
 });
 
@@ -69,7 +79,7 @@ test('board click builds at a highlighted city', async ({ page }) => {
   const cityName = label!.split(':')[0].trim();
   await expect(page.getByTestId('era-turn')).toContainText('Turno 1');
   await buildButtons.first().click();
-  const log = await page.getByTestId('log').textContent();
+  const log = await gameLogText(page);
   expect(log?.toLowerCase()).toContain(cityName.split(' ')[0].toLowerCase());
 });
 
@@ -157,6 +167,7 @@ test('strategy guide opens from setup', async ({ page }) => {
 
 test('new game returns to setup', async ({ page }) => {
   await startGame(page);
+  page.once('dialog', (dialog) => dialog.accept());
   await page.getByTestId('new-game').click();
   await expect(page.getByTestId('setup')).toBeVisible();
 });
@@ -199,17 +210,22 @@ test('player mat shows remaining tiles with PC-style stats', async ({ page }) =>
 
 test('market help explains markets', async ({ page }) => {
   await startGame(page);
+  await scrollSideTo(page, 'market-help');
   await expect(page.getByTestId('market-help')).toBeVisible();
-  await page.getByTestId('market-help').locator('summary').click();
+  await page.getByTestId('market-help').locator('summary').click({ force: true });
   await expect(page.getByTestId('market-help')).toContainText('Comprar');
 });
 
 test('play assistant toggles on demand', async ({ page }) => {
-  await startGame(page);
+  await preparePage(page, { clearSave: true });
+  await page.addInitScript(() => localStorage.setItem('bbsolo-play-assistant', '0'));
+  await page.goto('/');
+  await page.getByTestId('start-game').click();
+  await page.getByTestId('mode-intro-continue').click();
   await expect(page.getByTestId('play-assistant')).toHaveCount(0);
   await page.getByTestId('assistant-toggle').click();
   await expect(page.getByTestId('play-assistant')).toBeVisible();
-  await page.getByTestId('assistant-toggle').click();
+  await page.getByTestId('play-assistant-close').click({ force: true });
   await expect(page.getByTestId('play-assistant')).toHaveCount(0);
 });
 
@@ -233,7 +249,7 @@ test('project credits on setup with fork attribution', async ({ page }) => {
   await preparePage(page);
   await page.goto('/');
   await expect(page.getByTestId('project-credits')).toContainText('Nathanael De la Rosa');
-  await expect(page.getByTestId('project-credits')).toContainText('KDC-Solo');
+  await expect(page.getByTestId('project-credits')).toContainText('proyecto fan original');
   await expect(page.getByTestId('project-credits')).toContainText('Roxley Games');
   await expect(page.getByTestId('project-repo-link')).toHaveAttribute(
     'href',

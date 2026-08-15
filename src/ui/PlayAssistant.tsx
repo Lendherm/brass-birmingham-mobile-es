@@ -10,29 +10,47 @@ import { legalNetworks } from '../engine/options';
 
 interface Props {
   state: GameState;
+  refreshKey?: number;
+  onClose?: () => void;
 }
 
-export function PlayAssistant({ state }: Props) {
+export function PlayAssistant({ state, refreshKey = 0, onClose }: Props) {
   const suggestions = useMemo(
     () =>
-      computePlaySuggestions(state, (city, industry) => ({
-        city: CITIES[city].name,
-        industry: industria(industry),
-      })).map((s) =>
+      computePlaySuggestions(
+        state,
+        (city, industry) => ({
+          city: CITIES[city].name,
+          industry: industria(industry),
+        }),
+        refreshKey,
+      ).map((s) =>
         s.id.startsWith('net-')
           ? { ...s, detail: s.detail.replace('Enlace', linkLabel(s.id.replace('net-', ''))) }
           : s,
       ),
-    [state],
+    [state, refreshKey],
   );
 
   return (
     <div className="panel play-assistant" data-testid="play-assistant">
-      <h3>Asistente de jugadas</h3>
-      <p className="play-assistant-note">Sugerencias según tu dinero, cartas y reglas. No juega por ti.</p>
+      <div className="play-assistant-header">
+        <div>
+          <h3>Asistente de jugadas</h3>
+          <p className="play-assistant-meta">
+            {refreshKey > 0 ? `Actualizado · pulsa Sugerencias de nuevo para rotar` : 'Pulsa Sugerencias arriba para actualizar'}
+          </p>
+        </div>
+        {onClose && (
+          <button type="button" className="play-assistant-close" onClick={onClose} aria-label="Ocultar asistente" data-testid="play-assistant-close">
+            Ocultar
+          </button>
+        )}
+      </div>
+      <p className="play-assistant-note">Ideas según tu dinero, cartas y reglas. No juega por ti.</p>
       <ol className="play-assistant-list">
         {suggestions.map((s) => (
-          <li key={s.id}>
+          <li key={`${s.id}-${refreshKey}`}>
             <strong>{s.action}:</strong> {s.detail}
           </li>
         ))}

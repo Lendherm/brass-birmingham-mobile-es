@@ -4,7 +4,8 @@ import { INDUSTRY_TRACKS } from '../engine/data/industries';
 import { activePlayer, type GameState } from '../engine/state';
 import { industria } from '../i18n/es';
 import { IndustryIcon } from './visual/IndustryIcon';
-import { MatTile } from './visual/MatTile';
+import { MatTile, matTileTitle } from './visual/MatTile';
+import { TapInfoBubble } from './TapInfoBubble';
 
 const MAT_ORDER: IndustryType[] = ['cotton', 'goods', 'pottery', 'coal', 'iron', 'brewery'];
 
@@ -15,30 +16,51 @@ interface Props {
 function PlayerMatGrid({ state, className }: { state: GameState; className?: string }) {
   const player = state.players[activePlayer(state)];
   const era = state.era;
+  const [infoText, setInfoText] = useState<string | null>(null);
 
   return (
-    <div className={['player-mat-grid', className].filter(Boolean).join(' ')}>
-      {MAT_ORDER.map((industry) => {
-        const track = INDUSTRY_TRACKS[industry];
-        const counts = player.mat[industry];
-        const totalLeft = counts.reduce((a, c) => a + c, 0);
-        return (
-          <div key={industry} className={`mat-row ind-${industry}`} aria-label={`${industria(industry)}: ${totalLeft} fichas`}>
-            <div className="mat-row-label">
-              <IndustryIcon industry={industry} size={14} colorful />
-              <span className="mat-row-name">{industria(industry)}</span>
-              <span className="mat-row-total">{totalLeft}</span>
+    <>
+      {era === 'canal' && (
+        <p className="player-mat-era-note">
+          ⛵ Al terminar la <strong>Era Canal</strong> se retiran del tablero las industrias <strong>nivel I</strong> y los
+          enlaces solo canal que no hayas construido.
+        </p>
+      )}
+      <div className={['player-mat-grid', className].filter(Boolean).join(' ')}>
+        {MAT_ORDER.map((industry) => {
+          const track = INDUSTRY_TRACKS[industry];
+          const counts = player.mat[industry];
+          const totalLeft = counts.reduce((a, c) => a + c, 0);
+          return (
+            <div key={industry} className={`mat-row ind-${industry}`} aria-label={`${industria(industry)}: ${totalLeft} fichas`}>
+              <div className="mat-row-label">
+                <IndustryIcon industry={industry} size={14} colorful />
+                <span className="mat-row-name">{industria(industry)}</span>
+                <span className="mat-row-total">{totalLeft}</span>
+              </div>
+              <div className="mat-slots">
+                {track.map((spec) => {
+                  const remaining = counts[spec.level - 1] ?? 0;
+                  const tileInfo = matTileTitle(spec, era, remaining);
+                  return (
+                    <MatTile
+                      key={spec.level}
+                      industry={industry}
+                      spec={spec}
+                      era={era}
+                      remaining={remaining}
+                      infoActive={infoText === tileInfo}
+                      onInfoRequest={setInfoText}
+                    />
+                  );
+                })}
+              </div>
             </div>
-            <div className="mat-slots">
-              {track.map((spec) => {
-                const remaining = counts[spec.level - 1] ?? 0;
-                return <MatTile key={spec.level} industry={industry} spec={spec} era={era} remaining={remaining} />;
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+      <TapInfoBubble text={infoText} onClose={() => setInfoText(null)} />
+    </>
   );
 }
 
