@@ -1,0 +1,57 @@
+.project-credits {
+  margin: 16px auto 8px;
+  max-width: 760px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.project-credits-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.project-credits-lead {
+  margin: 0 0 8px;
+}
+
+.project-credits-lead a,
+.project-credits-meta a {
+  color: var(--accent);
+}
+
+.project-credits-details {
+  margin: 0 0 8px;
+}
+
+.project-credits-details summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.project-credits-details ul {
+  margin: 8px 0 0;
+  padding-left: 1.2rem;
+}
+
+.project-credits-details li {
+  margin-bottom: 4px;
+}
+
+.project-credits-disclaimer {
+  margin: 0 0 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.project-credits-meta {
+  margin: 0;
+  font-size: 12px;
+}

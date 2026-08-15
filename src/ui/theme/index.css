@@ -1,0 +1,12 @@
+@import './variables.css';
+@import './base.css';
+@import './tutorial.css';
+@import './tutorial-coach.css';
+@import './strategy.css';
+@import './setup.css';
+@import './cards.css';
+@import './panels.css';
+@import './board.css';
+@import './mobile.css';
+@import './accessibility.css';
+@import './first-visit.css';

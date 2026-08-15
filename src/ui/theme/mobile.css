@@ -1,0 +1,361 @@
+@media (max-width: 900px) {
+  .app.in-game {
+    padding: 4px 4px 0;
+    max-width: 100%;
+  }
+
+  .app.in-game .footer {
+    display: none;
+  }
+
+  .app.in-game .topbar {
+    gap: 4px;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app.in-game .app-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .app.in-game .topbar .stat {
+    flex: 1 1 100%;
+    order: 10;
+    font-size: 11px;
+    white-space: normal;
+    line-height: 1.3;
+    padding: 4px 8px;
+  }
+
+  .app.in-game .topbar button[data-testid="undo"],
+  .app.in-game .topbar button[data-testid="new-game"] {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .topbar-ingame-tools {
+    display: flex;
+    gap: 4px;
+  }
+
+  .topbar-compact-btn {
+    min-width: 36px;
+    padding: 5px 8px !important;
+    font-size: 16px !important;
+    line-height: 1;
+  }
+
+  .hand-fan .game-card {
+    margin-left: -12px;
+  }
+
+  .game-card-md .game-card-inner {
+    width: 70px;
+    min-height: 92px;
+  }
+
+  .game-card:not(.disabled) {
+    opacity: 1;
+  }
+
+  .game-card.selected {
+    transform: translateY(-12px) scale(1.06);
+    z-index: 8;
+  }
+
+  .game-card.selected .game-card-inner {
+    outline: 3px solid var(--card-select-glow);
+    box-shadow:
+      0 0 10px rgba(90, 176, 192, 0.5),
+      0 0 20px rgba(90, 176, 192, 0.28),
+      var(--card-shadow-lift);
+  }
+
+  .game-card.zone-blueDark.selected .game-card-inner {
+    outline-color: #5a9fd8;
+    box-shadow: 0 0 14px rgba(90, 159, 216, 0.6), 0 0 24px rgba(90, 159, 216, 0.32), var(--card-shadow-lift);
+  }
+
+  .game-card.zone-orange.selected .game-card-inner {
+    outline-color: #c4883a;
+    box-shadow: 0 0 14px rgba(196, 136, 58, 0.55), 0 0 24px rgba(196, 136, 58, 0.28), var(--card-shadow-lift);
+  }
+
+  .game-card.zone-cyan.selected .game-card-inner {
+    outline-color: #5ab0c0;
+    box-shadow: 0 0 14px rgba(90, 176, 192, 0.6), 0 0 24px rgba(90, 176, 192, 0.32), var(--card-shadow-lift);
+  }
+
+  .game-card.zone-red.selected .game-card-inner {
+    outline-color: #e06060;
+    box-shadow: 0 0 14px rgba(224, 96, 96, 0.55), 0 0 24px rgba(224, 96, 96, 0.28), var(--card-shadow-lift);
+  }
+
+  .game-card.zone-purple.selected .game-card-inner {
+    outline-color: #a888d0;
+    box-shadow: 0 0 14px rgba(168, 136, 208, 0.55), 0 0 24px rgba(168, 136, 208, 0.28), var(--card-shadow-lift);
+  }
+
+  .hand-scroll {
+    padding-top: 14px;
+  }
+
+  .app.in-game .topbar .spacer {
+    display: none;
+  }
+
+  .game-layout {
+    gap: 6px;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .game-hud {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .game-hud .player-panel,
+  .game-hud .markets-panel,
+  .game-hud .player-mat {
+    margin: 0;
+    padding: 8px;
+    grid-column: 1 / -1;
+  }
+
+  .player-mat h3 {
+    font-size: 11px;
+  }
+
+  .mat-row-label {
+    font-size: 9px;
+  }
+
+  .mat-tile {
+    width: 48px;
+    height: 60px;
+  }
+
+  .player-header {
+    margin-bottom: 4px;
+  }
+
+  .player-panel .income-track-labels {
+    display: none;
+  }
+
+  .player-card-human .income-track-value {
+    display: none;
+  }
+
+  .player-card-compact .income-track-value {
+    display: block;
+  }
+
+  .player-panel .income-track {
+    margin: 4px 0 6px;
+  }
+
+  .player-panel .income-track-bar {
+    height: 8px;
+  }
+
+  .rivals-row {
+    font-size: 11px;
+    gap: 4px !important;
+  }
+
+  .rivals-row .stat {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+
+  .markets-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .market-strip {
+    padding: 6px;
+  }
+
+  .market-strip-header {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .market-hint {
+    display: none;
+  }
+
+  .market-cube-legend {
+    font-size: 8px;
+    margin: 2px 0 4px;
+  }
+
+  .market-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 6px;
+  }
+
+  .market-stat-label {
+    font-size: 9px;
+  }
+
+  .market-stat-sell .market-stat-value b {
+    font-size: 14px;
+  }
+
+  .market-cubes {
+    gap: 2px;
+  }
+
+  .market-cube {
+    width: 11px;
+    height: 11px;
+  }
+
+  .board-viewport {
+    height: min(38vh, 320px) !important;
+    min-height: 200px !important;
+  }
+
+  .board-pan-hint {
+    display: block;
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .board-zoom-toolbar {
+    opacity: 0.92;
+    transform: scale(0.9);
+    transform-origin: top right;
+  }
+
+  .game-play-dock {
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    margin: 0 -4px;
+    padding: 8px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-radius: 14px 14px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.28);
+  }
+
+  .game-play-dock h3 {
+    font-size: 12px;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .hand-heading {
+    margin-top: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .card-preview {
+    display: none;
+  }
+
+  .action-grid {
+    gap: 4px;
+  }
+
+  .action-tile {
+    min-height: 46px;
+    padding: 4px 2px;
+    border-radius: 8px;
+  }
+
+  .action-icon {
+    font-size: 16px;
+  }
+
+  .action-label {
+    font-size: 9px;
+  }
+
+  .hand-scroll {
+    margin: 0;
+    padding: 6px 0 2px;
+  }
+
+  .option-list {
+    max-height: 130px;
+    margin-top: 6px !important;
+  }
+
+  .log-collapsible {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .log-collapsible summary {
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    list-style: none;
+  }
+
+  .log-collapsible summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .log-collapsible summary::before {
+    content: '▸ ';
+    color: var(--accent);
+  }
+
+  .log-collapsible[open] summary::before {
+    content: '▾ ';
+  }
+
+  .log-collapsible .log {
+    max-height: 100px;
+    padding: 0 10px 8px;
+  }
+
+  .game-layout.tutorial-active .game-play-dock {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tutorial-coach-inner {
+    max-height: min(28vh, 220px);
+    overflow-y: auto;
+  }
+
+  .tutorial-coach-body {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .toast-stack {
+    top: auto;
+    bottom: calc(180px + env(safe-area-inset-bottom, 0px));
+    right: 8px;
+    left: 8px;
+  }
+
+  .toast {
+    text-align: center;
+  }
+}

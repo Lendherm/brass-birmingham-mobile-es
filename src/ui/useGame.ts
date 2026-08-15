@@ -1,0 +1,184 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { newGame, newHotseatGame, isSolo, isTutorial, type AutomaOpponents, type GameState, type PlayerCount } from '../engine/state';
+import { applyPlayerAction, type PlayerAction } from '../engine/game';
+import { newTutorialGame, tutorialSegmentState } from '../engine/tutorial/segments';
+import { INTERACTIVE_TUTORIAL, segmentForStep } from '../engine/tutorial/steps';
+import type { MautomaDifficulty } from '../engine/mautoma/cards';
+
+const SAVE_KEY = 'bbsolo-save-v1';
+
+interface Session {
+  state: GameState;
+  history: GameState[];
+  screenHidden: boolean;
+  tutorialStep: number | null;
+  modeIntroPending: boolean;
+}
+
+function clone(state: GameState): GameState {
+  return structuredClone(state);
+}
+
+export function useGame() {
+  const [session, setSession] = useState<Session | null>(() => {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const state = JSON.parse(raw) as GameState;
+      if (state.mode === 'tutorial') return null;
+      return {
+        state,
+        history: [],
+        screenHidden: state.mode === 'hotseat',
+        tutorialStep: null,
+        modeIntroPending: false,
+      };
+    } catch {
+      return null;
+    }
+  });
+
+  const prevPlayer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (session && !isTutorial(session.state)) {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(session.state));
+    } else if (!session) {
+      localStorage.removeItem(SAVE_KEY);
+    }
+  }, [session]);
+
+  const startSolo = useCallback((seed: number, difficulty: MautomaDifficulty, automaOpponents: AutomaOpponents = 1) => {
+    setSession({
+      state: newGame(seed, difficulty, automaOpponents),
+      history: [],
+      screenHidden: false,
+      tutorialStep: null,
+      modeIntroPending: true,
+    });
+  }, []);
+
+  const startTutorial = useCallback(() => {
+    setSession({ state: newTutorialGame(), history: [], screenHidden: false, tutorialStep: 0, modeIntroPending: false });
+  }, []);
+
+  const advanceTutorial = useCallback(() => {
+    setSession((prev) => {
+      if (!prev || prev.tutorialStep === null) return prev;
+      const nextStep = prev.tutorialStep + 1;
+      const segment = segmentForStep(nextStep);
+      const state = segment ? tutorialSegmentState(segment) : prev.state;
+      return { ...prev, tutorialStep: nextStep, state, history: [] };
+    });
+  }, []);
+
+  const startHotseat = useCallback((seed: number, playerCount: PlayerCount, names: string[]) => {
+    setSession({
+      state: newHotseatGame(seed, playerCount, names),
+      history: [],
+      screenHidden: false,
+      tutorialStep: null,
+      modeIntroPending: true,
+    });
+    prevPlayer.current = null;
+  }, []);
+
+  const revealScreen = useCallback(() => {
+    setSession((prev) => (prev ? { ...prev, screenHidden: false } : prev));
+  }, []);
+
+  const dismissModeIntro = useCallback(() => {
+    setSession((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        modeIntroPending: false,
+        screenHidden: prev.state.mode === 'hotseat',
+      };
+    });
+  }, []);
+
+  const dispatch = useCallback((action: PlayerAction): string | null => {
+    let error: string | null = null;
+    setSession((prev) => {
+      if (!prev || prev.screenHidden) return prev;
+      const next = clone(prev.state);
+      const beforePlayer = next.currentPlayer;
+      try {
+        applyPlayerAction(next, action);
+      } catch (e) {
+        error = e instanceof Error ? e.message : String(e);
+        return prev;
+      }
+      const playerChanged = !isSolo(next) && next.currentPlayer !== beforePlayer;
+      const history = [...prev.history, prev.state].slice(-40);
+      return {
+        state: next,
+        history,
+        screenHidden: playerChanged ? true : prev.screenHidden,
+        tutorialStep: prev.tutorialStep,
+        modeIntroPending: prev.modeIntroPending,
+      };
+    });
+    return error;
+  }, []);
+
+  const undo = useCallback(() => {
+    setSession((prev) => {
+      if (!prev || prev.history.length === 0) return prev;
+      return {
+        state: prev.history[prev.history.length - 1],
+        history: prev.history.slice(0, -1),
+        screenHidden: false,
+        tutorialStep: prev.tutorialStep,
+        modeIntroPending: prev.modeIntroPending,
+      };
+    });
+  }, []);
+
+  const reset = useCallback(() => setSession(null), []);
+
+  const dismissEraScore = useCallback(() => {
+    setSession((prev) => {
+      if (!prev?.state.pendingEraScore) return prev;
+      if (prev.state.pendingEraScore.gameOver) return null;
+      const state = clone(prev.state);
+      state.pendingEraScore = null;
+      return { ...prev, state };
+    });
+  }, []);
+
+  return {
+    state: session?.state ?? null,
+    screenHidden: session?.screenHidden ?? false,
+    tutorialStep: session?.tutorialStep ?? null,
+    tutorialDone: (session?.tutorialStep ?? null) !== null && (session?.tutorialStep ?? 0) >= INTERACTIVE_TUTORIAL.length,
+    canUndo: (session?.history.length ?? 0) > 0 && session?.tutorialStep === null,
+    modeIntroPending: session?.modeIntroPending ?? false,
+    startSolo,
+    startTutorial,
+    advanceTutorial,
+    startHotseat,
+    revealScreen,
+    dismissModeIntro,
+    dispatch,
+    undo,
+    reset,
+    dismissEraScore,
+  };
+}
+
+export function useTheme() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('bbsolo-theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('bbsolo-theme', theme);
+  }, [theme]);
+
+  return { theme, toggle: () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')) };
+}

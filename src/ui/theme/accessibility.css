@@ -1,0 +1,39 @@
+/* Modo texto grande */
+:root[data-a11y='large'] {
+  font-size: 18px;
+}
+
+:root[data-a11y='large'] .app-title {
+  font-size: 1.35rem;
+}
+
+:root[data-a11y='large'] .panel h3,
+:root[data-a11y='large'] .tutorial-coach-title {
+  font-size: 16px;
+}
+
+:root[data-a11y='large'] .game-card-md .game-card-inner {
+  width: 82px;
+  min-height: 108px;
+}
+
+:root[data-a11y='large'] .game-card-title {
+  font-size: 13px;
+}
+
+:root[data-a11y='large'] .action-tile {
+  font-size: 13px;
+  min-height: 52px;
+}
+
+:root[data-a11y='large'] .market-stat-label {
+  font-size: 11px;
+}
+
+:root[data-a11y='large'] .market-stat-value b {
+  font-size: 16px;
+}
+
+:root[data-a11y='large'] .tutorial-coach-body {
+  font-size: 16px;
+}

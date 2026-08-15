@@ -1,0 +1,85 @@
+.strategy-panel {
+  max-width: min(780px, 96vw) !important;
+  width: min(780px, 96vw);
+}
+
+.strategy-layout .tutorial-content {
+  max-height: min(55vh, 480px);
+}
+
+.strategy-subtitle {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.strategy-section {
+  margin-bottom: 14px;
+}
+
+.strategy-section h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.strategy-body {
+  line-height: 1.5;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.strategy-quick-tips {
+  padding: 8px 16px;
+  font-size: 13px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.strategy-tips-label {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.strategy-page-dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+  max-width: 220px;
+}
+
+.setup-guides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.setup-guides .primary {
+  flex: 1;
+  min-width: 160px;
+}
+
+.game-layout.tutorial-active .side {
+  padding-bottom: 140px;
+}
+
+@media (max-width: 900px) {
+  .game-layout.tutorial-active .side {
+    padding-bottom: 180px;
+  }
+
+  .strategy-layout .tutorial-content {
+    max-height: min(48vh, 400px);
+  }
+
+  .strategy-page-dots {
+    display: none;
+  }
+}

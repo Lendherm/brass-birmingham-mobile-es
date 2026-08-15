@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Engranaje industrial (Brass) -->
+    <path
+        android:fillColor="#D4A054"
+        android:pathData="M54,34a8,8 0,1 1,0 16a8,8 0,1 1,0 -16z" />
+    <path
+        android:fillColor="#D4A054"
+        android:pathData="M51,28h6v8h-6zM51,52h6v8h-6zM28,51h8v6h-8zM72,51h8v6h-8z" />
+    <path
+        android:fillColor="#D4A054"
+        android:pathData="M51,28h6v8h-6zM51,52h6v8h-6zM28,51h8v6h-8zM72,51h8v6h-8z"
+        android:rotation="45"
+        android:pivotX="54"
+        android:pivotY="44" />
+    <path
+        android:fillColor="#16141F"
+        android:pathData="M54,39a5,5 0,1 1,0 10a5,5 0,1 1,0 -10z" />
+    <!-- Canal / era acuática -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#60A5FA"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M24,72 Q54,62 84,72" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M28,78 Q54,70 80,78"
+        android:strokeAlpha="0.55" />
+</vector>

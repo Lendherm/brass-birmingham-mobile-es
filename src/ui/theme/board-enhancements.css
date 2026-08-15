@@ -1,0 +1,125 @@
+/* Zone-tinted location cards — light (day) by default, dark when theme is dark */
+.game-card.zone-orange .game-card-inner {
+  background: #fff4e6;
+  border-color: #c4883a;
+  color: #5c3d1e;
+}
+
+.game-card.zone-blueDark .game-card-inner {
+  background: #e8f0ff;
+  border-color: #3a6898;
+  color: #1e3a5f;
+}
+
+.game-card.zone-cyan .game-card-inner {
+  background: #e6f7fa;
+  border-color: #5ab0c0;
+  color: #1a4048;
+}
+
+.game-card.zone-red .game-card-inner {
+  background: #ffecec;
+  border-color: #a84848;
+  color: #5c2020;
+}
+
+.game-card.zone-purple .game-card-inner {
+  background: #f3ecff;
+  border-color: #9078b0;
+  color: #3d2858;
+}
+
+:root[data-theme='dark'] .game-card.zone-orange .game-card-inner {
+  background: #3d3020;
+  border-color: #c4883a;
+  color: #fff8eb;
+}
+
+:root[data-theme='dark'] .game-card.zone-blueDark .game-card-inner {
+  background: #1a2840;
+  border-color: #3a6898;
+  color: #e8f0ff;
+}
+
+:root[data-theme='dark'] .game-card.zone-cyan .game-card-inner {
+  background: #1a3038;
+  border-color: #5ab0c0;
+  color: #e8ffff;
+}
+
+:root[data-theme='dark'] .game-card.zone-red .game-card-inner {
+  background: #301818;
+  border-color: #a84848;
+  color: #ffe8e8;
+}
+
+:root[data-theme='dark'] .game-card.zone-purple .game-card-inner {
+  background: #281838;
+  border-color: #9078b0;
+  color: #f0e8ff;
+}
+
+.game-card-zone-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  border-radius: 8px 8px 0 0;
+}
+
+.location-slot-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 3px;
+  max-width: 100%;
+}
+
+.location-slot-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--board-slot-empty-fill, #ffffff);
+  border: 1px solid var(--board-slot-border);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+:root[data-theme='dark'] .location-slot-cell {
+  background: #3a3848;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.location-slot-icons-sm .location-slot-cell {
+  min-width: 14px;
+  min-height: 14px;
+}
+
+.location-slot-icons-md .location-slot-cell {
+  min-width: 16px;
+  min-height: 16px;
+}
+
+.zone-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.zone-legend-chip {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.board-city-selected rect:first-of-type {
+  filter: drop-shadow(0 0 6px var(--card-select-glow));
+}

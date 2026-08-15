@@ -1,0 +1,16 @@
+.first-visit-banner {
+  margin-bottom: 10px;
+  border: 1px solid var(--accent);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+}
+
+.first-visit-banner p {
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.first-visit-banner .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

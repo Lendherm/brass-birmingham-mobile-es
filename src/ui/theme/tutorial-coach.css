@@ -1,0 +1,88 @@
+/* Interactive tutorial coach */
+.tutorial-coach {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.tutorial-coach-inner {
+  pointer-events: auto;
+  max-width: 560px;
+  margin: 0 auto;
+  box-shadow: 0 -4px 24px rgb(0 0 0 / 25%);
+  border: 2px solid var(--accent);
+}
+
+.tutorial-coach-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.tutorial-coach-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.tutorial-skip {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.tutorial-coach-title {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.tutorial-coach-body {
+  margin: 0;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.tutorial-coach-hint {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.tutorial-continue {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.tutorial-live-badge {
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+
+.tutorial-focus {
+  outline: 3px solid var(--highlight) !important;
+  outline-offset: 2px;
+  animation: tutorial-pulse 1.1s ease-in-out infinite;
+}
+
+.tutorial-focus[data-testid='board-viewport'],
+.tutorial-focus[data-testid='board'] {
+  outline-offset: 0;
+  z-index: auto;
+}
+
+@keyframes tutorial-pulse {
+  0%,
+  100% {
+    outline-color: var(--highlight);
+  }
+  50% {
+    outline-color: var(--accent);
+  }
+}
