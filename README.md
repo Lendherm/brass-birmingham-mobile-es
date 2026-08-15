@@ -34,6 +34,10 @@ cd android && ./gradlew.bat assembleDebug   # Windows
 
 Requiere **JDK 21** para compilar con Capacitor 8.
 
+## Descargar APK
+
+Instala la última versión desde [GitHub Releases](https://github.com/Lendherm/brass-birmingham-mobile-es/releases/latest) (archivo `Brass-Birmingham-Edicion-Movil.apk`).
+
 ## Créditos y aviso legal
 
 - **Brass: Birmingham** — Gavan Brown, Matt Tolman, Martin Wallace · [Roxley Games](https://roxley.com).

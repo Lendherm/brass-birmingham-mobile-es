@@ -8,11 +8,27 @@ export function ProjectCredits() {
         Acerca de este proyecto
       </h3>
       <p className="project-credits-lead">
-        Versión mejorada por <strong>{AUTHOR_NAME}</strong> (
+        <strong>Brass Birmingham — Edición Móvil (ES)</strong> · versión mejorada por{' '}
+        <strong>{AUTHOR_NAME}</strong> (
         <a href={AUTHOR_GITHUB} target="_blank" rel="noreferrer">
           @{AUTHOR_GITHUB.split('/').pop()}
         </a>
-        ). Basada en el{' '}
+        ).
+      </p>
+      <p className="project-credits-repo">
+        Repositorio público:{' '}
+        <a href={THIS_REPO} target="_blank" rel="noreferrer" data-testid="project-repo-link">
+          {THIS_REPO.replace('https://', '')}
+        </a>
+      </p>
+      <p className="project-credits-repo">
+        <a href={`${THIS_REPO}/releases/latest`} target="_blank" rel="noreferrer" data-testid="project-apk-link">
+          Descargar APK Android
+        </a>{' '}
+        · Código abierto en GitHub
+      </p>
+      <p className="project-credits-upstream">
+        Basado en el{' '}
         <a href={UPSTREAM_REPO} target="_blank" rel="noreferrer">
           proyecto fan original
         </a>{' '}
@@ -29,12 +45,7 @@ export function ProjectCredits() {
       <p className="project-credits-disclaimer">
         Proyecto fan no oficial · Sin afiliación a Roxley Games · Variante solo Mautoma (Mauro Gibertoni).
       </p>
-      <p className="project-credits-meta">
-        v{__APP_VERSION__} ·{' '}
-        <a href={THIS_REPO} target="_blank" rel="noreferrer" data-testid="project-repo-link">
-          Código en GitHub
-        </a>
-      </p>
+      <p className="project-credits-meta">v{__APP_VERSION__}</p>
     </section>
   );
 }

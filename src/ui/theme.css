@@ -4273,8 +4273,21 @@ button.selected {
 }
 
 .project-credits-lead a,
+.project-credits-repo a,
+.project-credits-upstream a,
 .project-credits-meta a {
   color: var(--accent);
+}
+
+.project-credits-repo {
+  margin: 0 0 6px;
+  word-break: break-word;
+}
+
+.project-credits-upstream {
+  margin: 0 0 8px;
+  font-size: 12px;
+  opacity: 0.92;
 }
 
 .project-credits-details {
