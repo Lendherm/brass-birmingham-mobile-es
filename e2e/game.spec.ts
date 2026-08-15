@@ -235,7 +235,7 @@ test('project credits on setup with fork attribution', async ({ page }) => {
   await expect(page.getByTestId('project-credits')).toContainText('Nathanael De la Rosa');
   await expect(page.getByTestId('project-credits')).toContainText('KDC-Solo');
   await expect(page.getByTestId('project-credits')).toContainText('Roxley Games');
-  await expect(page.getByTestId('project-repo-link')).toHaveAttribute('href', /Lendherm\/brass-birmingham-solo/);
+  await expect(page.getByTestId('project-repo-link')).toHaveAttribute('href', /Lendherm\/brass-birmingham-mobile-es/);
   await expect(page.getByTestId('project-credits')).toContainText(/v\d+\.\d+\.\d+/);
   await startGame(page);
   await expect(page.getByTestId('project-credits')).toHaveCount(0);

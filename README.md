@@ -1,11 +1,13 @@
-# Brass Birmingham Solo (Español)
+# Brass Birmingham — Edición Móvil (ES)
 
 Versión móvil en español de **Brass: Birmingham** contra la **Mautoma**, con interfaz optimizada para teléfono y APK Android.
 
-**Autor de esta versión:** [Nathanael De la Rosa](https://github.com/Lendherm)  
+**App:** Brass Móvil ES  
+**Autor:** [Nathanael De la Rosa](https://github.com/Lendherm)  
+**Repositorio:** [Lendherm/brass-birmingham-mobile-es](https://github.com/Lendherm/brass-birmingham-mobile-es)  
 **Basado en:** [KDC-Solo/brass-birmingham](https://github.com/KDC-Solo/brass-birmingham) (motor fan en inglés)
 
-## Qué añade este fork
+## Qué añade esta edición
 
 - Interfaz completa en español y diseño móvil (vertical y horizontal).
 - APK Android (Capacitor), icono propio, modo oscuro y texto grande.

@@ -38,6 +38,7 @@ import { ACCIONES, DEFAULT_PLAYER_NAMES, PLAYER_COLORS, type AccionId, eraNombre
 import { industryCssClass } from './ui/visual/industryTheme';
 import { ProjectCredits } from './ui/ProjectCredits';
 import { setupModeCards } from './i18n/gameModes';
+import { APP_NAME_SHORT } from './i18n/projectMeta';
 
 type SetupMode = 'solo' | 'hotseat';
 
@@ -50,7 +51,7 @@ export default function App() {
   return (
     <div className={`app${game.state && !game.screenHidden ? ' in-game' : ''}`}>
       <div className="topbar">
-        <h1 className="app-title">Brass Birmingham</h1>
+        <h1 className="app-title">{APP_NAME_SHORT}</h1>
         {game.state && !game.screenHidden && (
           <>
             <span className={`era-badge era-${game.state.era}`} data-testid="era-badge">

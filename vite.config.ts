@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
-        name: 'Brass Birmingham Solo',
-        short_name: 'Brass Solo',
+        name: 'Brass Birmingham — Edición Móvil (ES)',
+        short_name: 'Brass Móvil ES',
         description: 'Brass: Birmingham en solitario contra la Mautoma — español.',
         lang: 'es',
         theme_color: '#8a5a2b',
