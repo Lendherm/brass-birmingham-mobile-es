@@ -17,6 +17,7 @@ interface Session {
   tutorialStep: number | null;
   modeIntroPending: boolean;
   coachFeedback: CoachFeedback | null;
+  coachHistory: CoachFeedback[];
 }
 
 function clone(state: GameState): GameState {
@@ -37,6 +38,7 @@ export function useGame() {
         tutorialStep: null,
         modeIntroPending: false,
         coachFeedback: null,
+        coachHistory: [],
       };
     } catch {
       return null;
@@ -61,11 +63,20 @@ export function useGame() {
       tutorialStep: null,
       modeIntroPending: true,
       coachFeedback: null,
+      coachHistory: [],
     });
   }, []);
 
   const startTutorial = useCallback(() => {
-    setSession({ state: newTutorialGame(), history: [], screenHidden: false, tutorialStep: 0, modeIntroPending: false, coachFeedback: null });
+    setSession({
+      state: newTutorialGame(),
+      history: [],
+      screenHidden: false,
+      tutorialStep: 0,
+      modeIntroPending: false,
+      coachFeedback: null,
+      coachHistory: [],
+    });
   }, []);
 
   const advanceTutorial = useCallback(() => {
@@ -74,7 +85,7 @@ export function useGame() {
       const nextStep = prev.tutorialStep + 1;
       const segment = segmentForStep(nextStep);
       const state = segment ? tutorialSegmentState(segment) : prev.state;
-      return { ...prev, tutorialStep: nextStep, state, history: [], coachFeedback: null };
+      return { ...prev, tutorialStep: nextStep, state, history: [], coachFeedback: null, coachHistory: prev.coachHistory };
     });
   }, []);
 
@@ -88,6 +99,7 @@ export function useGame() {
       tutorialStep: null,
       modeIntroPending: true,
       coachFeedback: null,
+      coachHistory: [],
     });
   }, []);
 
@@ -99,6 +111,7 @@ export function useGame() {
       tutorialStep: null,
       modeIntroPending: true,
       coachFeedback: null,
+      coachHistory: [],
     });
     prevPlayer.current = null;
   }, []);
@@ -125,8 +138,10 @@ export function useGame() {
       if (isVsAI(prev.state) && prev.state.currentPlayer !== 0) return prev;
       const before = prev.state;
       let coachFeedback: CoachFeedback | null = prev.coachFeedback;
+      let coachHistory = prev.coachHistory;
       if (shouldCoachHuman(before)) {
         coachFeedback = compareCoachMove(before, action);
+        coachHistory = [...coachHistory, coachFeedback];
       }
       const next = clone(before);
       const beforePlayer = next.currentPlayer;
@@ -145,6 +160,7 @@ export function useGame() {
         tutorialStep: prev.tutorialStep,
         modeIntroPending: prev.modeIntroPending,
         coachFeedback,
+        coachHistory,
       };
     });
     return error;
@@ -160,6 +176,7 @@ export function useGame() {
         tutorialStep: prev.tutorialStep,
         modeIntroPending: prev.modeIntroPending,
         coachFeedback: null,
+        coachHistory: prev.coachHistory.slice(0, -1),
       };
     });
   }, []);
@@ -189,6 +206,7 @@ export function useGame() {
     canUndo: (session?.history.length ?? 0) > 0 && session?.tutorialStep === null,
     modeIntroPending: session?.modeIntroPending ?? false,
     coachFeedback: session?.coachFeedback ?? null,
+    coachHistory: session?.coachHistory ?? [],
     startSolo,
     startVsAI,
     startTutorial,

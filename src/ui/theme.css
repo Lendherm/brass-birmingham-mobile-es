@@ -4233,6 +4233,76 @@ button.selected {
   font-size: 11px;
 }
 
+.training-summary {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.training-summary h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.training-summary-meta {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.training-summary-bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.training-bar {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.training-bar-excellent {
+  background: color-mix(in srgb, #3a9d5c 18%, var(--panel));
+  color: #3a9d5c;
+}
+
+.training-bar-good {
+  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
+}
+
+.training-bar-ok {
+  background: color-mix(in srgb, #c9a227 15%, var(--panel));
+}
+
+.training-bar-mistake {
+  background: color-mix(in srgb, #c45c4a 15%, var(--panel));
+  color: #c45c4a;
+}
+
+.training-summary-issues ul,
+.training-summary-moves ol {
+  margin: 4px 0 0;
+  padding-left: 1.2rem;
+  font-size: 12px;
+}
+
+.training-career {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.training-career p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
 @media (max-width: 900px) {
   .app.in-game {
     padding: 4px 4px 0;

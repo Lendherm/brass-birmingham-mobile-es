@@ -1,18 +1,53 @@
-import { useEffect } from 'react';
-import type { PendingEraScore } from '../engine/state';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { CoachFeedback } from '../engine/ai/coach';
+import {
+  loadCareerStats,
+  summarizeSession,
+  updateCareerAfterGame,
+  type TrainingCareerStats,
+} from '../engine/ai/trainingStats';
+import { HUMAN, type PendingEraScore } from '../engine/state';
 import { eraNombre } from '../i18n/es';
 import { playEraSound, playVpSound } from './visual/sounds';
+import { TrainingSummaryPanel } from './TrainingSummaryPanel';
 
 interface Props {
   score: PendingEraScore;
+  coachHistory: CoachFeedback[];
   onDismiss: () => void;
 }
 
-export function EraScoreOverlay({ score, onDismiss }: Props) {
+function trainingResult(score: PendingEraScore): 'win' | 'loss' | 'tie' {
+  if (!score.ranking?.length) return 'loss';
+  const winner = score.ranking[0];
+  const you = score.ranking.find((r) => r.label === score.lines[HUMAN]?.label);
+  if (!you) return 'loss';
+  if (you.vp === winner.vp && score.ranking.filter((r) => r.vp === winner.vp).length === 1 && you.label === winner.label) {
+    return 'win';
+  }
+  if (you.vp === winner.vp) return 'tie';
+  return 'loss';
+}
+
+export function EraScoreOverlay({ score, coachHistory, onDismiss }: Props) {
+  const [career, setCareer] = useState<TrainingCareerStats>(() => loadCareerStats());
+  const careerUpdated = useRef(false);
+
+  const sessionSummary = useMemo(
+    () => (coachHistory.length > 0 ? summarizeSession(coachHistory) : null),
+    [coachHistory],
+  );
+
   useEffect(() => {
     playEraSound();
     playVpSound();
   }, []);
+
+  useEffect(() => {
+    if (!score.gameOver || !sessionSummary || careerUpdated.current) return;
+    careerUpdated.current = true;
+    setCareer(updateCareerAfterGame(sessionSummary, trainingResult(score)));
+  }, [score.gameOver, score, sessionSummary]);
 
   const title = score.gameOver
     ? `Fin de partida — Era ${eraNombre(score.era)}`
@@ -60,6 +95,8 @@ export function EraScoreOverlay({ score, onDismiss }: Props) {
             ))}
           </ol>
         )}
+
+        {score.gameOver && sessionSummary && <TrainingSummaryPanel session={sessionSummary} career={career} />}
 
         <button type="button" className="primary era-score-continue" onClick={onDismiss} data-testid="era-score-continue">
           {score.gameOver ? 'Volver al menú' : 'Continuar era Ferrocarril'}

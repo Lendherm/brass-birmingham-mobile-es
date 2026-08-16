@@ -177,6 +177,7 @@ export default function App() {
           dispatch={game.dispatch}
           coachFeedback={game.coachFeedback}
           coachEnabled={coachEnabled}
+          coachHistory={game.coachHistory}
           onDismissCoach={game.dismissCoachFeedback}
           tutorialStep={game.tutorialStep}
           tutorialDone={game.tutorialDone}
@@ -373,6 +374,7 @@ function GameScreen({
   dispatch,
   coachFeedback,
   coachEnabled,
+  coachHistory,
   onDismissCoach,
   tutorialStep,
   tutorialDone,
@@ -388,6 +390,7 @@ function GameScreen({
   dispatch: (a: PlayerAction) => string | null;
   coachFeedback: import('./engine/ai/coach').CoachFeedback | null;
   coachEnabled: boolean;
+  coachHistory: import('./engine/ai/coach').CoachFeedback[];
   onDismissCoach: () => void;
   tutorialStep: number | null;
   tutorialDone: boolean;
@@ -711,7 +714,11 @@ function GameScreen({
       {tutorialDone && <TutorialCompleteOverlay onPlay={onReset} onSetup={onReset} />}
 
       {state.pendingEraScore && (
-        <EraScoreOverlay score={state.pendingEraScore} onDismiss={state.pendingEraScore.gameOver ? onReset : onDismissEraScore} />
+        <EraScoreOverlay
+          score={state.pendingEraScore}
+          coachHistory={coachHistory}
+          onDismiss={state.pendingEraScore.gameOver ? onReset : onDismissEraScore}
+        />
       )}
 
       {state.gameOver && !inTutorial && !state.pendingEraScore && <GameOverOverlay state={state} />}
