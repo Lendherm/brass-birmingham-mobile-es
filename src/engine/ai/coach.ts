@@ -30,6 +30,8 @@ export interface CoachFeedback {
   bestReasons: string[];
   alternatives: { label: string; score: number }[];
   beliefHint?: string | null;
+  /** 0–100 how clearly the coach prefers the best line over alternatives. */
+  confidence: number;
 }
 
 function actionTypeLabel(type: PlayerAction['type']): string {
@@ -161,6 +163,15 @@ function summaryFor(verdict: CoachVerdict, delta: number, best: ScoredAction): s
   }
 }
 
+function computeCoachConfidence(ranked: ScoredAction[], best: ScoredAction): number {
+  const sorted = [...ranked].sort((a, b) => b.score - a.score);
+  const second = sorted.find((c) => !actionsMatch(c.action, best.action));
+  const gap = Math.max(0, best.score - (second?.score ?? best.score - 10));
+  const gapScore = Math.min(45, gap * 4);
+  const valueScore = best.score >= 18 ? 18 : best.score >= 10 ? 12 : best.score >= 5 ? 6 : 0;
+  return Math.min(100, Math.max(30, Math.round(32 + gapScore + valueScore)));
+}
+
 /** Compare human move (before applying) with coach / AI best line. */
 export function compareCoachMove(state: GameState, humanAction: PlayerAction): CoachFeedback {
   const player = activePlayer(state);
@@ -201,6 +212,7 @@ export function compareCoachMove(state: GameState, humanAction: PlayerAction): C
     bestReasons: reasonsForAction(state, best, player),
     alternatives: alts,
     beliefHint: beliefHintForHuman(state),
+    confidence: computeCoachConfidence(ranked, best),
   };
 }
 

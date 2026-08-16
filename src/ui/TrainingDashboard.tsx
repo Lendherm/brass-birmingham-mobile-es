@@ -2,13 +2,14 @@ import { useState } from 'react';
 import type { AIDifficulty } from '../engine/ai/types';
 import {
   loadCareerStats,
+  loadWeeklyGoalSettings,
   mistakeRate,
+  saveWeeklyGoalSettings,
   topWeaknesses,
-  WEEKLY_GOAL_GAMES,
-  WEEKLY_GOAL_MAX_MISTAKE_RATE,
   weeklyGoalSummary,
   winRate,
   type TrainingCareerStats,
+  type WeeklyGoalSettings,
 } from '../engine/ai/trainingStats';
 import { loadTrainingReplay } from '../engine/training/replay';
 import { recommendedWeaknessDrill } from '../engine/training/weaknessDrills';
@@ -30,11 +31,17 @@ interface Props {
 
 export function TrainingDashboardModal({ open, onClose, onStartWeaknessDrill }: Props) {
   const [career] = useState<TrainingCareerStats>(() => loadCareerStats());
+  const [goalSettings, setGoalSettings] = useState<WeeklyGoalSettings>(() => loadWeeklyGoalSettings());
   const [reviewOpen, setReviewOpen] = useState(false);
   const weaknesses = topWeaknesses(career);
-  const weekly = weeklyGoalSummary(career.weekly);
+  const weekly = weeklyGoalSummary(career.weekly, goalSettings);
   const drill = recommendedWeaknessDrill(career);
   const savedReplay = loadTrainingReplay();
+
+  const persistGoals = (next: WeeklyGoalSettings) => {
+    setGoalSettings(next);
+    saveWeeklyGoalSettings(next);
+  };
 
   if (!open) return null;
 
@@ -71,15 +78,68 @@ export function TrainingDashboardModal({ open, onClose, onStartWeaknessDrill }: 
 
           <section className="training-dashboard-section" data-testid="weekly-goals">
             <h3>Metas semanales ({career.weekly.weekId})</h3>
+            <div className="weekly-goals-settings">
+              <label>
+                Partidas vs IA
+                <input
+                  type="number"
+                  min={1}
+                  max={14}
+                  value={goalSettings.targetGames}
+                  onChange={(e) =>
+                    persistGoals({ ...goalSettings, targetGames: Math.max(1, Number(e.target.value) || 1) })
+                  }
+                  data-testid="goal-target-games"
+                />
+              </label>
+              <label>
+                Error máximo (%)
+                <input
+                  type="number"
+                  min={5}
+                  max={40}
+                  value={goalSettings.maxMistakeRate}
+                  onChange={(e) =>
+                    persistGoals({
+                      ...goalSettings,
+                      maxMistakeRate: Math.min(40, Math.max(5, Number(e.target.value) || 15)),
+                    })
+                  }
+                  data-testid="goal-max-mistake"
+                />
+              </label>
+              <label>
+                Victorias vs Torneo
+                <input
+                  type="number"
+                  min={0}
+                  max={7}
+                  value={goalSettings.targetTournamentWins}
+                  onChange={(e) =>
+                    persistGoals({
+                      ...goalSettings,
+                      targetTournamentWins: Math.max(0, Number(e.target.value) || 0),
+                    })
+                  }
+                  data-testid="goal-tournament-wins"
+                />
+              </label>
+            </div>
             <ul className="training-dashboard-goals">
               <li className={weekly.gamesMet ? 'goal-met' : ''}>
-                Jugar {WEEKLY_GOAL_GAMES} partidas vs IA — {career.weekly.gamesPlayed}/{WEEKLY_GOAL_GAMES}
+                Jugar {goalSettings.targetGames} partidas — {career.weekly.gamesPlayed}/{goalSettings.targetGames}
                 {weekly.gamesLeft > 0 ? ` (faltan ${weekly.gamesLeft})` : ' ✓'}
               </li>
               <li className={weekly.accuracyMet ? 'goal-met' : ''}>
-                Mantener error ≤{WEEKLY_GOAL_MAX_MISTAKE_RATE}% — actual {weekly.mistakeRate}%
+                Error ≤{goalSettings.maxMistakeRate}% — actual {weekly.mistakeRate}%
                 {weekly.accuracyMet ? ' ✓' : career.weekly.moves < 5 ? ' (mín. 5 jugadas)' : ''}
               </li>
+              {goalSettings.targetTournamentWins > 0 && (
+                <li className={weekly.tournamentMet ? 'goal-met' : ''}>
+                  Victorias Torneo — {career.weekly.tournamentWins}/{goalSettings.targetTournamentWins}
+                  {weekly.tournamentLeft > 0 ? ` (faltan ${weekly.tournamentLeft})` : ' ✓'}
+                </li>
+              )}
             </ul>
           </section>
 

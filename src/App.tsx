@@ -47,7 +47,9 @@ import { TapInfoBubble } from './ui/TapInfoBubble';
 import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
 import { TRAINING_SCENARIOS, trainingScenarioMeta, type TrainingScenarioId } from './engine/training/scenarios';
+import { buildTrainingReplay } from './engine/training/replay';
 import { loadLastVsAISeed } from './engine/ai/trainingStats';
+import { TrainingReviewOverlay } from './ui/TrainingReviewOverlay';
 import { APP_NAME_SHORT } from './i18n/projectMeta';
 
 type SetupMode = 'solo' | 'vsAI' | 'hotseat';
@@ -511,6 +513,11 @@ function GameScreen({
 }) {
   const inTutorial = tutorialStep !== null && isTutorial(state);
   const humanTurn = !isVsAI(state) || state.currentPlayer === HUMAN;
+  const [liveReviewOpen, setLiveReviewOpen] = useState(false);
+  const liveReplay = useMemo(
+    () => buildTrainingReplay(coachHistory, replaySnapshots),
+    [coachHistory, replaySnapshots],
+  );
   const [inspectCity, setInspectCity] = useState<CityId | null>(null);
   const [inspectMerchant, setInspectMerchant] = useState<MerchantId | null>(null);
   const [mapInfo, setMapInfo] = useState<string | null>(null);
@@ -566,6 +573,9 @@ function GameScreen({
 
   return (
     <>
+      {liveReviewOpen && liveReplay && (
+        <TrainingReviewOverlay replay={liveReplay} onClose={() => setLiveReviewOpen(false)} />
+      )}
       <div className={`game-layout map-locked-layout${inTutorial ? ' tutorial-active' : ''}`}>
         <div className="game-map-zone board-wrap map-locked">
           <PanZoomBoard viewRevision={(tutorial.stepIndex ?? 0) + (focusCity ? 500 : 0)} viewTarget={boardViewTarget}>
@@ -637,6 +647,16 @@ function GameScreen({
             <PlayerPanel state={state} />
             {coachEnabled && coachFeedback && isVsAI(state) && !inTutorial && (
               <CoachPanel feedback={coachFeedback} onDismiss={onDismissCoach} />
+            )}
+            {isVsAI(state) && !inTutorial && coachHistory.length > 0 && (
+              <button
+                type="button"
+                className="training-live-review-btn"
+                onClick={() => setLiveReviewOpen(true)}
+                data-testid="live-training-review"
+              >
+                📋 Repaso en partida ({coachHistory.length})
+              </button>
             )}
             <CanalEraSidebarWarning state={state} />
             <ZoneLegend />

@@ -21,17 +21,21 @@ function mockCareer(weaknessCounts: Record<string, number>): TrainingCareerStats
     },
     weaknessCounts,
     recentMistakes: [],
-    weekly: { weekId: '2026-W33', gamesPlayed: 1, moves: 10, mistakes: 2, wins: 0 },
+    weekly: { weekId: '2026-W33', gamesPlayed: 1, moves: 10, mistakes: 2, wins: 0, tournamentWins: 0 },
   };
 }
 
 describe('weaknessDrills', () => {
-  it('maps pass weakness to sell-or-build scenario', () => {
-    expect(drillScenarioForWeakness('pass')).toBe('sell-or-build');
+  it('maps pass weakness to pass-tempo scenario', () => {
+    expect(drillScenarioForWeakness('pass')).toBe('pass-tempo');
   });
 
   it('maps sell weakness to beer scarcity', () => {
     expect(drillScenarioForWeakness('sell')).toBe('beer-scarcity');
+  });
+
+  it('maps network weakness to dedicated scenario', () => {
+    expect(drillScenarioForWeakness('network')).toBe('network-timing');
   });
 
   it('recommends drill from top career weakness', () => {

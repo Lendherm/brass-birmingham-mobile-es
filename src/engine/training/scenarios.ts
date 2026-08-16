@@ -6,7 +6,11 @@ export type TrainingScenarioId =
   | 'canal-countdown'
   | 'sell-or-build'
   | 'beer-scarcity'
-  | 'rail-flip-race';
+  | 'rail-flip-race'
+  | 'pass-tempo'
+  | 'network-timing'
+  | 'develop-mat'
+  | 'wild-spot';
 
 export interface TrainingScenarioMeta {
   id: TrainingScenarioId;
@@ -39,6 +43,30 @@ export const TRAINING_SCENARIOS: TrainingScenarioMeta[] = [
     id: 'rail-flip-race',
     title: 'Carrera de ingresos',
     objective: 'Era Ferrocarril: industria volteada lista para vender vs desarrollar el tapete para subir ingresos.',
+    recommendedAi: 'hard',
+  },
+  {
+    id: 'pass-tempo',
+    title: 'No pasar',
+    objective: 'Tienes venta clara y construcción rentable: pasar cede tempo y PV en plena era Canal.',
+    recommendedAi: 'medium',
+  },
+  {
+    id: 'network-timing',
+    title: 'Ventana de enlace',
+    objective: 'Un enlace barato abre mercado y ventas; el rival aún no bloquea la casilla clave.',
+    recommendedAi: 'medium',
+  },
+  {
+    id: 'develop-mat',
+    title: 'Desarrollar tapete',
+    objective: 'Sube carbón en el tapete antes de volver a construir: el ingreso futuro compensa.',
+    recommendedAi: 'hard',
+  },
+  {
+    id: 'wild-spot',
+    title: 'Comodín bien gastado',
+    objective: 'Wild industry en mano con hueco premium en Birmingham: no lo uses en un sitio secundario.',
     recommendedAi: 'hard',
   },
 ];
@@ -189,6 +217,69 @@ function setupRailFlipRace(state: GameState): void {
   state.log.push('Escenario: era Ferrocarril — vender carbón volteado o desarrollar el tapete.');
 }
 
+function setupPassTempo(state: GameState): void {
+  setupSellOrBuild(state);
+  state.actionsLeft = 1;
+  state.log.push('Escenario drill: pasar aquí suele ser un error claro.');
+}
+
+function setupNetworkTiming(state: GameState): void {
+  state.era = 'canal';
+  state.turn = 3;
+  state.firstTurnOfGame = false;
+  state.actionsLeft = 1;
+  state.currentPlayer = HUMAN;
+  state.board = emptyBoard();
+  state.links = {};
+  state.players[HUMAN].money = 12;
+  state.players[HUMAN].vp = 3;
+  state.board.worcester[0] = { owner: HUMAN, industry: 'cotton', level: 1, flipped: false, resources: 0 };
+  state.links['birmingham-worcester'] = HUMAN;
+  state.links['gloucester-worcester'] = HUMAN;
+  stubHands(
+    state,
+    [{ kind: 'location', city: 'stafford' }, { kind: 'location', city: 'dudley' }],
+    [{ kind: 'location', city: 'coventry' }],
+    [{ kind: 'industry', industries: ['iron'] }],
+  );
+  state.log.push('Escenario drill: enlace Stafford–Dudley desbloquea mercado pronto.');
+}
+
+function setupDevelopMat(state: GameState): void {
+  setupRailFlipRace(state);
+  state.era = 'canal';
+  state.turn = 6;
+  state.players[HUMAN].mat.coal[0] = 1;
+  state.players[HUMAN].mat.coal[1] = 0;
+  stubHands(
+    state,
+    [{ kind: 'industry', industries: ['coal'] }, { kind: 'location', city: 'walsall' }],
+    [{ kind: 'location', city: 'coventry' }],
+    [],
+  );
+  state.log.push('Escenario drill: desarrollar carbón en el tapete antes de expandir.');
+}
+
+function setupWildSpot(state: GameState): void {
+  state.era = 'canal';
+  state.turn = 4;
+  state.firstTurnOfGame = false;
+  state.actionsLeft = 1;
+  state.currentPlayer = HUMAN;
+  state.board = emptyBoard();
+  state.links = {};
+  state.players[HUMAN].money = 11;
+  state.players[HUMAN].vp = 4;
+  state.links['birmingham-walsall'] = HUMAN;
+  stubHands(
+    state,
+    [{ kind: 'wildIndustry' }, { kind: 'location', city: 'stafford' }],
+    [{ kind: 'location', city: 'coventry' }],
+    [{ kind: 'industry', industries: ['iron'] }],
+  );
+  state.log.push('Escenario drill: comodín industria — elige la ciudad correcta.');
+}
+
 export function newTrainingScenario(id: TrainingScenarioId, aiDifficulty?: AIDifficulty): GameState {
   const meta = trainingScenarioMeta(id);
   const state = newVsAIGame(9000 + TRAINING_SCENARIOS.findIndex((s) => s.id === id), aiDifficulty ?? meta.recommendedAi, 1);
@@ -208,6 +299,18 @@ export function newTrainingScenario(id: TrainingScenarioId, aiDifficulty?: AIDif
       break;
     case 'rail-flip-race':
       setupRailFlipRace(state);
+      break;
+    case 'pass-tempo':
+      setupPassTempo(state);
+      break;
+    case 'network-timing':
+      setupNetworkTiming(state);
+      break;
+    case 'develop-mat':
+      setupDevelopMat(state);
+      break;
+    case 'wild-spot':
+      setupWildSpot(state);
       break;
   }
 

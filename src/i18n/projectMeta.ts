@@ -24,4 +24,5 @@ export const FORK_CHANGES = [
   'Mercados explicados, mat de fichas estilo PC, popups de ciudad/comerciante y zoom en el mapa.',
   'Modo Contra IA (Brass oficial), entrenador comparativo, escenarios de torneo y panel Elo.',
   'Repaso jugada a jugada, drills por debilidad, metas semanales y modo Torneo (MCTS).',
+  'Confianza del entrenador, self-play IA y benchmark de dificultades.',
 ] as const;

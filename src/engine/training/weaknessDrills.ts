@@ -3,14 +3,14 @@ import { weaknessLabel } from '../ai/trainingStats';
 import type { TrainingScenarioId } from './scenarios';
 import { trainingScenarioMeta } from './scenarios';
 
-/** Maps coach weakness keys to fixed training scenarios. */
+/** Maps coach weakness keys to dedicated training scenarios. */
 export const WEAKNESS_DRILL_MAP: Record<string, TrainingScenarioId> = {
-  pass: 'sell-or-build',
+  pass: 'pass-tempo',
   sell: 'beer-scarcity',
   build: 'sell-or-build',
-  network: 'canal-countdown',
-  develop: 'rail-flip-race',
-  wild: 'sell-or-build',
+  network: 'network-timing',
+  develop: 'develop-mat',
+  wild: 'wild-spot',
   tempo: 'canal-countdown',
   other: 'sell-or-build',
 };
@@ -41,4 +41,13 @@ export function recommendedWeaknessDrill(stats: TrainingCareerStats): {
     scenarioTitle: trainingScenarioMeta(scenarioId).title,
     count: stats.weaknessCounts[key] ?? 0,
   };
+}
+
+export function drillsForWeakness(key: string): TrainingScenarioId[] {
+  const primary = drillScenarioForWeakness(key);
+  const extras: TrainingScenarioId[] = [];
+  if (key === 'pass' || key === 'tempo') extras.push('canal-countdown');
+  if (key === 'sell') extras.push('sell-or-build');
+  if (key === 'build') extras.push('pass-tempo');
+  return [primary, ...extras.filter((id) => id !== primary)];
 }

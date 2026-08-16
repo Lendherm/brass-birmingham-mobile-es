@@ -56,4 +56,12 @@ describe('training coach', () => {
     expect(feedback.alternatives.length).toBeGreaterThan(0);
     expect(feedback.summary.length).toBeGreaterThan(10);
   });
+
+  it('reports coach confidence between 30 and 100', () => {
+    const state = newVsAIGame(12, 'medium', 1);
+    state.currentPlayer = HUMAN;
+    const feedback = compareCoachMove(state, { type: 'pass', cardIdx: 0 });
+    expect(feedback.confidence).toBeGreaterThanOrEqual(30);
+    expect(feedback.confidence).toBeLessThanOrEqual(100);
+  });
 });

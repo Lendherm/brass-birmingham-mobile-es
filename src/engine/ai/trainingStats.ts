@@ -50,10 +50,25 @@ export interface WeeklyGoalState {
   moves: number;
   mistakes: number;
   wins: number;
+  tournamentWins: number;
+}
+
+export interface WeeklyGoalSettings {
+  targetGames: number;
+  maxMistakeRate: number;
+  targetTournamentWins: number;
 }
 
 export const WEEKLY_GOAL_GAMES = 3;
 export const WEEKLY_GOAL_MAX_MISTAKE_RATE = 15;
+
+export const DEFAULT_WEEKLY_GOAL_SETTINGS: WeeklyGoalSettings = {
+  targetGames: WEEKLY_GOAL_GAMES,
+  maxMistakeRate: WEEKLY_GOAL_MAX_MISTAKE_RATE,
+  targetTournamentWins: 0,
+};
+
+const GOALS_SETTINGS_KEY = 'bbsolo-weekly-goals-settings-v1';
 
 const CAREER_KEY = 'bbsolo-training-career-v1';
 const LAST_SEED_KEY = 'bbsolo-last-vsai-seed';
@@ -83,7 +98,7 @@ function currentWeekId(date = new Date()): string {
 }
 
 function emptyWeekly(): WeeklyGoalState {
-  return { weekId: currentWeekId(), gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0 };
+  return { weekId: currentWeekId(), gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0, tournamentWins: 0 };
 }
 
 function emptyDifficultyRecord(): DifficultyRecord {
@@ -116,23 +131,46 @@ function defaultCareer(): TrainingCareerStats {
 export function ensureWeeklyGoal(stats: TrainingCareerStats, date = new Date()): WeeklyGoalState {
   const weekId = currentWeekId(date);
   if (stats.weekly?.weekId === weekId) return stats.weekly;
-  return { weekId, gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0 };
+  return { weekId, gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0, tournamentWins: 0 };
 }
 
-export function weeklyGoalSummary(weekly: WeeklyGoalState): {
+export function loadWeeklyGoalSettings(): WeeklyGoalSettings {
+  try {
+    const raw = localStorage.getItem(GOALS_SETTINGS_KEY);
+    if (raw) return { ...DEFAULT_WEEKLY_GOAL_SETTINGS, ...(JSON.parse(raw) as WeeklyGoalSettings) };
+  } catch {
+    /* ignore */
+  }
+  return { ...DEFAULT_WEEKLY_GOAL_SETTINGS };
+}
+
+export function saveWeeklyGoalSettings(settings: WeeklyGoalSettings): void {
+  localStorage.setItem(GOALS_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+export function weeklyGoalSummary(
+  weekly: WeeklyGoalState,
+  settings: WeeklyGoalSettings = loadWeeklyGoalSettings(),
+): {
   gamesMet: boolean;
   accuracyMet: boolean;
+  tournamentMet: boolean;
   mistakeRate: number;
   gamesLeft: number;
+  tournamentLeft: number;
 } {
   const mistakeRate = weekly.moves > 0 ? Math.round((weekly.mistakes / weekly.moves) * 100) : 0;
-  const gamesMet = weekly.gamesPlayed >= WEEKLY_GOAL_GAMES;
-  const accuracyMet = weekly.moves >= 5 && mistakeRate <= WEEKLY_GOAL_MAX_MISTAKE_RATE;
+  const gamesMet = weekly.gamesPlayed >= settings.targetGames;
+  const accuracyMet = weekly.moves >= 5 && mistakeRate <= settings.maxMistakeRate;
+  const tournamentMet =
+    settings.targetTournamentWins <= 0 || weekly.tournamentWins >= settings.targetTournamentWins;
   return {
     gamesMet,
     accuracyMet,
+    tournamentMet,
     mistakeRate,
-    gamesLeft: Math.max(0, WEEKLY_GOAL_GAMES - weekly.gamesPlayed),
+    gamesLeft: Math.max(0, settings.targetGames - weekly.gamesPlayed),
+    tournamentLeft: Math.max(0, settings.targetTournamentWins - weekly.tournamentWins),
   };
 }
 
@@ -149,7 +187,11 @@ function normalizeCareer(raw: Partial<TrainingCareerStats>): TrainingCareerStats
     },
     weaknessCounts: raw.weaknessCounts ?? base.weaknessCounts,
     recentMistakes: raw.recentMistakes ?? base.recentMistakes,
-    weekly: { ...base.weekly, ...raw.weekly },
+    weekly: {
+      ...base.weekly,
+      ...raw.weekly,
+      tournamentWins: raw.weekly?.tournamentWins ?? base.weekly.tournamentWins,
+    },
   };
 }
 
@@ -274,6 +316,7 @@ export function updateCareerAfterGame(
   weekly.moves += summary.moves;
   weekly.mistakes += summary.mistakes;
   if (result === 'win') weekly.wins += 1;
+  if (result === 'win' && difficulty === 'tournament') weekly.tournamentWins += 1;
   stats.weekly = weekly;
 
   const rec = stats.byDifficulty[difficulty];

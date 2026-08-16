@@ -47,6 +47,10 @@ export function CoachPanel({ feedback, onDismiss }: Props) {
         </p>
       )}
 
+      <p className="training-coach-confidence" data-testid="training-coach-confidence">
+        Confianza del entrenador: <strong>{feedback.confidence}%</strong>
+      </p>
+
       <div className="training-coach-compare">
         <div className="training-coach-line">
           <span className="training-coach-label">Tu jugada</span>

@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import type { CoachFeedback } from './coach';
-import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate, weeklyGoalSummary, WEEKLY_GOAL_GAMES } from './trainingStats';
+import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate, weeklyGoalSummary, WEEKLY_GOAL_GAMES, loadWeeklyGoalSettings, saveWeeklyGoalSettings } from './trainingStats';
 
 const CAREER_KEY = 'bbsolo-training-career-v1';
 
@@ -37,6 +37,7 @@ function mockFeedback(verdict: CoachFeedback['verdict'], delta = 5): CoachFeedba
     yourReasons: [],
     bestReasons: [],
     alternatives: [],
+    confidence: 70,
   };
 }
 
@@ -75,10 +76,18 @@ describe('trainingStats', () => {
 
   it('updates weekly goals after a game', () => {
     const summary = summarizeSession([mockFeedback('mistake', 10), mockFeedback('good', 2)]);
-    const after = updateCareerAfterGame(summary, 'win', 'medium');
+    const after = updateCareerAfterGame(summary, 'win', 'tournament');
     expect(after.weekly.gamesPlayed).toBeGreaterThanOrEqual(1);
-    expect(after.weekly.moves).toBeGreaterThanOrEqual(summary.moves);
+    expect(after.weekly.tournamentWins).toBeGreaterThanOrEqual(1);
     const status = weeklyGoalSummary(after.weekly);
     expect(status.gamesLeft).toBeLessThanOrEqual(WEEKLY_GOAL_GAMES);
+  });
+
+  it('persists customizable weekly goal settings', () => {
+    saveWeeklyGoalSettings({ targetGames: 5, maxMistakeRate: 10, targetTournamentWins: 2 });
+    const loaded = loadWeeklyGoalSettings();
+    expect(loaded.targetGames).toBe(5);
+    expect(loaded.maxMistakeRate).toBe(10);
+    expect(loaded.targetTournamentWins).toBe(2);
   });
 });

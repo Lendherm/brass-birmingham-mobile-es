@@ -273,6 +273,36 @@
   margin: 10px 0;
 }
 
+.training-coach-confidence {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.training-live-review-btn {
+  width: 100%;
+  margin: 6px 0;
+}
+
+.weekly-goals-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.weekly-goals-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.weekly-goals-settings input {
+  font: inherit;
+  padding: 4px 8px;
+}
+
 .training-review-launch {
   width: 100%;
   margin: 8px 0;
