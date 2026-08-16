@@ -23,5 +23,5 @@ export const FORK_CHANGES = [
   'Asistente de jugadas, guía de casillas al seleccionar ciudad, leyenda de símbolos del mapa.',
   'Mercados explicados, mat de fichas estilo PC, popups de ciudad/comerciante y zoom en el mapa.',
   'Modo Contra IA (Brass oficial), entrenador comparativo, escenarios de torneo y panel Elo.',
-  'IA Fase B: modelo de creencias del rival + búsqueda Monte Carlo en dificultad Difícil.',
+  'Repaso jugada a jugada, drills por debilidad, metas semanales y modo Torneo (MCTS).',
 ] as const;

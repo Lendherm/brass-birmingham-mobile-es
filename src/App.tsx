@@ -61,6 +61,11 @@ export default function App() {
   const { coachEnabled, toggleCoach } = useTrainingCoach();
   const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
+  const startWeaknessDrill = (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => {
+    game.reset();
+    game.startTrainingScenario(scenarioId, difficulty);
+  };
+
   return (
     <div className={`app${game.state && !game.screenHidden ? ' in-game' : ''}`}>
       <div className="topbar">
@@ -183,6 +188,7 @@ export default function App() {
             onStartTrainingScenario={game.startTrainingScenario}
             onStartHotseat={game.startHotseat}
             onStartTutorial={game.startTutorial}
+            onStartWeaknessDrill={startWeaknessDrill}
           />
           <ProjectCredits />
         </>
@@ -197,6 +203,7 @@ export default function App() {
           coachFeedback={game.coachFeedback}
           coachEnabled={coachEnabled}
           coachHistory={game.coachHistory}
+          replaySnapshots={game.replaySnapshots}
           onDismissCoach={game.dismissCoachFeedback}
           tutorialStep={game.tutorialStep}
           tutorialDone={game.tutorialDone}
@@ -204,6 +211,7 @@ export default function App() {
           onTutorialExit={game.reset}
           onReset={game.reset}
           onDismissEraScore={game.dismissEraScore}
+          onStartWeaknessDrill={startWeaknessDrill}
           assistantEnabled={assistantEnabled}
           assistantRefresh={assistantRefresh}
           onDisableAssistant={disableAssistant}
@@ -219,12 +227,14 @@ function SetupScreen({
   onStartTrainingScenario,
   onStartHotseat,
   onStartTutorial,
+  onStartWeaknessDrill,
 }: {
   onStartSolo: (seed: number, difficulty: MautomaDifficulty, automaOpponents: AutomaOpponents) => void;
   onStartVsAI: (seed: number, difficulty: AIDifficulty, aiOpponents: AIOpponents) => void;
   onStartTrainingScenario: (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => void;
   onStartHotseat: (seed: number, count: PlayerCount, names: string[]) => void;
   onStartTutorial: () => void;
+  onStartWeaknessDrill: (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => void;
 }) {
   const [mode, setMode] = useState<SetupMode>('vsAI');
   const [difficulty, setDifficulty] = useState<MautomaDifficulty>('easy');
@@ -257,7 +267,11 @@ function SetupScreen({
           </>
         )}
       </div>
-      <TrainingDashboardModal open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
+      <TrainingDashboardModal
+        open={dashboardOpen}
+        onClose={() => setDashboardOpen(false)}
+        onStartWeaknessDrill={onStartWeaknessDrill}
+      />
 
       <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
         <strong>Tutorial interactivo</strong> (6 capítulos jugables) · <strong>Guía de estrategia</strong> (11 capítulos:
@@ -464,6 +478,7 @@ function GameScreen({
   coachFeedback,
   coachEnabled,
   coachHistory,
+  replaySnapshots,
   onDismissCoach,
   tutorialStep,
   tutorialDone,
@@ -471,6 +486,7 @@ function GameScreen({
   onTutorialExit,
   onReset,
   onDismissEraScore,
+  onStartWeaknessDrill,
   assistantEnabled,
   assistantRefresh,
   onDisableAssistant,
@@ -480,6 +496,7 @@ function GameScreen({
   coachFeedback: import('./engine/ai/coach').CoachFeedback | null;
   coachEnabled: boolean;
   coachHistory: import('./engine/ai/coach').CoachFeedback[];
+  replaySnapshots: GameState[];
   onDismissCoach: () => void;
   tutorialStep: number | null;
   tutorialDone: boolean;
@@ -487,6 +504,7 @@ function GameScreen({
   onTutorialExit: () => void;
   onReset: () => void;
   onDismissEraScore: () => void;
+  onStartWeaknessDrill: (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => void;
   assistantEnabled: boolean;
   assistantRefresh: number;
   onDisableAssistant: () => void;
@@ -806,8 +824,10 @@ function GameScreen({
         <EraScoreOverlay
           score={state.pendingEraScore}
           coachHistory={coachHistory}
+          replaySnapshots={replaySnapshots}
           aiDifficulty={state.aiDifficulty}
           onDismiss={state.pendingEraScore.gameOver ? onReset : onDismissEraScore}
+          onStartWeaknessDrill={onStartWeaknessDrill}
         />
       )}
 

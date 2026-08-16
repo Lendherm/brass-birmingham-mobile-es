@@ -15,6 +15,7 @@ const SAVE_KEY = 'bbsolo-save-v1';
 interface Session {
   state: GameState;
   history: GameState[];
+  replaySnapshots: GameState[];
   screenHidden: boolean;
   tutorialStep: number | null;
   modeIntroPending: boolean;
@@ -36,6 +37,7 @@ export function useGame() {
       return {
         state,
         history: [],
+        replaySnapshots: [],
         screenHidden: state.mode === 'hotseat',
         tutorialStep: null,
         modeIntroPending: false,
@@ -61,6 +63,7 @@ export function useGame() {
     setSession({
       state: newGame(seed, difficulty, automaOpponents),
       history: [],
+      replaySnapshots: [],
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
@@ -73,6 +76,7 @@ export function useGame() {
     setSession({
       state: newTutorialGame(),
       history: [],
+      replaySnapshots: [],
       screenHidden: false,
       tutorialStep: 0,
       modeIntroPending: false,
@@ -87,7 +91,7 @@ export function useGame() {
       const nextStep = prev.tutorialStep + 1;
       const segment = segmentForStep(nextStep);
       const state = segment ? tutorialSegmentState(segment) : prev.state;
-      return { ...prev, tutorialStep: nextStep, state, history: [], coachFeedback: null, coachHistory: prev.coachHistory };
+      return { ...prev, tutorialStep: nextStep, state, history: [], replaySnapshots: prev.replaySnapshots, coachFeedback: null, coachHistory: prev.coachHistory };
     });
   }, []);
 
@@ -96,6 +100,7 @@ export function useGame() {
     setSession({
       state,
       history: [],
+      replaySnapshots: [],
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
@@ -111,6 +116,7 @@ export function useGame() {
     setSession({
       state,
       history: [],
+      replaySnapshots: [],
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
@@ -123,6 +129,7 @@ export function useGame() {
     setSession({
       state: newHotseatGame(seed, playerCount, names),
       history: [],
+      replaySnapshots: [],
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
@@ -155,9 +162,11 @@ export function useGame() {
       const before = prev.state;
       let coachFeedback: CoachFeedback | null = prev.coachFeedback;
       let coachHistory = prev.coachHistory;
+      let replaySnapshots = prev.replaySnapshots;
       if (shouldCoachHuman(before)) {
         coachFeedback = compareCoachMove(before, action);
         coachHistory = [...coachHistory, coachFeedback];
+        replaySnapshots = [...replaySnapshots, clone(before)];
       }
       const next = clone(before);
       const beforePlayer = next.currentPlayer;
@@ -177,6 +186,7 @@ export function useGame() {
         modeIntroPending: prev.modeIntroPending,
         coachFeedback,
         coachHistory,
+        replaySnapshots,
       };
     });
     return error;
@@ -193,6 +203,7 @@ export function useGame() {
         modeIntroPending: prev.modeIntroPending,
         coachFeedback: null,
         coachHistory: prev.coachHistory.slice(0, -1),
+        replaySnapshots: prev.replaySnapshots.slice(0, -1),
       };
     });
   }, []);
@@ -223,6 +234,7 @@ export function useGame() {
     modeIntroPending: session?.modeIntroPending ?? false,
     coachFeedback: session?.coachFeedback ?? null,
     coachHistory: session?.coachHistory ?? [],
+    replaySnapshots: session?.replaySnapshots ?? [],
     startSolo,
     startVsAI,
     startTrainingScenario,

@@ -250,6 +250,109 @@
   font-size: 13px;
 }
 
+.training-dashboard-goals {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.training-dashboard-goals .goal-met {
+  color: var(--success, #2e7d32);
+}
+
+.training-dashboard-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.training-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.training-review-launch {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.training-review-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 8px;
+}
+
+.training-review {
+  width: min(100%, 960px);
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.training-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.training-review-meta {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.training-review-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.training-review-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .training-review-body {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+.training-review-map {
+  min-height: 280px;
+}
+
+.training-review-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.training-review-hand {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.training-review-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}
+
 .openings-panel .openings-intro {
   margin: 8px 0 12px;
   font-size: 13px;

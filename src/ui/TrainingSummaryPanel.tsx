@@ -4,9 +4,18 @@ import { mistakeRate, winRate } from '../engine/ai/trainingStats';
 interface Props {
   session: TrainingSessionSummary;
   career: TrainingCareerStats;
+  onOpenReview?: () => void;
+  onStartWeaknessDrill?: () => void;
+  weaknessDrillLabel?: string;
 }
 
-export function TrainingSummaryPanel({ session, career }: Props) {
+export function TrainingSummaryPanel({
+  session,
+  career,
+  onOpenReview,
+  onStartWeaknessDrill,
+  weaknessDrillLabel,
+}: Props) {
   if (session.moves === 0) return null;
 
   return (
@@ -23,6 +32,21 @@ export function TrainingSummaryPanel({ session, career }: Props) {
         <span className="training-bar training-bar-ok">Mejorable {session.ok}</span>
         <span className="training-bar training-bar-mistake">Revisar {session.mistakes}</span>
       </div>
+
+      {(onOpenReview || onStartWeaknessDrill) && (
+        <div className="training-summary-actions">
+          {onOpenReview && (
+            <button type="button" onClick={onOpenReview} data-testid="summary-open-review">
+              Repaso jugada a jugada
+            </button>
+          )}
+          {onStartWeaknessDrill && weaknessDrillLabel && (
+            <button type="button" onClick={onStartWeaknessDrill} data-testid="summary-weakness-drill">
+              Drill: {weaknessDrillLabel}
+            </button>
+          )}
+        </div>
+      )}
 
       {session.weaknesses.length > 0 && (
         <div className="training-summary-issues">

@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import type { CoachFeedback } from './coach';
-import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate } from './trainingStats';
+import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate, weeklyGoalSummary, WEEKLY_GOAL_GAMES } from './trainingStats';
 
 const CAREER_KEY = 'bbsolo-training-career-v1';
 
@@ -71,5 +71,14 @@ describe('trainingStats', () => {
     fb.bestAction = { type: 'sell', cardIdx: 0, sales: [] as never };
     const summary = summarizeSession([fb]);
     expect(summary.weaknesses.length).toBeGreaterThan(0);
+  });
+
+  it('updates weekly goals after a game', () => {
+    const summary = summarizeSession([mockFeedback('mistake', 10), mockFeedback('good', 2)]);
+    const after = updateCareerAfterGame(summary, 'win', 'medium');
+    expect(after.weekly.gamesPlayed).toBeGreaterThanOrEqual(1);
+    expect(after.weekly.moves).toBeGreaterThanOrEqual(summary.moves);
+    const status = weeklyGoalSummary(after.weekly);
+    expect(status.gamesLeft).toBeLessThanOrEqual(WEEKLY_GOAL_GAMES);
   });
 });

@@ -41,7 +41,19 @@ export interface TrainingCareerStats {
   byDifficulty: Record<AIDifficulty, DifficultyRecord>;
   weaknessCounts: Record<string, number>;
   recentMistakes: TrainingMoveRecord[];
+  weekly: WeeklyGoalState;
 }
+
+export interface WeeklyGoalState {
+  weekId: string;
+  gamesPlayed: number;
+  moves: number;
+  mistakes: number;
+  wins: number;
+}
+
+export const WEEKLY_GOAL_GAMES = 3;
+export const WEEKLY_GOAL_MAX_MISTAKE_RATE = 15;
 
 const CAREER_KEY = 'bbsolo-training-career-v1';
 const LAST_SEED_KEY = 'bbsolo-last-vsai-seed';
@@ -63,6 +75,16 @@ const WEAKNESS_LABELS: Record<string, string> = {
   tempo: 'Tempo / cartas',
   other: 'Decisiones tácticas',
 };
+
+function currentWeekId(date = new Date()): string {
+  const oneJan = new Date(date.getFullYear(), 0, 1);
+  const week = Math.ceil(((date.getTime() - oneJan.getTime()) / 86_400_000 + oneJan.getDay() + 1) / 7);
+  return `${date.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function emptyWeekly(): WeeklyGoalState {
+  return { weekId: currentWeekId(), gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0 };
+}
 
 function emptyDifficultyRecord(): DifficultyRecord {
   return { wins: 0, losses: 0, ties: 0 };
@@ -87,6 +109,30 @@ function defaultCareer(): TrainingCareerStats {
     },
     weaknessCounts: {},
     recentMistakes: [],
+    weekly: emptyWeekly(),
+  };
+}
+
+export function ensureWeeklyGoal(stats: TrainingCareerStats, date = new Date()): WeeklyGoalState {
+  const weekId = currentWeekId(date);
+  if (stats.weekly?.weekId === weekId) return stats.weekly;
+  return { weekId, gamesPlayed: 0, moves: 0, mistakes: 0, wins: 0 };
+}
+
+export function weeklyGoalSummary(weekly: WeeklyGoalState): {
+  gamesMet: boolean;
+  accuracyMet: boolean;
+  mistakeRate: number;
+  gamesLeft: number;
+} {
+  const mistakeRate = weekly.moves > 0 ? Math.round((weekly.mistakes / weekly.moves) * 100) : 0;
+  const gamesMet = weekly.gamesPlayed >= WEEKLY_GOAL_GAMES;
+  const accuracyMet = weekly.moves >= 5 && mistakeRate <= WEEKLY_GOAL_MAX_MISTAKE_RATE;
+  return {
+    gamesMet,
+    accuracyMet,
+    mistakeRate,
+    gamesLeft: Math.max(0, WEEKLY_GOAL_GAMES - weekly.gamesPlayed),
   };
 }
 
@@ -103,6 +149,7 @@ function normalizeCareer(raw: Partial<TrainingCareerStats>): TrainingCareerStats
     },
     weaknessCounts: raw.weaknessCounts ?? base.weaknessCounts,
     recentMistakes: raw.recentMistakes ?? base.recentMistakes,
+    weekly: { ...base.weekly, ...raw.weekly },
   };
 }
 
@@ -221,6 +268,13 @@ export function updateCareerAfterGame(
   stats.totalMoves += summary.moves;
   stats.totalMistakes += summary.mistakes;
   stats.elo = updateElo(stats.elo, result, OPPONENT_ELO[difficulty]);
+
+  const weekly = ensureWeeklyGoal(stats);
+  weekly.gamesPlayed += 1;
+  weekly.moves += summary.moves;
+  weekly.mistakes += summary.mistakes;
+  if (result === 'win') weekly.wins += 1;
+  stats.weekly = weekly;
 
   const rec = stats.byDifficulty[difficulty];
   if (result === 'win') rec.wins += 1;
