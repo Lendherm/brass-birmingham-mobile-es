@@ -26,7 +26,7 @@ export const BASE_EVAL_WEIGHTS: EvalWeights = {
   flippedVp: 3,
 };
 
-/** Self-play tuned weights (hard vs medium, seeds 1–8). */
+/** Self-play tuned weights (hard vs medium; composite tune via npm run tune:ai). */
 export const TUNED_EVAL_WEIGHTS: EvalWeights = {
   vp: 55,
   money: 0.6,

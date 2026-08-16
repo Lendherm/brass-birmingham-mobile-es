@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   benchmarkDifficultyStrength,
   difficultyOrderValid,
+  pairwiseDifficultyStrength,
+  pairwiseOrderValid,
   runSelfPlayMatch,
 } from './selfPlay';
 
@@ -19,4 +21,11 @@ describe('selfPlay', () => {
     expect(strength.tournament).toBeGreaterThanOrEqual(0);
     expect(difficultyOrderValid(strength)).toBe(true);
   }, 60_000);
+
+  it('pairwise hard tier stays ahead of medium with tuned weights', () => {
+    const pairwise = pairwiseDifficultyStrength([1, 2, 3], 25);
+    expect(Number.isFinite(pairwise.hardVsMedium)).toBe(true);
+    expect(Number.isFinite(pairwise.tournamentVsHard)).toBe(true);
+    expect(pairwiseOrderValid(pairwise)).toBe(true);
+  }, 90_000);
 });

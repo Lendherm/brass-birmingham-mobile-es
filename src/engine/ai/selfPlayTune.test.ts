@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BASE_EVAL_WEIGHTS, TUNED_EVAL_WEIGHTS } from './evalWeights';
-import { scoreEvalWeights, tuneEvalWeights } from './selfPlayTune';
+import { scoreEvalWeights, scoreEvalWeightsComposite, tuneEvalWeights } from './selfPlayTune';
 
 const seeds = [1, 2] as const;
 const maxSteps = 18;
@@ -18,9 +18,15 @@ describe('selfPlayTune', () => {
     expect(tunedScore).toBeGreaterThanOrEqual(baselineScore - 1);
   }, 120_000);
 
+  it('composite score combines hard/medium and tournament/hard', () => {
+    const composite = scoreEvalWeightsComposite(seeds, BASE_EVAL_WEIGHTS, maxSteps);
+    expect(Number.isFinite(composite)).toBe(true);
+  }, 120_000);
+
   it('coordinate search completes and reports improvement', () => {
     const result = tuneEvalWeights(seeds, maxSteps, fastTune);
     expect(result.improved).toBe(true);
     expect(Number.isFinite(result.score)).toBe(true);
+    expect(Number.isFinite(result.hardMediumScore)).toBe(true);
   }, 180_000);
 });

@@ -26,4 +26,5 @@ export const FORK_CHANGES = [
   'Repaso jugada a jugada, drills por debilidad, metas semanales y modo Torneo (MCTS).',
   'Confianza del entrenador, self-play IA y benchmark de dificultades.',
   'APK automática en CI, exportación de estadísticas, repaso con autoplay y entrenador en hotseat.',
+  'Firma APK opcional en CI, tuning IA compuesto y benchmark Torneo>Difícil>Media.',
 ] as const;

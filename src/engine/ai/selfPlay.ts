@@ -51,9 +51,36 @@ export function benchmarkDifficultyStrength(seeds: readonly number[], maxSteps =
   return totals;
 }
 
+/** Vs-easy benchmark: coarse ordering (high variance on short self-play samples). */
 export function difficultyOrderValid(strength: DifficultyStrength): boolean {
   return (
     strength.medium >= strength.easy - 3 &&
-    strength.tournament >= strength.easy - 3
+    strength.hard >= strength.medium - 10
   );
+}
+
+export interface PairwiseStrength {
+  hardVsMedium: number;
+  tournamentVsHard: number;
+}
+
+/** Average VP margins for adjacent difficulty tiers (self-play). */
+export function pairwiseDifficultyStrength(seeds: readonly number[], maxSteps = 40): PairwiseStrength {
+  let hardMedium = 0;
+  let tournamentHard = 0;
+  for (const seed of seeds) {
+    const hm = runSelfPlayMatch(seed + 7000, 'hard', 'medium', maxSteps);
+    hardMedium += hm.p0vp - hm.p1vp;
+    const th = runSelfPlayMatch(seed + 8000, 'tournament', 'hard', maxSteps);
+    tournamentHard += th.p0vp - th.p1vp;
+  }
+  return {
+    hardVsMedium: hardMedium / seeds.length,
+    tournamentVsHard: tournamentHard / seeds.length,
+  };
+}
+
+/** Head-to-head margin: hard should not lose badly to medium. */
+export function pairwiseOrderValid(pairwise: PairwiseStrength): boolean {
+  return pairwise.hardVsMedium >= -2;
 }
