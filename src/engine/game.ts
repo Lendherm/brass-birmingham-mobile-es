@@ -161,7 +161,7 @@ export function processAITurns(state: GameState): void {
     let safety = 0;
     while (isAIPlayer(state, state.currentPlayer) && !state.gameOver && safety < 100) {
       safety++;
-      while (state.actionsLeft > 0 && !state.gameOver) {
+      while (isAIPlayer(state, state.currentPlayer) && state.actionsLeft > 0 && !state.gameOver) {
         applyPlayerAction(state, pickAIAction(state));
       }
     }

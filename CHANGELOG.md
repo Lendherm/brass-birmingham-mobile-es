@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.12] — 2026-08-16
+
+### Corregido
+- **Modo Contra IA:** la partida ya no termina tras tu primer movimiento; la IA deja de auto-jugar turnos humanos.
+
 ## [1.0.11] — 2026-08-16
 
 ### Corregido

@@ -54,6 +54,15 @@ describe('vs AI mode', () => {
     expect(state.players[1].hand.length).toBe(8);
   });
 
+  it('one human action does not auto-play the whole game', () => {
+    const state = newVsAIGame(7, 'easy', 1);
+    applyPlayerAction(state, { type: 'pass', cardIdx: 0 });
+    expect(state.gameOver).toBe(false);
+    expect(state.turn).toBe(2);
+    expect(state.currentPlayer).toBe(HUMAN);
+    expect(state.log.some((line) => line.includes('IA 1'))).toBe(true);
+  });
+
   it('AI finishes a full game vs human', () => {
     const state = newVsAIGame(7, 'easy', 1);
     const rng = makeRng(99);
