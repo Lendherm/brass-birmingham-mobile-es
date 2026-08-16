@@ -27,4 +27,5 @@ export const FORK_CHANGES = [
   'Confianza del entrenador, self-play IA y benchmark de dificultades.',
   'APK automática en CI, exportación de estadísticas, repaso con autoplay y entrenador en hotseat.',
   'Firma APK opcional en CI, tuning IA compuesto y benchmark Torneo>Difícil>Media.',
+  'APK firmada en CI (instalable en Pixel y Android reciente).',
 ] as const;

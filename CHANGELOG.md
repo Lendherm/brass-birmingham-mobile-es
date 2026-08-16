@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.11] — 2026-08-16
+
+### Corregido
+- **APK instalable en Android moderno (Pixel 8 Pro, etc.):** la release se firma en CI (ya no se publica APK sin firmar).
+
 ## [1.0.10] — 2026-08-16
 
 ### Añadido
