@@ -168,9 +168,9 @@ El APK sale en `android/app/build/outputs/apk/release/`.
 
 
 
-   Sin secrets, CI firma con keystore debug cacheado (APK **instalable** en sideload).
+   Sin secrets, CI usa `android/signing.properties` y keystore de release incluido en el repo.
 
-   Si ya tenías v1.0.10 sin firmar instalada, desinstálala antes de instalar v1.0.11+.
+   **Importante:** si ya instalaste v1.0.10–v1.0.12, desinstala la app antes de instalar v1.0.13 (cambió la firma).
 
 
 

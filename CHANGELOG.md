@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.13] — 2026-08-16
+
+### Corregido
+- **Instalación en Pixel/Android:** APK firmada con certificado de release (v1+v2), ya no con certificado debug que Play Protect bloqueaba.
+
 ## [1.0.12] — 2026-08-16
 
 ### Corregido
