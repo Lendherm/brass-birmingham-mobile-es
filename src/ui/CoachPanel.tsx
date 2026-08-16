@@ -41,6 +41,12 @@ export function CoachPanel({ feedback, onDismiss }: Props) {
 
       <p className="training-coach-summary">{feedback.summary}</p>
 
+      {feedback.beliefHint && (
+        <p className="training-coach-belief" data-testid="training-coach-belief">
+          {feedback.beliefHint}
+        </p>
+      )}
+
       <div className="training-coach-compare">
         <div className="training-coach-line">
           <span className="training-coach-label">Tu jugada</span>

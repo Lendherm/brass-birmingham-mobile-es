@@ -3,6 +3,7 @@ import { nextFloat, nextInt } from '../rng';
 import { HUMAN, activePlayer, type GameState, type PlayerId } from '../state';
 import { bestActionScore, rankCandidates, topCandidates } from './evaluate';
 import { evaluatePosition } from './positionEval';
+import { enhanceHardScore } from './search';
 import type { AIDifficulty } from './types';
 
 function cloneState(state: GameState): GameState {
@@ -81,6 +82,7 @@ export function planAIAction(state: GameState, difficulty: AIDifficulty): Player
       if (!lookahead.gameOver && lookahead.currentPlayer !== player) {
         pairScore = scoreWithRivalLookahead(lookahead, player, pairScore);
       }
+      pairScore = enhanceHardScore(state, player, first.action, pairScore);
     }
 
     if (!best || pairScore > best.score) best = { action: first.action, score: pairScore };

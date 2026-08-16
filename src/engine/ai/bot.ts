@@ -13,6 +13,8 @@ export { planAIAction, simulateOpponentTurn } from './planner';
 export { auditAIAction, auditAIGameplay, summarizeIssues, filterBySeverity } from './audit';
 export { compareCoachMove, describeAction, shouldCoachHuman } from './coach';
 export type { CoachFeedback, CoachVerdict } from './coach';
+export { beliefHintForHuman, opponentFlexibility } from './beliefs';
+export { monteCarloActionValue, enhanceHardScore } from './search';
 export type { AIAuditReport } from './audit';
 
 import type { GameState } from '../state';

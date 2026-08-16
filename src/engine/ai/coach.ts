@@ -7,6 +7,7 @@ import { activePlayer, cityName, HUMAN, type GameState } from '../state';
 import type { PlayerId } from '../types';
 import { actionsMatch, actionKey } from './actionKey';
 import { rankCandidates, topCandidates } from './evaluate';
+import { beliefHintForHuman } from './beliefs';
 import { planAIAction } from './planner';
 import type { ScoredAction } from './types';
 
@@ -28,6 +29,7 @@ export interface CoachFeedback {
   yourReasons: string[];
   bestReasons: string[];
   alternatives: { label: string; score: number }[];
+  beliefHint?: string | null;
 }
 
 function actionTypeLabel(type: PlayerAction['type']): string {
@@ -198,6 +200,7 @@ export function compareCoachMove(state: GameState, humanAction: PlayerAction): C
     yourReasons: yours ? reasonsForAction(state, yours, player) : ['Jugada fuera del top evaluado.'],
     bestReasons: reasonsForAction(state, best, player),
     alternatives: alts,
+    beliefHint: beliefHintForHuman(state),
   };
 }
 

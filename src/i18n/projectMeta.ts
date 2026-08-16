@@ -22,5 +22,6 @@ export const FORK_CHANGES = [
   'Modo oscuro con tablero sincronizado, texto grande (A+) y guardado automático.',
   'Asistente de jugadas, guía de casillas al seleccionar ciudad, leyenda de símbolos del mapa.',
   'Mercados explicados, mat de fichas estilo PC, popups de ciudad/comerciante y zoom en el mapa.',
-  'Tutorial interactivo, guía de estrategia y partida contra la Mautoma (3 dificultades).',
+  'Modo Contra IA (Brass oficial), entrenador comparativo, escenarios de torneo y panel Elo.',
+  'IA Fase B: modelo de creencias del rival + búsqueda Monte Carlo en dificultad Difícil.',
 ] as const;

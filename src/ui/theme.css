@@ -4330,6 +4330,16 @@ button.selected {
   line-height: 1.4;
 }
 
+.training-coach-belief {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  background: color-mix(in srgb, #c9a227 12%, var(--panel));
+  border: 1px dashed var(--border);
+}
+
 .training-coach-compare {
   display: flex;
   flex-direction: column;
