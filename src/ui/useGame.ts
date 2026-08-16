@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { newGame, newHotseatGame, isSolo, isTutorial, type AutomaOpponents, type GameState, type PlayerCount } from '../engine/state';
-import { applyPlayerAction, type PlayerAction } from '../engine/game';
+import { newGame, newHotseatGame, newVsAIGame, isTutorial, isVsAI, type AIOpponents, type AutomaOpponents, type GameState, type PlayerCount } from '../engine/state';
+import { applyPlayerAction, processAITurns, type PlayerAction } from '../engine/game';
+import type { CoachFeedback } from '../engine/ai/coach';
+import { compareCoachMove, shouldCoachHuman } from '../engine/ai/coach';
+import type { AIDifficulty } from '../engine/ai/types';
 import { newTutorialGame, tutorialSegmentState } from '../engine/tutorial/segments';
 import { INTERACTIVE_TUTORIAL, segmentForStep } from '../engine/tutorial/steps';
 import type { MautomaDifficulty } from '../engine/mautoma/cards';
@@ -13,6 +16,7 @@ interface Session {
   screenHidden: boolean;
   tutorialStep: number | null;
   modeIntroPending: boolean;
+  coachFeedback: CoachFeedback | null;
 }
 
 function clone(state: GameState): GameState {
@@ -32,6 +36,7 @@ export function useGame() {
         screenHidden: state.mode === 'hotseat',
         tutorialStep: null,
         modeIntroPending: false,
+        coachFeedback: null,
       };
     } catch {
       return null;
@@ -55,11 +60,12 @@ export function useGame() {
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
+      coachFeedback: null,
     });
   }, []);
 
   const startTutorial = useCallback(() => {
-    setSession({ state: newTutorialGame(), history: [], screenHidden: false, tutorialStep: 0, modeIntroPending: false });
+    setSession({ state: newTutorialGame(), history: [], screenHidden: false, tutorialStep: 0, modeIntroPending: false, coachFeedback: null });
   }, []);
 
   const advanceTutorial = useCallback(() => {
@@ -68,7 +74,20 @@ export function useGame() {
       const nextStep = prev.tutorialStep + 1;
       const segment = segmentForStep(nextStep);
       const state = segment ? tutorialSegmentState(segment) : prev.state;
-      return { ...prev, tutorialStep: nextStep, state, history: [] };
+      return { ...prev, tutorialStep: nextStep, state, history: [], coachFeedback: null };
+    });
+  }, []);
+
+  const startVsAI = useCallback((seed: number, difficulty: AIDifficulty, aiOpponents: AIOpponents = 1) => {
+    const state = newVsAIGame(seed, difficulty, aiOpponents);
+    processAITurns(state);
+    setSession({
+      state,
+      history: [],
+      screenHidden: false,
+      tutorialStep: null,
+      modeIntroPending: true,
+      coachFeedback: null,
     });
   }, []);
 
@@ -79,6 +98,7 @@ export function useGame() {
       screenHidden: false,
       tutorialStep: null,
       modeIntroPending: true,
+      coachFeedback: null,
     });
     prevPlayer.current = null;
   }, []);
@@ -102,7 +122,13 @@ export function useGame() {
     let error: string | null = null;
     setSession((prev) => {
       if (!prev || prev.screenHidden) return prev;
-      const next = clone(prev.state);
+      if (isVsAI(prev.state) && prev.state.currentPlayer !== 0) return prev;
+      const before = prev.state;
+      let coachFeedback: CoachFeedback | null = prev.coachFeedback;
+      if (shouldCoachHuman(before)) {
+        coachFeedback = compareCoachMove(before, action);
+      }
+      const next = clone(before);
       const beforePlayer = next.currentPlayer;
       try {
         applyPlayerAction(next, action);
@@ -110,7 +136,7 @@ export function useGame() {
         error = e instanceof Error ? e.message : String(e);
         return prev;
       }
-      const playerChanged = !isSolo(next) && next.currentPlayer !== beforePlayer;
+      const playerChanged = next.mode === 'hotseat' && next.currentPlayer !== beforePlayer;
       const history = [...prev.history, prev.state].slice(-40);
       return {
         state: next,
@@ -118,6 +144,7 @@ export function useGame() {
         screenHidden: playerChanged ? true : prev.screenHidden,
         tutorialStep: prev.tutorialStep,
         modeIntroPending: prev.modeIntroPending,
+        coachFeedback,
       };
     });
     return error;
@@ -132,11 +159,16 @@ export function useGame() {
         screenHidden: false,
         tutorialStep: prev.tutorialStep,
         modeIntroPending: prev.modeIntroPending,
+        coachFeedback: null,
       };
     });
   }, []);
 
   const reset = useCallback(() => setSession(null), []);
+
+  const dismissCoachFeedback = useCallback(() => {
+    setSession((prev) => (prev ? { ...prev, coachFeedback: null } : prev));
+  }, []);
 
   const dismissEraScore = useCallback(() => {
     setSession((prev) => {
@@ -144,6 +176,7 @@ export function useGame() {
       if (prev.state.pendingEraScore.gameOver) return null;
       const state = clone(prev.state);
       state.pendingEraScore = null;
+      processAITurns(state);
       return { ...prev, state };
     });
   }, []);
@@ -155,7 +188,9 @@ export function useGame() {
     tutorialDone: (session?.tutorialStep ?? null) !== null && (session?.tutorialStep ?? 0) >= INTERACTIVE_TUTORIAL.length,
     canUndo: (session?.history.length ?? 0) > 0 && session?.tutorialStep === null,
     modeIntroPending: session?.modeIntroPending ?? false,
+    coachFeedback: session?.coachFeedback ?? null,
     startSolo,
+    startVsAI,
     startTutorial,
     advanceTutorial,
     startHotseat,
@@ -164,6 +199,7 @@ export function useGame() {
     dispatch,
     undo,
     reset,
+    dismissCoachFeedback,
     dismissEraScore,
   };
 }

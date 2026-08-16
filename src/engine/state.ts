@@ -12,10 +12,11 @@ import {
 import { INDUSTRY_TRACKS } from './data/industries';
 import { COAL_MARKET, IRON_MARKET } from './market';
 import { STARTING_SPACE } from './income';
+import type { AIDifficulty } from './ai/types';
 import { MAUTOMA_CARDS, MAUTOMA_MATS, type MautomaDifficulty } from './mautoma/cards';
 import { makeRng, shuffle, type Rng } from './rng';
 
-export type GameMode = 'solo' | 'hotseat' | 'tutorial';
+export type GameMode = 'solo' | 'hotseat' | 'vsAI' | 'tutorial';
 export type PlayerCount = 2 | 3 | 4;
 
 export const HUMAN: PlayerId = 0;
@@ -75,6 +76,7 @@ export interface GameState {
   seed: number;
   rng: Rng;
   difficulty?: MautomaDifficulty;
+  aiDifficulty?: AIDifficulty;
   era: Era;
   turn: number;
   actionsLeft: number;
@@ -116,6 +118,19 @@ export function isTutorial(state: GameState): boolean {
 /** Solo or tutorial: human vs Automa UI and one human player. */
 export function isVsAutoma(state: GameState): boolean {
   return state.mode === 'solo' || state.mode === 'tutorial';
+}
+
+export function isVsAI(state: GameState): boolean {
+  return state.mode === 'vsAI';
+}
+
+/** Full Brass rules with turn order and shared deck (hotseat or vs AI). */
+export function isFullBrass(state: GameState): boolean {
+  return state.mode === 'hotseat' || state.mode === 'vsAI';
+}
+
+export function isAIPlayer(state: GameState, player: PlayerId): boolean {
+  return isVsAI(state) && player !== HUMAN;
 }
 
 export function activePlayer(state: GameState): PlayerId {
@@ -292,6 +307,63 @@ export function newGame(seed: number, difficulty: MautomaDifficulty, automaOppon
   return state;
 }
 
+export type AIOpponents = 1 | 2 | 3;
+
+const AI_DIFFICULTY_ES: Record<AIDifficulty, string> = {
+  easy: 'Fácil',
+  medium: 'Media',
+  hard: 'Difícil',
+};
+
+export function newVsAIGame(seed: number, aiDifficulty: AIDifficulty, aiOpponents: AIOpponents = 1): GameState {
+  const playerCount = (1 + aiOpponents) as PlayerCount;
+  const rng = makeRng(seed);
+  const aiIds = Array.from({ length: aiOpponents }, (_, i) => i + 1) as PlayerId[];
+  const turnOrder: PlayerId[] = [HUMAN, ...aiIds];
+  const names = ['Tú', ...aiIds.map((id) => `IA ${id}`)];
+  const state: GameState = {
+    mode: 'vsAI',
+    playerCount,
+    seed,
+    rng,
+    aiDifficulty,
+    era: 'canal',
+    turn: 1,
+    actionsLeft: 1,
+    currentPlayer: HUMAN,
+    currentPlayerIndex: 0,
+    turnOrder,
+    playerNames: names,
+    moneySpentThisRound: Array(playerCount).fill(0),
+    firstTurnOfGame: true,
+    players: Array.from({ length: playerCount }, () => ({
+      money: 17,
+      spent: 0,
+      incomeSpace: STARTING_SPACE,
+      vp: 0,
+      hand: [],
+      mat: standardMat(),
+    })),
+    board: emptyBoard(),
+    links: {},
+    coalCubes: COAL_MARKET.initialCubes,
+    ironCubes: IRON_MARKET.initialCubes,
+    merchants: setupMerchants(rng, playerCount),
+    drawPile: [],
+    automaDecks: {},
+    automaDiscards: {},
+    automaLastCities: {},
+    automaFirstTurnDone: {},
+    gameOver: false,
+    log: [],
+  };
+  dealHotseatHands(state);
+  state.log.push(
+    `Partida iniciada — Contra IA (${AI_DIFFICULTY_ES[aiDifficulty]}), ${aiOpponents} rival(es), semilla ${seed}. Era Canal. Mazo completo (${playerCount} jugadores).`,
+  );
+  return state;
+}
+
 export function newHotseatGame(seed: number, playerCount: PlayerCount, names: string[]): GameState {
   const rng = makeRng(seed);
   const ids = [...Array(playerCount).keys()] as PlayerId[];
@@ -347,13 +419,13 @@ export function cityName(id: LocationId): string {
 }
 
 export function isPayingPlayer(state: GameState, player: PlayerId): boolean {
-  return state.mode === 'hotseat' || player === HUMAN;
+  return isFullBrass(state) || player === HUMAN;
 }
 
 export function spendMoney(state: GameState, player: PlayerId, amount: number): void {
   if (!isPayingPlayer(state, player)) return;
   state.players[player].money -= amount;
-  if (state.mode === 'hotseat') {
+  if (isFullBrass(state)) {
     state.moneySpentThisRound[player] = (state.moneySpentThisRound[player] ?? 0) + amount;
   }
 }

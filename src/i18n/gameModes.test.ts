@@ -9,12 +9,13 @@ describe('gameModes', () => {
 
   it('setup cards reflect player count deck sizes', () => {
     const two = setupModeCards(2);
-    expect(two[0].deck).toContain('19');
-    expect(two[1].deck).toContain('40');
+    expect(two.find((c) => c.id === 'vsAI')!.deck).toContain('40');
+    expect(two.find((c) => c.id === 'solo')!.deck).toContain('19');
+    expect(two.find((c) => c.id === 'hotseat')!.deck).toContain('40');
 
     const four = setupModeCards(4);
-    expect(four[0].deck).toContain('37');
-    expect(four[1].deck).toContain('64');
-    expect(four[1].rounds).toContain('8');
+    expect(four.find((c) => c.id === 'solo')!.deck).toContain('37');
+    expect(four.find((c) => c.id === 'hotseat')!.deck).toContain('64');
+    expect(four.find((c) => c.id === 'hotseat')!.rounds).toContain('8');
   });
 });

@@ -1,5 +1,6 @@
 import type { PlayerCount } from '../engine/state';
 import type { Era } from '../engine/types';
+import type { AIDifficulty } from '../engine/ai/bot';
 import type { MautomaDifficulty } from '../engine/mautoma/cards';
 
 /** Full Brass deck size by player count (matches official digital / rulebook). */
@@ -36,7 +37,13 @@ const DIFFICULTY_LABEL: Record<MautomaDifficulty, string> = {
   hard: 'Difícil',
 };
 
-export function eraDeckTotal(mode: 'solo' | 'hotseat', playerCount: PlayerCount, era: Era): number {
+const AI_DIFFICULTY_LABEL: Record<AIDifficulty, string> = {
+  easy: 'Fácil',
+  medium: 'Media',
+  hard: 'Difícil',
+};
+
+export function eraDeckTotal(mode: 'solo' | 'hotseat' | 'vsAI', playerCount: PlayerCount, era: Era): number {
   return mode === 'solo' ? MAUTOMA_ERA_CARDS[playerCount][era] : BRASS_DECK_SIZE[playerCount];
 }
 
@@ -84,6 +91,33 @@ export function mautomaIntroContent(
   };
 }
 
+export function vsAIIntroContent(
+  playerCount: PlayerCount,
+  difficulty: AIDifficulty,
+  aiCount: number,
+): ModeIntroContent {
+  const deck = BRASS_DECK_SIZE[playerCount];
+  const rounds = BRASS_ERA_ROUNDS[playerCount];
+
+  return {
+    title: 'Contra IA (Brass oficial)',
+    subtitle: `${aiCount} rival(es) IA · dificultad ${AI_DIFFICULTY_LABEL[difficulty]} · ${playerCount} jugadores en tablero`,
+    deckLine: `Mazo completo: ${deck} cartas por era (mismas reglas que el digital oficial o la mesa). Tú y la IA roban del mismo mazo de ubicación e industria.`,
+    roundsLine: `Duración aproximada: ~${rounds} rondas por era (Canal y Ferrocarril).`,
+    rivalLine:
+      'La IA juega con dinero, cartas, préstamos y scout como un humano. Sus turnos se ejecutan solos; tú solo juegas cuando es tu turno.',
+    whyTitle: '¿Por qué jugar contra IA?',
+    whyBullets: [
+      'Brass completo sin depender del Automa ni de reglas recortadas.',
+      'Entrenador comparativo tras cada jugada: tu línea vs la mejor de la IA.',
+      'Practicar solo contra 1, 2 o 3 oponentes automáticos.',
+      'Tres niveles de dificultad de la IA (heurística).',
+    ],
+    compareNote:
+      'El modo Mautoma usa un mazo recortado y cartas propias del Automa. Aquí todas las reglas oficiales aplican a humano e IA.',
+  };
+}
+
 export function hotseatIntroContent(playerCount: PlayerCount, names: string[]): ModeIntroContent {
   const deck = BRASS_DECK_SIZE[playerCount];
   const rounds = BRASS_ERA_ROUNDS[playerCount];
@@ -108,7 +142,7 @@ export function hotseatIntroContent(playerCount: PlayerCount, names: string[]): 
 }
 
 export interface SetupModeCard {
-  id: 'solo' | 'hotseat';
+  id: 'solo' | 'vsAI' | 'hotseat';
   label: string;
   tag: string;
   deck: string;
@@ -119,12 +153,20 @@ export interface SetupModeCard {
 export function setupModeCards(playerCount: PlayerCount): SetupModeCard[] {
   return [
     {
+      id: 'vsAI',
+      label: 'Contra IA',
+      tag: 'Brass oficial · oponentes automáticos',
+      deck: `${BRASS_DECK_SIZE[playerCount]} cartas (mazo completo)`,
+      rounds: `~${BRASS_ERA_ROUNDS[playerCount]} rondas/era`,
+      bestFor: 'Solo con reglas oficiales, como el juego de PC',
+    },
+    {
       id: 'solo',
       label: 'Mautoma (solo)',
       tag: 'Variante fan · oponente automático',
       deck: `${MAUTOMA_ERA_CARDS[playerCount].canal} cartas/era (recortado)`,
       rounds: `~${MAUTOMA_ERA_ROUNDS[playerCount]} rondas/era`,
-      bestFor: 'Practicar solo, partidas cortas, aprender contra la IA',
+      bestFor: 'Partidas cortas, variante Automa',
     },
     {
       id: 'hotseat',
@@ -132,7 +174,7 @@ export function setupModeCards(playerCount: PlayerCount): SetupModeCard[] {
       tag: 'Brass oficial · pasar el teléfono',
       deck: `${BRASS_DECK_SIZE[playerCount]} cartas (mazo completo)`,
       rounds: `~${BRASS_ERA_ROUNDS[playerCount]} rondas/era`,
-      bestFor: 'Amigos, experiencia completa, mismo ritmo que el digital',
+      bestFor: 'Amigos en el mismo teléfono',
     },
   ];
 }

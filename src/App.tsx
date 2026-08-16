@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import './ui/theme.css';
-import { HUMAN, activePlayer, isTutorial, isVsAutoma, type AutomaOpponents, type GameState, type PlayerCount } from './engine/state';
+import { HUMAN, activePlayer, isTutorial, isVsAI, isVsAutoma, type AIOpponents, type AutomaOpponents, type GameState, type PlayerCount } from './engine/state';
 import type { PlayerAction } from './engine/game';
+import type { AIDifficulty } from './engine/ai/bot';
 import { CITIES } from './engine/data/board';
 import { LAYOUT } from './engine/data/layout';
 import type { CityId, MerchantId } from './engine/types';
@@ -12,6 +13,8 @@ import { tutorialBoardView } from './ui/tutorialBoardView';
 import { useActionFlow } from './ui/ActionPanel';
 import { useGame, useTheme } from './ui/useGame';
 import { useAccessibility } from './ui/useAccessibility';
+import { CoachPanel } from './ui/CoachPanel';
+import { useTrainingCoach } from './ui/useTrainingCoach';
 import { usePlayAssistant } from './ui/usePlayAssistant';
 import { useLayoutMode } from './ui/useLayoutMode';
 import { TutorialLauncher } from './ui/Tutorial';
@@ -43,13 +46,14 @@ import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
 import { APP_NAME_SHORT } from './i18n/projectMeta';
 
-type SetupMode = 'solo' | 'hotseat';
+type SetupMode = 'solo' | 'vsAI' | 'hotseat';
 
 export default function App() {
   const game = useGame();
   const { theme, toggle } = useTheme();
   const { largeText, toggleLargeText } = useAccessibility();
   const { assistantEnabled, assistantRefresh, pressAssistant, disableAssistant } = usePlayAssistant();
+  const { coachEnabled, toggleCoach } = useTrainingCoach();
   const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
   return (
@@ -113,6 +117,18 @@ export default function App() {
         >
           {largeText ? 'A' : 'A+'}
         </button>
+        {game.state && !game.screenHidden && isVsAI(game.state) && (
+          <button
+            type="button"
+            onClick={toggleCoach}
+            data-testid="coach-toggle"
+            aria-pressed={coachEnabled}
+            title={coachEnabled ? 'Ocultar entrenador' : 'Mostrar entrenador comparativo'}
+            className={`topbar-compact-btn${coachEnabled ? ' active' : ''}`}
+          >
+            🎓
+          </button>
+        )}
         {game.state && !game.screenHidden && (
           <button
             type="button"
@@ -148,7 +164,7 @@ export default function App() {
       {!game.state ? (
         <>
           <FirstVisitPrompt onStart={game.startTutorial} />
-          <SetupScreen onStartSolo={game.startSolo} onStartHotseat={game.startHotseat} onStartTutorial={game.startTutorial} />
+          <SetupScreen onStartSolo={game.startSolo} onStartVsAI={game.startVsAI} onStartHotseat={game.startHotseat} onStartTutorial={game.startTutorial} />
           <ProjectCredits />
         </>
       ) : game.modeIntroPending && game.state ? (
@@ -159,6 +175,9 @@ export default function App() {
         <GameScreen
           state={game.state}
           dispatch={game.dispatch}
+          coachFeedback={game.coachFeedback}
+          coachEnabled={coachEnabled}
+          onDismissCoach={game.dismissCoachFeedback}
           tutorialStep={game.tutorialStep}
           tutorialDone={game.tutorialDone}
           onTutorialAdvance={game.advanceTutorial}
@@ -176,21 +195,26 @@ export default function App() {
 
 function SetupScreen({
   onStartSolo,
+  onStartVsAI,
   onStartHotseat,
   onStartTutorial,
 }: {
   onStartSolo: (seed: number, difficulty: MautomaDifficulty, automaOpponents: AutomaOpponents) => void;
+  onStartVsAI: (seed: number, difficulty: AIDifficulty, aiOpponents: AIOpponents) => void;
   onStartHotseat: (seed: number, count: PlayerCount, names: string[]) => void;
   onStartTutorial: () => void;
 }) {
-  const [mode, setMode] = useState<SetupMode>('solo');
+  const [mode, setMode] = useState<SetupMode>('vsAI');
   const [difficulty, setDifficulty] = useState<MautomaDifficulty>('easy');
+  const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>('medium');
   const [automaOpponents, setAutomaOpponents] = useState<AutomaOpponents>(1);
+  const [aiOpponents, setAiOpponents] = useState<AIOpponents>(1);
   const [playerCount, setPlayerCount] = useState<PlayerCount>(2);
   const [names, setNames] = useState<string[]>([...DEFAULT_PLAYER_NAMES]);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
-  const previewCount = mode === 'solo' ? ((automaOpponents + 1) as PlayerCount) : playerCount;
+  const previewCount =
+    mode === 'solo' ? ((automaOpponents + 1) as PlayerCount) : mode === 'vsAI' ? ((aiOpponents + 1) as PlayerCount) : playerCount;
   const modeCards = setupModeCards(previewCount);
 
   return (
@@ -214,7 +238,9 @@ function SetupScreen({
             type="button"
             className={`mode-compare-card${mode === card.id ? ' selected' : ''}`}
             onClick={() => setMode(card.id)}
-            data-testid={card.id === 'solo' ? 'mode-solo' : 'mode-hotseat'}
+            data-testid={
+              card.id === 'solo' ? 'mode-solo' : card.id === 'vsAI' ? 'mode-vs-ai' : 'mode-hotseat'
+            }
           >
             <span className="mode-compare-label">{card.label}</span>
             <span className="mode-compare-tag">{card.tag}</span>
@@ -250,6 +276,37 @@ function SetupScreen({
           <label>
             Dificultad
             <select value={difficulty} onChange={(e) => setDifficulty(e.target.value as MautomaDifficulty)} data-testid="difficulty">
+              <option value="easy">Fácil</option>
+              <option value="medium">Media</option>
+              <option value="hard">Difícil</option>
+            </select>
+          </label>
+        </>
+      ) : mode === 'vsAI' ? (
+        <>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            <strong>Brass oficial</strong> contra oponentes automáticos: mismo mazo, dinero, cartas y reglas que el
+            juego de PC o multijugador. La IA juega sus turnos sola.
+          </p>
+          <label>
+            Rivales IA
+            <select
+              value={aiOpponents}
+              onChange={(e) => setAiOpponents(Number(e.target.value) as AIOpponents)}
+              data-testid="ai-opponents"
+            >
+              <option value={1}>1 IA (2 jugadores)</option>
+              <option value={2}>2 IA (3 jugadores)</option>
+              <option value={3}>3 IA (4 jugadores)</option>
+            </select>
+          </label>
+          <label>
+            Dificultad IA
+            <select
+              value={aiDifficulty}
+              onChange={(e) => setAiDifficulty(e.target.value as AIDifficulty)}
+              data-testid="ai-difficulty"
+            >
               <option value="easy">Fácil</option>
               <option value="medium">Media</option>
               <option value="hard">Difícil</option>
@@ -298,11 +355,11 @@ function SetupScreen({
 
       <button
         className="primary"
-        onClick={() =>
-          mode === 'solo'
-            ? onStartSolo(seed, difficulty, automaOpponents)
-            : onStartHotseat(seed, playerCount, names.slice(0, playerCount))
-        }
+        onClick={() => {
+          if (mode === 'solo') onStartSolo(seed, difficulty, automaOpponents);
+          else if (mode === 'vsAI') onStartVsAI(seed, aiDifficulty, aiOpponents);
+          else onStartHotseat(seed, playerCount, names.slice(0, playerCount));
+        }}
         data-testid="start-game"
       >
         Iniciar partida
@@ -314,6 +371,9 @@ function SetupScreen({
 function GameScreen({
   state,
   dispatch,
+  coachFeedback,
+  coachEnabled,
+  onDismissCoach,
   tutorialStep,
   tutorialDone,
   onTutorialAdvance,
@@ -326,6 +386,9 @@ function GameScreen({
 }: {
   state: GameState;
   dispatch: (a: PlayerAction) => string | null;
+  coachFeedback: import('./engine/ai/coach').CoachFeedback | null;
+  coachEnabled: boolean;
+  onDismissCoach: () => void;
   tutorialStep: number | null;
   tutorialDone: boolean;
   onTutorialAdvance: () => void;
@@ -337,10 +400,11 @@ function GameScreen({
   onDisableAssistant: () => void;
 }) {
   const inTutorial = tutorialStep !== null && isTutorial(state);
+  const humanTurn = !isVsAI(state) || state.currentPlayer === HUMAN;
   const [inspectCity, setInspectCity] = useState<CityId | null>(null);
   const [inspectMerchant, setInspectMerchant] = useState<MerchantId | null>(null);
   const [mapInfo, setMapInfo] = useState<string | null>(null);
-  const playerId = activePlayer(state);
+  const playerId = isVsAI(state) ? HUMAN : activePlayer(state);
   const hand = state.players[playerId].hand;
 
   const tutorial = useInteractiveTutorial(tutorialStep ?? 0, onTutorialAdvance, hand);
@@ -364,6 +428,7 @@ function GameScreen({
   const lockActions = inTutorial && !tutorial.isContinue && tutorial.step?.step.type !== 'pick-action';
 
   const actionDisabled = (a: AccionId) => {
+    if (!humanTurn) return true;
     if (!flow.availability[a] || state.gameOver) return true;
     if (!inTutorial) return false;
     if (tutorial.isContinue) return true;
@@ -460,6 +525,9 @@ function GameScreen({
         <div className="side side-scroll">
           <div className="game-hud">
             <PlayerPanel state={state} />
+            {coachEnabled && coachFeedback && isVsAI(state) && !inTutorial && (
+              <CoachPanel feedback={coachFeedback} onDismiss={onDismissCoach} />
+            )}
             <CanalEraSidebarWarning state={state} />
             <ZoneLegend />
             <PlayerMat state={state} />
@@ -652,7 +720,7 @@ function GameScreen({
 }
 
 function GameOverOverlay({ state }: { state: GameState }) {
-  if (isVsAutoma(state)) {
+  if (isVsAutoma(state) || isVsAI(state)) {
     const ranking = state.players
       .map((p, i) => ({ name: state.playerNames[i], vp: p.vp }))
       .sort((a, b) => b.vp - a.vp);

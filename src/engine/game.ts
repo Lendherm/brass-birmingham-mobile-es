@@ -9,8 +9,10 @@ import {
   dealHotseatHands,
   dealSoloHumanDeck,
   initAutomaPlayer,
+  isAIPlayer,
   isSolo,
   isTutorial,
+  isVsAI,
   log,
   playerLabel,
   type Card,
@@ -30,6 +32,7 @@ import {
   type SellableBuilding,
 } from './actions';
 import { runAutomaTurn } from './mautoma/bot';
+import { pickAIAction } from './ai/bot';
 import { canalEraCleanup, computeEraScoreBreakdown, scoreFlippedIndustries, scoreLinks } from './scoring';
 import { eraNombre, industria } from './messages';
 
@@ -145,6 +148,26 @@ function advanceHotseatTurn(state: GameState): void {
   if (state.firstTurnOfGame) state.firstTurnOfGame = false;
 
   skipEmptyHandPlayers(state);
+  processAITurns(state);
+}
+
+let aiTurnProcessing = false;
+
+/** Run AI opponents until it is the human's turn or the game ends. */
+export function processAITurns(state: GameState): void {
+  if (!isVsAI(state) || state.gameOver || aiTurnProcessing) return;
+  aiTurnProcessing = true;
+  try {
+    let safety = 0;
+    while (isAIPlayer(state, state.currentPlayer) && !state.gameOver && safety < 100) {
+      safety++;
+      while (state.actionsLeft > 0 && !state.gameOver) {
+        applyPlayerAction(state, pickAIAction(state));
+      }
+    }
+  } finally {
+    aiTurnProcessing = false;
+  }
 }
 
 function skipEmptyHandPlayers(state: GameState): void {
@@ -191,6 +214,7 @@ function endHotseatRound(state: GameState): void {
   state.actionsLeft = 2;
   state.firstTurnOfGame = false;
   skipEmptyHandPlayers(state);
+  processAITurns(state);
 }
 
 function endRound(state: GameState): void {
@@ -277,11 +301,12 @@ function endEra(state: GameState): void {
 
     state.pendingEraScore = { era: eraEnding, lines, gameOver: false };
     log(state, 'Comienza la Era Ferrocarril.');
+    processAITurns(state);
     return;
   }
 
   state.gameOver = true;
-  if (isSolo(state)) {
+  if (isSolo(state) || isVsAI(state)) {
     const ranking = state.players.map((p, i) => ({ label: playerLabel(state, i), vp: p.vp })).sort((a, b) => b.vp - a.vp);
     const you = ranking.find((r) => r.label === playerLabel(state, HUMAN))!;
     const winner = ranking[0];

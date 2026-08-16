@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
-import { activePlayer, automaOpponentIds, HUMAN, isVsAutoma, type GameState, type PlayerState } from '../engine/state';
+import { activePlayer, automaOpponentIds, HUMAN, isVsAI, isVsAutoma, type GameState, type PlayerState } from '../engine/state';
 import { levelForSpace } from '../engine/income';
 import { LINK_SUPPLY, playerLinksRemaining } from '../engine/links';
 import { BRASS_DECK_SIZE, MAUTOMA_ERA_CARDS } from '../i18n/gameModes';
@@ -111,7 +111,7 @@ function PlayerCard({
 
 export function PlayerPanel({ state }: Props) {
   const playerId = activePlayer(state);
-  const current = state.players[playerId];
+  const current = state.players[isVsAI(state) ? HUMAN : playerId];
   const vpBump = useVpBump(current.vp);
 
   return (
@@ -157,6 +157,51 @@ export function PlayerPanel({ state }: Props) {
                 playerId={id}
               />
             ))}
+          </div>
+        </>
+      ) : isVsAI(state) ? (
+        <>
+          <div className={`player-card player-card-human${vpBump ? ' vp-bump-active' : ''}`}>
+            <div className="player-header">
+              <span className="badge-human player-name">Tú</span>
+              <div className="player-stats">
+                <span className="stat-money">
+                  £<b>{state.players[HUMAN].money}</b>
+                </span>
+                <span className={`stat-vp${vpBump ? ' vp-bump' : ''}`} data-testid="player-vp">
+                  <b>{state.players[HUMAN].vp}</b> PV
+                </span>
+              </div>
+            </div>
+            <IncomeTrack space={state.players[HUMAN].incomeSpace} />
+            <NetworkSupplyRow state={state} playerId={HUMAN} />
+            <div className="player-card-deck" title="Cartas restantes en el mazo compartido esta era">
+              Mazo{' '}
+              <b data-testid="draw-pile">
+                {state.drawPile.length}/{BRASS_DECK_SIZE[state.playerCount]}
+              </b>
+            </div>
+          </div>
+
+          <div className="rivals-section">
+            <h4 className="rivals-heading">Rivales IA</h4>
+            {state.players.map((p, id) =>
+              id === HUMAN ? null : (
+                <PlayerCard
+                  key={id}
+                  name={state.playerNames[id]}
+                  player={p}
+                  badgeStyle={{ background: `var(--p${id}-bg)`, color: `var(--p${id})` }}
+                  deckLabel="Cartas en mano"
+                  deckCount={p.hand.length}
+                  deckTitle="La IA juega con cartas Brass oficiales (ocultas)"
+                  compactIncome
+                  vpTestId={`ai-vp-${id}`}
+                  state={state}
+                  playerId={id}
+                />
+              ),
+            )}
           </div>
         </>
       ) : (

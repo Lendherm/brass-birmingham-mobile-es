@@ -4103,6 +4103,136 @@ button.selected {
   cursor: pointer;
 }
 
+/* Training coach (vs AI mode) */
+.training-coach {
+  border-left: 4px solid var(--accent, #5ab0c0);
+  margin-top: 8px;
+}
+
+.training-coach-excellent {
+  border-left-color: #3a9d5c;
+}
+
+.training-coach-good {
+  border-left-color: #5ab0c0;
+}
+
+.training-coach-ok {
+  border-left-color: #c9a227;
+}
+
+.training-coach-mistake {
+  border-left-color: #c45c4a;
+}
+
+.training-coach-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.training-coach-header h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.training-coach-meta {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.training-coach-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.training-coach-badge-excellent {
+  background: color-mix(in srgb, #3a9d5c 20%, var(--panel));
+  color: #3a9d5c;
+}
+
+.training-coach-badge-good {
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  color: var(--accent);
+}
+
+.training-coach-badge-ok {
+  background: color-mix(in srgb, #c9a227 18%, var(--panel));
+  color: #a88412;
+}
+
+.training-coach-badge-mistake {
+  background: color-mix(in srgb, #c45c4a 18%, var(--panel));
+  color: #c45c4a;
+}
+
+.training-coach-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0 4px;
+}
+
+.training-coach-summary {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.training-coach-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.training-coach-line {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.training-coach-line ul {
+  margin: 4px 0 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+}
+
+.training-coach-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.training-coach-best strong {
+  color: var(--accent);
+}
+
+.training-coach-alts {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.training-coach-alts summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.training-coach-score {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 @media (max-width: 900px) {
   .app.in-game {
     padding: 4px 4px 0;

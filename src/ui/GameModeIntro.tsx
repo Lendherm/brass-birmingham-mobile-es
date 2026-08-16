@@ -1,5 +1,5 @@
 import type { GameState } from '../engine/state';
-import { hotseatIntroContent, mautomaIntroContent } from '../i18n/gameModes';
+import { hotseatIntroContent, mautomaIntroContent, vsAIIntroContent } from '../i18n/gameModes';
 
 interface Props {
   state: GameState;
@@ -10,7 +10,9 @@ export function GameModeIntro({ state, onContinue }: Props) {
   const content =
     state.mode === 'solo' && state.difficulty
       ? mautomaIntroContent(state.playerCount, state.difficulty, state.playerCount - 1)
-      : hotseatIntroContent(state.playerCount, state.playerNames);
+      : state.mode === 'vsAI' && state.aiDifficulty
+        ? vsAIIntroContent(state.playerCount, state.aiDifficulty, state.playerCount - 1)
+        : hotseatIntroContent(state.playerCount, state.playerNames);
 
   return (
     <div className="gameover mode-intro-screen" data-testid="mode-intro">
