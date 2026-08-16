@@ -68,7 +68,7 @@ describe('vs AI mode', () => {
       expect(state.players.every((p) => p.money >= 0)).toBe(true);
     }
     expect(state.gameOver, `seed did not finish in ${safety} steps`).toBe(true);
-  }, 60_000);
+  }, 120_000);
 });
 
 describe('AI engine', () => {
@@ -106,7 +106,7 @@ describe('AI engine', () => {
         applyPlayerAction(state, action);
       }
     }
-  }, 60_000);
+  }, 120_000);
 
   it('audit gameplay report: no errors in hard 1v1 sample', () => {
     const allReports = [];

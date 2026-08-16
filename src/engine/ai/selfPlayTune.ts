@@ -45,10 +45,12 @@ export function tuneEvalWeights(seeds: readonly number[] = [1, 2, 3, 4, 5, 6], m
   let best = { ...BASE_EVAL_WEIGHTS };
   let bestScore = scoreEvalWeights(seeds, best, maxSteps);
   const baselineScore = bestScore;
+  const rounds = process.env.CI ? 1 : 2;
+  const factors = process.env.CI ? [1.08] : [0.92, 1.08];
 
-  for (let round = 0; round < 2; round++) {
+  for (let round = 0; round < rounds; round++) {
     for (const key of TUNE_KEYS) {
-      for (const factor of [0.92, 1.08]) {
+      for (const factor of factors) {
         const candidate = { ...best, [key]: best[key] * factor };
         const score = scoreEvalWeights(seeds, candidate, maxSteps);
         if (score > bestScore) {

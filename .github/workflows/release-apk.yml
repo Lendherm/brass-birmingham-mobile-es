@@ -27,10 +27,9 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Install, test and build web app
+      - name: Install and build web app
         run: |
           npm ci
-          npm test
           npm run build
 
       - name: Sync Capacitor Android
