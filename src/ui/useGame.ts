@@ -5,6 +5,7 @@ import type { CoachFeedback } from '../engine/ai/coach';
 import { compareCoachMove, shouldCoachHuman } from '../engine/ai/coach';
 import type { AIDifficulty } from '../engine/ai/types';
 import { newTrainingScenario } from '../engine/training/scenarios';
+import { saveLastVsAISeed } from '../engine/ai/trainingStats';
 import { newTutorialGame, tutorialSegmentState } from '../engine/tutorial/segments';
 import { INTERACTIVE_TUTORIAL, segmentForStep } from '../engine/tutorial/steps';
 import type { MautomaDifficulty } from '../engine/mautoma/cards';
@@ -104,6 +105,7 @@ export function useGame() {
   }, []);
 
   const startVsAI = useCallback((seed: number, difficulty: AIDifficulty, aiOpponents: AIOpponents = 1) => {
+    saveLastVsAISeed(seed);
     const state = newVsAIGame(seed, difficulty, aiOpponents);
     processAITurns(state);
     setSession({

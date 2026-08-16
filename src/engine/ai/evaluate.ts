@@ -21,6 +21,7 @@ import {
 import { activePlayer, HUMAN, type Card, type GameState } from '../state';
 import type { CityId, IndustryType, PlayerId } from '../types';
 import { personalityFor } from './personality';
+import { bonusForBuild, bonusForNetwork, bonusForSell } from './positionEval';
 import type { ScoredAction } from './types';
 
 function cardKindValue(card: Card): number {
@@ -116,6 +117,7 @@ export function scoreBuild(state: GameState, choice: BuildChoice, player: Player
   }
 
   score += scoreCardForAction(state, cardIdx, 'build');
+  score += bonusForBuild(state, option.city, option.industry, player);
   return score * weights.build;
 }
 
@@ -137,6 +139,9 @@ export function scoreNetwork(state: GameState, choice: NetworkChoice, player: Pl
   if (state.players[player].money < choice.option.moneyCost + 4) score -= 14;
 
   score += scoreCardForAction(state, choice.cardIdx, 'network');
+  if (link && link.endpoints[0] in CITIES) {
+    score += bonusForNetwork(state, link.endpoints[0] as CityId, player);
+  }
   return score * weights.network;
 }
 
@@ -150,6 +155,7 @@ export function scoreSell(state: GameState, choice: SellChoice, player: PlayerId
   if (tile.resources > 0 && (tile.industry === 'coal' || tile.industry === 'iron')) score -= 5;
 
   score += scoreCardForAction(state, choice.cardIdx, 'sell');
+  score += bonusForSell(state, player);
   return score * weights.sell;
 }
 

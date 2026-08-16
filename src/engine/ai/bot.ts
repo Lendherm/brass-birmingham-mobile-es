@@ -8,7 +8,8 @@ export {
   pickExpendableCard,
   bestActionScore,
 } from './evaluate';
-export { planAIAction } from './planner';
+export { evaluatePosition, deckTempoBonus, playerBeerSupply } from './positionEval';
+export { planAIAction, simulateOpponentTurn } from './planner';
 export { auditAIAction, auditAIGameplay, summarizeIssues, filterBySeverity } from './audit';
 export { compareCoachMove, describeAction, shouldCoachHuman } from './coach';
 export type { CoachFeedback, CoachVerdict } from './coach';

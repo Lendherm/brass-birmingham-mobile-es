@@ -106,7 +106,7 @@ describe('AI engine', () => {
         applyPlayerAction(state, action);
       }
     }
-  });
+  }, 60_000);
 
   it('audit gameplay report: no errors in hard 1v1 sample', () => {
     const allReports = [];

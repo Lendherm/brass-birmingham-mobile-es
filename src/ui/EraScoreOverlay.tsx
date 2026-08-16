@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CoachFeedback } from '../engine/ai/coach';
+import type { AIDifficulty } from '../engine/ai/types';
 import {
   loadCareerStats,
   summarizeSession,
@@ -14,6 +15,7 @@ import { TrainingSummaryPanel } from './TrainingSummaryPanel';
 interface Props {
   score: PendingEraScore;
   coachHistory: CoachFeedback[];
+  aiDifficulty?: AIDifficulty;
   onDismiss: () => void;
 }
 
@@ -29,7 +31,7 @@ function trainingResult(score: PendingEraScore): 'win' | 'loss' | 'tie' {
   return 'loss';
 }
 
-export function EraScoreOverlay({ score, coachHistory, onDismiss }: Props) {
+export function EraScoreOverlay({ score, coachHistory, aiDifficulty = 'medium', onDismiss }: Props) {
   const [career, setCareer] = useState<TrainingCareerStats>(() => loadCareerStats());
   const careerUpdated = useRef(false);
 
@@ -46,8 +48,8 @@ export function EraScoreOverlay({ score, coachHistory, onDismiss }: Props) {
   useEffect(() => {
     if (!score.gameOver || !sessionSummary || careerUpdated.current) return;
     careerUpdated.current = true;
-    setCareer(updateCareerAfterGame(sessionSummary, trainingResult(score)));
-  }, [score.gameOver, score, sessionSummary]);
+    setCareer(updateCareerAfterGame(sessionSummary, trainingResult(score), aiDifficulty, coachHistory));
+  }, [score.gameOver, score, sessionSummary, aiDifficulty, coachHistory]);
 
   const title = score.gameOver
     ? `Fin de partida — Era ${eraNombre(score.era)}`

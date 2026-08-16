@@ -20,6 +20,8 @@ import { useLayoutMode } from './ui/useLayoutMode';
 import { TutorialLauncher } from './ui/Tutorial';
 import { FirstVisitPrompt } from './ui/FirstVisitPrompt';
 import { StrategyGuideButton } from './ui/StrategyGuide';
+import { OpeningsGuideButton } from './ui/OpeningsGuide';
+import { TrainingDashboardButton, TrainingDashboardModal } from './ui/TrainingDashboard';
 import { TutorialCoach, TutorialCompleteOverlay } from './ui/TutorialCoach';
 import { useInteractiveTutorial } from './ui/useInteractiveTutorial';
 import { PassScreen } from './ui/PassScreen';
@@ -45,9 +47,11 @@ import { TapInfoBubble } from './ui/TapInfoBubble';
 import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
 import { TRAINING_SCENARIOS, trainingScenarioMeta, type TrainingScenarioId } from './engine/training/scenarios';
+import { loadLastVsAISeed } from './engine/ai/trainingStats';
 import { APP_NAME_SHORT } from './i18n/projectMeta';
 
 type SetupMode = 'solo' | 'vsAI' | 'hotseat';
+type TrainingDrill = 'normal' | 'repeat-seed' | 'canal-drill' | 'rail-drill';
 
 export default function App() {
   const game = useGame();
@@ -124,7 +128,9 @@ export default function App() {
           {largeText ? 'A' : 'A+'}
         </button>
         {game.state && !game.screenHidden && isVsAI(game.state) && (
-          <button
+          <>
+            <OpeningsGuideButton playerCount={game.state.playerCount} compact />
+            <button
             type="button"
             onClick={toggleCoach}
             data-testid="coach-toggle"
@@ -134,6 +140,7 @@ export default function App() {
           >
             🎓
           </button>
+          </>
         )}
         {game.state && !game.screenHidden && (
           <button
@@ -223,6 +230,9 @@ function SetupScreen({
   const [difficulty, setDifficulty] = useState<MautomaDifficulty>('easy');
   const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>('medium');
   const [trainingScenario, setTrainingScenario] = useState<TrainingScenarioId | ''>('');
+  const [trainingDrill, setTrainingDrill] = useState<TrainingDrill>('normal');
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+  const lastSeed = loadLastVsAISeed();
   const [automaOpponents, setAutomaOpponents] = useState<AutomaOpponents>(1);
   const [aiOpponents, setAiOpponents] = useState<AIOpponents>(1);
   const [playerCount, setPlayerCount] = useState<PlayerCount>(2);
@@ -240,7 +250,14 @@ function SetupScreen({
       <div className="setup-guides">
         <TutorialLauncher onStart={onStartTutorial} prominent />
         <StrategyGuideButton />
+        {mode === 'vsAI' && (
+          <>
+            <OpeningsGuideButton playerCount={previewCount} />
+            <TrainingDashboardButton onOpen={() => setDashboardOpen(true)} />
+          </>
+        )}
       </div>
+      <TrainingDashboardModal open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
 
       <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
         <strong>Tutorial interactivo</strong> (6 capítulos jugables) · <strong>Guía de estrategia</strong> (11 capítulos:
@@ -329,11 +346,36 @@ function SetupScreen({
             </select>
           </label>
           <label>
+            Modo de práctica
+            <select
+              value={trainingDrill}
+              onChange={(e) => {
+                const v = e.target.value as TrainingDrill;
+                setTrainingDrill(v);
+                if (v === 'canal-drill') setTrainingScenario('canal-countdown');
+                else if (v === 'rail-drill') setTrainingScenario('rail-flip-race');
+                else if (v !== 'normal') setTrainingScenario('');
+              }}
+              data-testid="training-drill"
+            >
+              <option value="normal">Partida libre</option>
+              <option value="repeat-seed" disabled={lastSeed == null}>
+                Repetir última semilla{lastSeed != null ? ` (${lastSeed})` : ''}
+              </option>
+              <option value="canal-drill">Drill fin de era Canal</option>
+              <option value="rail-drill">Drill era Ferrocarril</option>
+            </select>
+          </label>
+          <label>
             Escenario de entrenamiento
             <select
               value={trainingScenario}
-              onChange={(e) => setTrainingScenario(e.target.value as TrainingScenarioId | '')}
+              onChange={(e) => {
+                setTrainingScenario(e.target.value as TrainingScenarioId | '');
+                setTrainingDrill('normal');
+              }}
               data-testid="training-scenario"
+              disabled={trainingDrill === 'canal-drill' || trainingDrill === 'rail-drill'}
             >
               <option value="">Partida normal (semilla aleatoria)</option>
               {TRAINING_SCENARIOS.map((s) => (
@@ -399,13 +441,17 @@ function SetupScreen({
         className="primary"
         onClick={() => {
           if (mode === 'solo') onStartSolo(seed, difficulty, automaOpponents);
-          else if (mode === 'vsAI' && trainingScenario) onStartTrainingScenario(trainingScenario, aiDifficulty);
-          else if (mode === 'vsAI') onStartVsAI(seed, aiDifficulty, aiOpponents);
-          else onStartHotseat(seed, playerCount, names.slice(0, playerCount));
+          else if (mode === 'vsAI') {
+            if (trainingDrill === 'canal-drill') onStartTrainingScenario('canal-countdown', aiDifficulty);
+            else if (trainingDrill === 'rail-drill') onStartTrainingScenario('rail-flip-race', aiDifficulty);
+            else if (trainingScenario) onStartTrainingScenario(trainingScenario, aiDifficulty);
+            else if (trainingDrill === 'repeat-seed' && lastSeed != null) onStartVsAI(lastSeed, aiDifficulty, aiOpponents);
+            else onStartVsAI(seed, aiDifficulty, aiOpponents);
+          } else onStartHotseat(seed, playerCount, names.slice(0, playerCount));
         }}
         data-testid="start-game"
       >
-        {trainingScenario ? 'Iniciar escenario' : 'Iniciar partida'}
+        {trainingScenario || trainingDrill !== 'normal' ? 'Iniciar entrenamiento' : 'Iniciar partida'}
       </button>
     </div>
   );
@@ -759,6 +805,7 @@ function GameScreen({
         <EraScoreOverlay
           score={state.pendingEraScore}
           coachHistory={coachHistory}
+          aiDifficulty={state.aiDifficulty}
           onDismiss={state.pendingEraScore.gameOver ? onReset : onDismissEraScore}
         />
       )}

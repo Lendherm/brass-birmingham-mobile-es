@@ -54,13 +54,22 @@ describe('trainingStats', () => {
     expect(summary.avgDelta).toBeGreaterThan(0);
   });
 
-  it('updates career stats after win', () => {
+  it('updates career stats and elo after win', () => {
     const summary = summarizeSession([mockFeedback('excellent'), mockFeedback('mistake', 12)]);
     const before = loadCareerStats();
-    const after = updateCareerAfterGame(summary, 'win');
+    const after = updateCareerAfterGame(summary, 'win', 'medium');
     expect(after.games).toBe(before.games + 1);
     expect(after.wins).toBe(before.wins + 1);
+    expect(after.elo).toBeGreaterThanOrEqual(before.elo);
     expect(after.totalMistakes).toBe(before.totalMistakes + summary.mistakes);
     expect(winRate(after)).toBeGreaterThanOrEqual(0);
+  });
+
+  it('tracks weakness categories', () => {
+    const fb = mockFeedback('mistake', 12);
+    fb.yourAction = { type: 'pass', cardIdx: 0 };
+    fb.bestAction = { type: 'sell', cardIdx: 0, sales: [] as never };
+    const summary = summarizeSession([fb]);
+    expect(summary.weaknesses.length).toBeGreaterThan(0);
   });
 });

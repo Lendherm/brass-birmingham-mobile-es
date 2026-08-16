@@ -1080,6 +1080,131 @@ button.selected {
   white-space: nowrap;
 }
 
+.training-dashboard-btn,
+.openings-guide-btn {
+  font: inherit;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+.training-dashboard {
+  max-width: 520px;
+  width: min(96vw, 520px);
+  text-align: left;
+}
+
+.training-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.training-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.training-dashboard-stat {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+
+.training-dashboard-label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.training-dashboard-section {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.training-dashboard-section h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.training-dashboard-diff,
+.training-dashboard-mistakes {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.training-dashboard-empty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.openings-panel .openings-intro {
+  margin: 8px 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.openings-count-picker {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.openings-count-picker button {
+  font: inherit;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+.openings-count-picker button.active {
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel));
+}
+
+.openings-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.openings-index button {
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+.openings-index button.selected {
+  border-color: var(--accent);
+}
+
+.openings-plan-summary {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.openings-plan ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .badge-human {
   color: var(--human);
   font-weight: 700;

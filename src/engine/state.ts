@@ -108,6 +108,8 @@ export interface GameState {
   pendingEraScore?: PendingEraScore | null;
   /** Escenario fijo de entrenamiento (modo vs AI). */
   trainingScenario?: TrainingScenarioId;
+  /** Evita turnos IA automáticos durante simulación del planner. */
+  plannerSim?: boolean;
 }
 
 export function isSolo(state: GameState): boolean {

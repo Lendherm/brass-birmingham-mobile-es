@@ -1,5 +1,5 @@
 import type { TrainingCareerStats, TrainingSessionSummary } from '../engine/ai/trainingStats';
-import { winRate } from '../engine/ai/trainingStats';
+import { mistakeRate, winRate } from '../engine/ai/trainingStats';
 
 interface Props {
   session: TrainingSessionSummary;
@@ -13,7 +13,8 @@ export function TrainingSummaryPanel({ session, career }: Props) {
     <div className="training-summary panel" data-testid="training-summary">
       <h3>Resumen de entrenamiento</h3>
       <p className="training-summary-meta">
-        {session.moves} jugadas analizadas · error medio ≈{session.avgDelta.toFixed(1)} pts
+        {session.moves} jugadas analizadas · error medio ≈{session.avgDelta.toFixed(1)} pts · Elo{' '}
+        <strong>{career.elo}</strong>
       </p>
 
       <div className="training-summary-bars">
@@ -22,6 +23,19 @@ export function TrainingSummaryPanel({ session, career }: Props) {
         <span className="training-bar training-bar-ok">Mejorable {session.ok}</span>
         <span className="training-bar training-bar-mistake">Revisar {session.mistakes}</span>
       </div>
+
+      {session.weaknesses.length > 0 && (
+        <div className="training-summary-issues">
+          <strong>Debilidades de esta partida</strong>
+          <ul>
+            {session.weaknesses.map((w) => (
+              <li key={w.label}>
+                {w.label} ({w.count}×)
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {session.topIssues.length > 0 && (
         <div className="training-summary-issues">
@@ -53,8 +67,8 @@ export function TrainingSummaryPanel({ session, career }: Props) {
       <div className="training-career" data-testid="training-career">
         <strong>Carrera vs IA</strong>
         <p>
-          {career.games} partidas · {career.wins} victorias · {winRate(career)}% winrate · racha actual{' '}
-          {career.currentStreak} (mejor {career.bestStreak})
+          {career.games} partidas · {career.wins} victorias · {winRate(career)}% winrate · error{' '}
+          {mistakeRate(career)}% · racha {career.currentStreak} (mejor {career.bestStreak})
         </p>
       </div>
     </div>

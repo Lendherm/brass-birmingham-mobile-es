@@ -155,7 +155,7 @@ let aiTurnProcessing = false;
 
 /** Run AI opponents until it is the human's turn or the game ends. */
 export function processAITurns(state: GameState): void {
-  if (!isVsAI(state) || state.gameOver || aiTurnProcessing) return;
+  if (!isVsAI(state) || state.gameOver || aiTurnProcessing || state.plannerSim) return;
   aiTurnProcessing = true;
   try {
     let safety = 0;
