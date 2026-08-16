@@ -1,6 +1,5 @@
 import {
   BASE_EVAL_WEIGHTS,
-  getEvalWeights,
   resetEvalWeights,
   setEvalWeights,
   type EvalWeights,
