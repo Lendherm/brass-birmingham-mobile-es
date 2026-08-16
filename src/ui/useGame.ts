@@ -4,6 +4,7 @@ import { applyPlayerAction, processAITurns, type PlayerAction } from '../engine/
 import type { CoachFeedback } from '../engine/ai/coach';
 import { compareCoachMove, shouldCoachHuman } from '../engine/ai/coach';
 import type { AIDifficulty } from '../engine/ai/types';
+import { newTrainingScenario } from '../engine/training/scenarios';
 import { newTutorialGame, tutorialSegmentState } from '../engine/tutorial/segments';
 import { INTERACTIVE_TUTORIAL, segmentForStep } from '../engine/tutorial/steps';
 import type { MautomaDifficulty } from '../engine/mautoma/cards';
@@ -86,6 +87,19 @@ export function useGame() {
       const segment = segmentForStep(nextStep);
       const state = segment ? tutorialSegmentState(segment) : prev.state;
       return { ...prev, tutorialStep: nextStep, state, history: [], coachFeedback: null, coachHistory: prev.coachHistory };
+    });
+  }, []);
+
+  const startTrainingScenario = useCallback((scenarioId: import('../engine/training/scenarios').TrainingScenarioId, difficulty: AIDifficulty) => {
+    const state = newTrainingScenario(scenarioId, difficulty);
+    setSession({
+      state,
+      history: [],
+      screenHidden: false,
+      tutorialStep: null,
+      modeIntroPending: true,
+      coachFeedback: null,
+      coachHistory: [],
     });
   }, []);
 
@@ -209,6 +223,7 @@ export function useGame() {
     coachHistory: session?.coachHistory ?? [],
     startSolo,
     startVsAI,
+    startTrainingScenario,
     startTutorial,
     advanceTutorial,
     startHotseat,

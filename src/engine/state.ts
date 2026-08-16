@@ -13,6 +13,7 @@ import { INDUSTRY_TRACKS } from './data/industries';
 import { COAL_MARKET, IRON_MARKET } from './market';
 import { STARTING_SPACE } from './income';
 import type { AIDifficulty } from './ai/types';
+import type { TrainingScenarioId } from './training/scenarios';
 import { MAUTOMA_CARDS, MAUTOMA_MATS, type MautomaDifficulty } from './mautoma/cards';
 import { makeRng, shuffle, type Rng } from './rng';
 
@@ -105,6 +106,8 @@ export interface GameState {
   log: string[];
   /** Modal de puntuación de era pendiente de cerrar (null = ninguno). */
   pendingEraScore?: PendingEraScore | null;
+  /** Escenario fijo de entrenamiento (modo vs AI). */
+  trainingScenario?: TrainingScenarioId;
 }
 
 export function isSolo(state: GameState): boolean {

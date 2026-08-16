@@ -44,6 +44,7 @@ import { ProjectCredits } from './ui/ProjectCredits';
 import { TapInfoBubble } from './ui/TapInfoBubble';
 import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
+import { TRAINING_SCENARIOS, trainingScenarioMeta, type TrainingScenarioId } from './engine/training/scenarios';
 import { APP_NAME_SHORT } from './i18n/projectMeta';
 
 type SetupMode = 'solo' | 'vsAI' | 'hotseat';
@@ -60,6 +61,11 @@ export default function App() {
     <div className={`app${game.state && !game.screenHidden ? ' in-game' : ''}`}>
       <div className="topbar">
         <h1 className="app-title">{APP_NAME_SHORT}</h1>
+        {game.state && !game.screenHidden && game.state.trainingScenario && (
+          <span className="stat training-scenario-badge" data-testid="training-scenario-badge" title={trainingScenarioMeta(game.state.trainingScenario).objective}>
+            🎯 {trainingScenarioMeta(game.state.trainingScenario).title}
+          </span>
+        )}
         {game.state && !game.screenHidden && (
           <>
             <span className={`era-badge era-${game.state.era}`} data-testid="era-badge">
@@ -164,7 +170,13 @@ export default function App() {
       {!game.state ? (
         <>
           <FirstVisitPrompt onStart={game.startTutorial} />
-          <SetupScreen onStartSolo={game.startSolo} onStartVsAI={game.startVsAI} onStartHotseat={game.startHotseat} onStartTutorial={game.startTutorial} />
+          <SetupScreen
+            onStartSolo={game.startSolo}
+            onStartVsAI={game.startVsAI}
+            onStartTrainingScenario={game.startTrainingScenario}
+            onStartHotseat={game.startHotseat}
+            onStartTutorial={game.startTutorial}
+          />
           <ProjectCredits />
         </>
       ) : game.modeIntroPending && game.state ? (
@@ -197,17 +209,20 @@ export default function App() {
 function SetupScreen({
   onStartSolo,
   onStartVsAI,
+  onStartTrainingScenario,
   onStartHotseat,
   onStartTutorial,
 }: {
   onStartSolo: (seed: number, difficulty: MautomaDifficulty, automaOpponents: AutomaOpponents) => void;
   onStartVsAI: (seed: number, difficulty: AIDifficulty, aiOpponents: AIOpponents) => void;
+  onStartTrainingScenario: (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => void;
   onStartHotseat: (seed: number, count: PlayerCount, names: string[]) => void;
   onStartTutorial: () => void;
 }) {
   const [mode, setMode] = useState<SetupMode>('vsAI');
   const [difficulty, setDifficulty] = useState<MautomaDifficulty>('easy');
   const [aiDifficulty, setAiDifficulty] = useState<AIDifficulty>('medium');
+  const [trainingScenario, setTrainingScenario] = useState<TrainingScenarioId | ''>('');
   const [automaOpponents, setAutomaOpponents] = useState<AutomaOpponents>(1);
   const [aiOpponents, setAiOpponents] = useState<AIOpponents>(1);
   const [playerCount, setPlayerCount] = useState<PlayerCount>(2);
@@ -313,6 +328,26 @@ function SetupScreen({
               <option value="hard">Difícil</option>
             </select>
           </label>
+          <label>
+            Escenario de entrenamiento
+            <select
+              value={trainingScenario}
+              onChange={(e) => setTrainingScenario(e.target.value as TrainingScenarioId | '')}
+              data-testid="training-scenario"
+            >
+              <option value="">Partida normal (semilla aleatoria)</option>
+              {TRAINING_SCENARIOS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          {trainingScenario && (
+            <p className="training-scenario-objective" data-testid="training-scenario-objective">
+              <strong>Objetivo:</strong> {trainingScenarioMeta(trainingScenario).objective}
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -351,19 +386,26 @@ function SetupScreen({
 
       <label>
         Semilla
-        <input type="number" value={seed} onChange={(e) => setSeed(Number(e.target.value) || 0)} data-testid="seed" />
+        <input
+          type="number"
+          value={seed}
+          onChange={(e) => setSeed(Number(e.target.value) || 0)}
+          data-testid="seed"
+          disabled={mode === 'vsAI' && !!trainingScenario}
+        />
       </label>
 
       <button
         className="primary"
         onClick={() => {
           if (mode === 'solo') onStartSolo(seed, difficulty, automaOpponents);
+          else if (mode === 'vsAI' && trainingScenario) onStartTrainingScenario(trainingScenario, aiDifficulty);
           else if (mode === 'vsAI') onStartVsAI(seed, aiDifficulty, aiOpponents);
           else onStartHotseat(seed, playerCount, names.slice(0, playerCount));
         }}
         data-testid="start-game"
       >
-        Iniciar partida
+        {trainingScenario ? 'Iniciar escenario' : 'Iniciar partida'}
       </button>
     </div>
   );
