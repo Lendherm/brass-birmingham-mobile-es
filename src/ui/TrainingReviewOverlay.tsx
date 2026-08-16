@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { TrainingReplay } from '../engine/training/replay';
 import { clampReplayIndex, replayMistakeIndices } from '../engine/training/replay';
 import { HUMAN } from '../engine/state';
@@ -9,6 +9,8 @@ import { PlayerPanel } from './PlayerPanel';
 import { PlayerMat } from './PlayerMat';
 import { MarketDisplay } from './MarketDisplay';
 
+const AUTOPLAY_MS = 2500;
+
 interface Props {
   replay: TrainingReplay;
   onClose: () => void;
@@ -17,11 +19,30 @@ interface Props {
 export function TrainingReviewOverlay({ replay, onClose }: Props) {
   const mistakes = useMemo(() => replayMistakeIndices(replay), [replay]);
   const [onlyMistakes, setOnlyMistakes] = useState(false);
+  const [autoplay, setAutoplay] = useState(false);
   const indices = onlyMistakes && mistakes.length > 0 ? mistakes : replay.coachHistory.map((_, i) => i);
   const [pos, setPos] = useState(0);
   const index = clampReplayIndex(replay, indices[Math.min(pos, indices.length - 1)] ?? 0);
   const state = replay.snapshots[index];
   const feedback = replay.coachHistory[index];
+  const atEnd = pos >= indices.length - 1;
+
+  useEffect(() => {
+    setPos(0);
+    setAutoplay(false);
+  }, [onlyMistakes]);
+
+  useEffect(() => {
+    if (!autoplay || atEnd) return;
+    const id = window.setInterval(() => {
+      setPos((p) => Math.min(p + 1, indices.length - 1));
+    }, AUTOPLAY_MS);
+    return () => window.clearInterval(id);
+  }, [autoplay, atEnd, indices.length]);
+
+  useEffect(() => {
+    if (atEnd) setAutoplay(false);
+  }, [atEnd]);
 
   const goPrev = () => setPos((p) => Math.max(0, p - 1));
   const goNext = () => setPos((p) => Math.min(indices.length - 1, p + 1));
@@ -42,18 +63,27 @@ export function TrainingReviewOverlay({ replay, onClose }: Props) {
           </button>
         </header>
 
-        <label className="training-review-filter">
-          <input
-            type="checkbox"
-            checked={onlyMistakes}
-            onChange={(e) => {
-              setOnlyMistakes(e.target.checked);
-              setPos(0);
-            }}
-            disabled={mistakes.length === 0}
-          />
-          Solo jugadas a revisar ({mistakes.length})
-        </label>
+        <div className="training-review-filters">
+          <label className="training-review-filter">
+            <input
+              type="checkbox"
+              checked={onlyMistakes}
+              onChange={(e) => setOnlyMistakes(e.target.checked)}
+              disabled={mistakes.length === 0}
+            />
+            Solo jugadas a revisar ({mistakes.length})
+          </label>
+          <label className="training-review-filter">
+            <input
+              type="checkbox"
+              checked={autoplay}
+              onChange={(e) => setAutoplay(e.target.checked)}
+              disabled={indices.length <= 1 || atEnd}
+              data-testid="review-autoplay"
+            />
+            Autoplay ({AUTOPLAY_MS / 1000}s)
+          </label>
+        </div>
 
         <div className="training-review-body">
           <div className="training-review-map board-wrap">
@@ -77,7 +107,7 @@ export function TrainingReviewOverlay({ replay, onClose }: Props) {
           <button type="button" onClick={goPrev} disabled={pos === 0} data-testid="review-prev">
             ← Anterior
           </button>
-          <button type="button" onClick={goNext} disabled={pos >= indices.length - 1} data-testid="review-next">
+          <button type="button" onClick={goNext} disabled={atEnd} data-testid="review-next">
             Siguiente →
           </button>
           <button type="button" className="primary" onClick={onClose}>

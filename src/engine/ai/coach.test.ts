@@ -1,14 +1,42 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { legalBuilds } from '../options';
-import { HUMAN, newVsAIGame } from '../state';
+import { HUMAN, newHotseatGame, newVsAIGame } from '../state';
 import { compareCoachMove, describeAction, shouldCoachHuman } from './coach';
 import { rankCandidates } from './evaluate';
 
+beforeEach(() => {
+  const store = new Map<string, string>();
+  globalThis.localStorage = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => store.clear(),
+    key: () => null,
+    length: 0,
+  };
+});
+
 describe('training coach', () => {
+  beforeEach(() => {
+    localStorage.removeItem('bbsolo-hotseat-coach');
+  });
+
   it('activates only for human turns in vs AI', () => {
     const state = newVsAIGame(1, 'medium', 1);
     expect(shouldCoachHuman(state)).toBe(true);
     state.currentPlayer = 1;
+    expect(shouldCoachHuman(state)).toBe(false);
+  });
+
+  it('activates in hotseat when hotseat coach is enabled', () => {
+    localStorage.setItem('bbsolo-hotseat-coach', '1');
+    const state = newHotseatGame(2, 2, ['A', 'B']);
+    expect(shouldCoachHuman(state)).toBe(true);
+    localStorage.removeItem('bbsolo-hotseat-coach');
     expect(shouldCoachHuman(state)).toBe(false);
   });
 

@@ -25,4 +25,5 @@ export const FORK_CHANGES = [
   'Modo Contra IA (Brass oficial), entrenador comparativo, escenarios de torneo y panel Elo.',
   'Repaso jugada a jugada, drills por debilidad, metas semanales y modo Torneo (MCTS).',
   'Confianza del entrenador, self-play IA y benchmark de dificultades.',
+  'APK automática en CI, exportación de estadísticas, repaso con autoplay y entrenador en hotseat.',
 ] as const;

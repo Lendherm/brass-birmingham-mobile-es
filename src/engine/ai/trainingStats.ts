@@ -364,3 +364,58 @@ export function topWeaknesses(stats: TrainingCareerStats, n = 5): { label: strin
     .slice(0, n)
     .map(([key, count]) => ({ label: weaknessLabel(key), count }));
 }
+
+/** Serializable career snapshot for export. */
+export function careerStatsExportPayload(stats: TrainingCareerStats) {
+  return {
+    exportedAt: new Date().toISOString(),
+    elo: stats.elo,
+    games: stats.games,
+    wins: stats.wins,
+    losses: stats.losses,
+    ties: stats.ties,
+    winRate: winRate(stats),
+    mistakeRate: mistakeRate(stats),
+    totalMoves: stats.totalMoves,
+    totalMistakes: stats.totalMistakes,
+    bestStreak: stats.bestStreak,
+    currentStreak: stats.currentStreak,
+    weekly: stats.weekly,
+    byDifficulty: stats.byDifficulty,
+    weaknessCounts: stats.weaknessCounts,
+    recentMistakes: stats.recentMistakes,
+  };
+}
+
+export function careerStatsToJson(stats: TrainingCareerStats): string {
+  return JSON.stringify(careerStatsExportPayload(stats), null, 2);
+}
+
+export function careerStatsToCsv(stats: TrainingCareerStats): string {
+  const payload = careerStatsExportPayload(stats);
+  const lines: string[] = ['section,key,value'];
+  lines.push(`summary,elo,${payload.elo}`);
+  lines.push(`summary,games,${payload.games}`);
+  lines.push(`summary,wins,${payload.wins}`);
+  lines.push(`summary,losses,${payload.losses}`);
+  lines.push(`summary,ties,${payload.ties}`);
+  lines.push(`summary,winRate,${payload.winRate}`);
+  lines.push(`summary,mistakeRate,${payload.mistakeRate}`);
+  lines.push(`summary,totalMoves,${payload.totalMoves}`);
+  lines.push(`summary,totalMistakes,${payload.totalMistakes}`);
+  lines.push(`weekly,weekId,${payload.weekly.weekId}`);
+  lines.push(`weekly,gamesPlayed,${payload.weekly.gamesPlayed}`);
+  lines.push(`weekly,moves,${payload.weekly.moves}`);
+  lines.push(`weekly,mistakes,${payload.weekly.mistakes}`);
+  lines.push(`weekly,wins,${payload.weekly.wins}`);
+  lines.push(`weekly,tournamentWins,${payload.weekly.tournamentWins}`);
+  for (const [diff, rec] of Object.entries(payload.byDifficulty)) {
+    lines.push(`difficulty,${diff}_wins,${rec.wins}`);
+    lines.push(`difficulty,${diff}_losses,${rec.losses}`);
+    lines.push(`difficulty,${diff}_ties,${rec.ties}`);
+  }
+  for (const [key, count] of Object.entries(payload.weaknessCounts)) {
+    lines.push(`weakness,${key},${count}`);
+  }
+  return lines.join('\n');
+}

@@ -348,6 +348,20 @@
   font-size: 13px;
 }
 
+.training-review-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.hotseat-coach-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 .training-review-body {
   display: grid;
   grid-template-columns: 1fr;

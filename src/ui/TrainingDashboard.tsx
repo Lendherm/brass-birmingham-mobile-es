@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { AIDifficulty } from '../engine/ai/types';
 import {
+  careerStatsToCsv,
+  careerStatsToJson,
   loadCareerStats,
   loadWeeklyGoalSettings,
   mistakeRate,
@@ -22,6 +24,16 @@ const DIFF_LABEL: Record<AIDifficulty, string> = {
   hard: 'Difícil',
   tournament: 'Torneo',
 };
+
+function downloadTextFile(filename: string, content: string, mime: string): void {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 interface Props {
   open: boolean;
@@ -173,6 +185,20 @@ export function TrainingDashboardModal({ open, onClose, onStartWeaknessDrill }: 
           )}
 
           <div className="training-dashboard-actions">
+            <button
+              type="button"
+              onClick={() => downloadTextFile('brass-training-career.json', careerStatsToJson(career), 'application/json')}
+              data-testid="export-career-json"
+            >
+              Exportar JSON
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadTextFile('brass-training-career.csv', careerStatsToCsv(career), 'text/csv')}
+              data-testid="export-career-csv"
+            >
+              Exportar CSV
+            </button>
             {savedReplay && (
               <button type="button" onClick={() => setReviewOpen(true)} data-testid="dashboard-open-review">
                 Repaso última partida ({savedReplay.coachHistory.length} jugadas)

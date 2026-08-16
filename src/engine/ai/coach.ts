@@ -217,5 +217,18 @@ export function compareCoachMove(state: GameState, humanAction: PlayerAction): C
 }
 
 export function shouldCoachHuman(state: GameState): boolean {
-  return state.mode === 'vsAI' && state.currentPlayer === HUMAN && !state.gameOver;
+  if (state.gameOver) return false;
+  if (state.mode === 'vsAI' && state.currentPlayer === HUMAN) return true;
+  if (state.mode === 'hotseat' && isHotseatCoachEnabled()) return true;
+  return false;
+}
+
+export const HOTSEAT_COACH_KEY = 'bbsolo-hotseat-coach';
+
+export function isHotseatCoachEnabled(): boolean {
+  try {
+    return localStorage.getItem(HOTSEAT_COACH_KEY) === '1';
+  } catch {
+    return false;
+  }
 }

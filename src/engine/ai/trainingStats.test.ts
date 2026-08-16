@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import type { CoachFeedback } from './coach';
-import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate, weeklyGoalSummary, WEEKLY_GOAL_GAMES, loadWeeklyGoalSettings, saveWeeklyGoalSettings } from './trainingStats';
+import { loadCareerStats, summarizeSession, updateCareerAfterGame, winRate, weeklyGoalSummary, WEEKLY_GOAL_GAMES, loadWeeklyGoalSettings, saveWeeklyGoalSettings, careerStatsToJson, careerStatsToCsv } from './trainingStats';
 
 const CAREER_KEY = 'bbsolo-training-career-v1';
 
@@ -89,5 +89,18 @@ describe('trainingStats', () => {
     expect(loaded.targetGames).toBe(5);
     expect(loaded.maxMistakeRate).toBe(10);
     expect(loaded.targetTournamentWins).toBe(2);
+  });
+
+  it('exports career stats as JSON and CSV', () => {
+    const stats = loadCareerStats();
+    stats.games = 2;
+    stats.elo = 1050;
+    stats.weaknessCounts = { pass: 3 };
+    const json = careerStatsToJson(stats);
+    expect(json).toContain('"elo": 1050');
+    expect(json).toContain('"exportedAt"');
+    const csv = careerStatsToCsv(stats);
+    expect(csv).toContain('summary,elo,1050');
+    expect(csv).toContain('weakness,pass,3');
   });
 });

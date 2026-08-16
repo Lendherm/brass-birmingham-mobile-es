@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { HOTSEAT_COACH_KEY } from '../engine/ai/coach';
 
 const KEY = 'bbsolo-training-coach';
 
@@ -11,13 +12,21 @@ export function useTrainingCoach() {
     return true;
   });
 
+  const [hotseatEnabled, setHotseatEnabled] = useState(() => localStorage.getItem(HOTSEAT_COACH_KEY) === '1');
+
   useEffect(() => {
     localStorage.setItem(KEY, enabled ? '1' : '0');
   }, [enabled]);
 
+  useEffect(() => {
+    localStorage.setItem(HOTSEAT_COACH_KEY, hotseatEnabled ? '1' : '0');
+  }, [hotseatEnabled]);
+
   return {
     coachEnabled: enabled,
+    hotseatCoachEnabled: hotseatEnabled,
     toggleCoach: () => setEnabled((v) => !v),
+    toggleHotseatCoach: () => setHotseatEnabled((v) => !v),
     disableCoach: () => setEnabled(false),
   };
 }

@@ -60,7 +60,7 @@ export default function App() {
   const { theme, toggle } = useTheme();
   const { largeText, toggleLargeText } = useAccessibility();
   const { assistantEnabled, assistantRefresh, pressAssistant, disableAssistant } = usePlayAssistant();
-  const { coachEnabled, toggleCoach } = useTrainingCoach();
+  const { coachEnabled, hotseatCoachEnabled, toggleCoach, toggleHotseatCoach } = useTrainingCoach();
   const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
   const startWeaknessDrill = (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => {
@@ -149,6 +149,18 @@ export default function App() {
           </button>
           </>
         )}
+        {game.state && !game.screenHidden && game.state.mode === 'hotseat' && (
+          <button
+            type="button"
+            onClick={toggleHotseatCoach}
+            data-testid="hotseat-coach-toggle"
+            aria-pressed={hotseatCoachEnabled}
+            title={hotseatCoachEnabled ? 'Ocultar entrenador hotseat' : 'Entrenador comparativo en hotseat'}
+            className={`topbar-compact-btn${hotseatCoachEnabled ? ' active' : ''}`}
+          >
+            🎓
+          </button>
+        )}
         {game.state && !game.screenHidden && (
           <button
             type="button"
@@ -204,6 +216,7 @@ export default function App() {
           dispatch={game.dispatch}
           coachFeedback={game.coachFeedback}
           coachEnabled={coachEnabled}
+          hotseatCoachEnabled={hotseatCoachEnabled}
           coachHistory={game.coachHistory}
           replaySnapshots={game.replaySnapshots}
           onDismissCoach={game.dismissCoachFeedback}
@@ -250,6 +263,7 @@ function SetupScreen({
   const [playerCount, setPlayerCount] = useState<PlayerCount>(2);
   const [names, setNames] = useState<string[]>([...DEFAULT_PLAYER_NAMES]);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
+  const { hotseatCoachEnabled, toggleHotseatCoach } = useTrainingCoach();
 
   const previewCount =
     mode === 'solo' ? ((automaOpponents + 1) as PlayerCount) : mode === 'vsAI' ? ((aiOpponents + 1) as PlayerCount) : playerCount;
@@ -440,6 +454,15 @@ function SetupScreen({
               />
             </label>
           ))}
+          <label className="hotseat-coach-option">
+            <input
+              type="checkbox"
+              checked={hotseatCoachEnabled}
+              onChange={() => toggleHotseatCoach()}
+              data-testid="hotseat-coach-setup"
+            />
+            Entrenador comparativo (analiza cada jugada del jugador activo)
+          </label>
         </>
       )}
 
@@ -479,6 +502,7 @@ function GameScreen({
   dispatch,
   coachFeedback,
   coachEnabled,
+  hotseatCoachEnabled,
   coachHistory,
   replaySnapshots,
   onDismissCoach,
@@ -497,6 +521,7 @@ function GameScreen({
   dispatch: (a: PlayerAction) => string | null;
   coachFeedback: import('./engine/ai/coach').CoachFeedback | null;
   coachEnabled: boolean;
+  hotseatCoachEnabled: boolean;
   coachHistory: import('./engine/ai/coach').CoachFeedback[];
   replaySnapshots: GameState[];
   onDismissCoach: () => void;
@@ -513,6 +538,9 @@ function GameScreen({
 }) {
   const inTutorial = tutorialStep !== null && isTutorial(state);
   const humanTurn = !isVsAI(state) || state.currentPlayer === HUMAN;
+  const coachActive =
+    !inTutorial &&
+    ((isVsAI(state) && coachEnabled) || (state.mode === 'hotseat' && hotseatCoachEnabled));
   const [liveReviewOpen, setLiveReviewOpen] = useState(false);
   const liveReplay = useMemo(
     () => buildTrainingReplay(coachHistory, replaySnapshots),
@@ -645,10 +673,10 @@ function GameScreen({
         <div className="side side-scroll">
           <div className="game-hud">
             <PlayerPanel state={state} />
-            {coachEnabled && coachFeedback && isVsAI(state) && !inTutorial && (
+            {coachActive && coachFeedback && (
               <CoachPanel feedback={coachFeedback} onDismiss={onDismissCoach} />
             )}
-            {isVsAI(state) && !inTutorial && coachHistory.length > 0 && (
+            {(isVsAI(state) || state.mode === 'hotseat') && !inTutorial && coachHistory.length > 0 && (
               <button
                 type="button"
                 className="training-live-review-btn"

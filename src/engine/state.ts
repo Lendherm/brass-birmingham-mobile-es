@@ -407,6 +407,7 @@ export function newHotseatGame(seed: number, playerCount: PlayerCount, names: st
     automaLastCities: {},
     automaFirstTurnDone: {},
     gameOver: false,
+    aiDifficulty: 'hard',
     log: [],
   };
   dealHotseatHands(state);
