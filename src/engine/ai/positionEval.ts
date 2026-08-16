@@ -4,6 +4,7 @@ import { levelForSpace } from '../income';
 import { estimateTurnsUntilEraEnd } from '../canalEraWarnings';
 import { activePlayer, type GameState } from '../state';
 import type { CityId, IndustryType, PlayerId } from '../types';
+import { getEvalWeights } from './evalWeights';
 
 /** Cards still in play (hands + draw pile). Lower = less tempo left. */
 export function cardsRemainingInGame(state: GameState): number {
@@ -12,11 +13,12 @@ export function cardsRemainingInGame(state: GameState): number {
 
 /** Rough tempo value: having cards left when rivals are dry is good. */
 export function deckTempoBonus(state: GameState, player: PlayerId = activePlayer(state)): number {
+  const w = getEvalWeights();
   const mine = state.players[player].hand.length;
   const total = cardsRemainingInGame(state);
   if (total === 0) return 0;
   const avg = total / state.playerCount;
-  return (mine - avg) * 2.5 + (state.drawPile.length > 0 ? 1 : 0);
+  return (mine - avg) * w.tempoHand + (state.drawPile.length > 0 ? 1 : 0);
 }
 
 /** Beer on own breweries plus reachable merchant beer slots. */
@@ -73,27 +75,28 @@ export function canalExpiryRisk(state: GameState, player: PlayerId): number {
 
 /** Aggregate position score for lookahead simulation. */
 export function evaluatePosition(state: GameState, player: PlayerId): number {
+  const w = getEvalWeights();
   const p = state.players[player];
-  let score = p.vp * 55 + p.money * 0.6 + levelForSpace(p.incomeSpace) * 9;
-  score += countNetworkCities(state, player) * 2.5;
+  let score = p.vp * w.vp + p.money * w.money + levelForSpace(p.incomeSpace) * w.income;
+  score += countNetworkCities(state, player) * w.networkCity;
   score += deckTempoBonus(state, player);
-  score += playerBeerSupply(state, player) * 2.2;
+  score += playerBeerSupply(state, player) * w.beer;
 
   for (const slots of Object.values(state.board)) {
     for (const tile of slots) {
       if (tile?.owner !== player) continue;
       const spec = tileSpec(tile.industry, tile.level);
-      if (tile.flipped) score += spec.vp * 3;
+      if (tile.flipped) score += spec.vp * w.flippedVp;
       else if (tile.industry === 'coal' || tile.industry === 'iron') score += tile.resources * 2;
     }
   }
 
-  score -= canalExpiryRisk(state, player);
+  score -= canalExpiryRisk(state, player) * w.canalRisk;
 
   for (let i = 0; i < state.playerCount; i++) {
     if (i === player) continue;
-    score -= state.players[i].vp * 8;
-    score -= countNetworkCities(state, i as PlayerId) * 1.2;
+    score -= state.players[i].vp * w.rivalVp;
+    score -= countNetworkCities(state, i as PlayerId) * w.rivalNetwork;
   }
 
   return score;

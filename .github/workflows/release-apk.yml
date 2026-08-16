@@ -1,0 +1,50 @@
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install, test and build web app
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Build release APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleRelease
+
+      - name: Prepare APK asset
+        run: cp android/app/build/outputs/apk/release/app-release-unsigned.apk Brass-Birmingham-Edicion-Movil.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Brass-Birmingham-Edicion-Movil.apk
+          generate_release_notes: true
