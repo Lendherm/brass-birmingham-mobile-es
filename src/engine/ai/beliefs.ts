@@ -1,4 +1,5 @@
 import { cardsRemainingInGame } from './positionEval';
+import { hiddenIndustryPressure } from './cardBeliefs';
 import { HUMAN, activePlayer, isVsAI, type GameState, type PlayerId } from '../state';
 
 /** How many more cards the opponent likely holds vs table average. */
@@ -35,6 +36,8 @@ export function beliefHintForHuman(state: GameState): string | null {
   if (flex > 0.55 && pressure > 1) {
     return `${state.playerNames[rival]} probablemente aún tiene mano flexible (~${state.players[rival].hand.length} cartas): conviene presionar tablero antes de pasar.`;
   }
+  const cardHint = hiddenIndustryPressure(state, HUMAN);
+  if (cardHint) return cardHint;
   if (state.drawPile.length <= 4 && cardsRemainingInGame(state) <= 8) {
     return 'Pocas cartas en juego: cada acción restante pesa mucho en el tempo de era.';
   }

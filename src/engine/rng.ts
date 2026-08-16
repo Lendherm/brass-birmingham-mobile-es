@@ -7,6 +7,10 @@ export function makeRng(seed: number): Rng {
   return { state: seed >>> 0 };
 }
 
+export function cloneRng(rng: Rng): Rng {
+  return { state: rng.state };
+}
+
 export function nextFloat(rng: Rng): number {
   rng.state = (rng.state + 0x6d2b79f5) >>> 0;
   let t = rng.state;

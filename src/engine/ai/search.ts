@@ -3,6 +3,7 @@ import { nextInt } from '../rng';
 import { type GameState, type PlayerId } from '../state';
 import { rankCandidates, topCandidates } from './evaluate';
 import { evaluatePosition } from './positionEval';
+import { sampleBeliefStateSafe } from './cardBeliefs';
 import { opponentFlexibility, primaryOpponent } from './beliefs';
 import { pickByDifficulty } from './planner';
 import type { AIDifficulty } from './types';
@@ -35,7 +36,7 @@ export function monteCarloActionValue(
   const rivalAggression: AIDifficulty = opponentFlexibility(state, rival) > 0.5 ? 'medium' : 'easy';
 
   for (let r = 0; r < rollouts; r++) {
-    const sim = cloneSim(state);
+    const sim = r === 0 ? cloneSim(state) : sampleBeliefStateSafe(state, player, r + 1);
     applyPlayerAction(sim, firstAction);
     finishGreedyTurn(sim);
     if (!sim.gameOver && sim.currentPlayer === rival) {

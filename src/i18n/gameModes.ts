@@ -41,6 +41,7 @@ const AI_DIFFICULTY_LABEL: Record<AIDifficulty, string> = {
   easy: 'Fácil',
   medium: 'Media',
   hard: 'Difícil',
+  tournament: 'Torneo',
 };
 
 export function eraDeckTotal(mode: 'solo' | 'hotseat' | 'vsAI', playerCount: PlayerCount, era: Era): number {

@@ -151,4 +151,13 @@ describe('AI engine', () => {
     const action = planAIAction(state, 'hard');
     expect(action.type).not.toBe('pass');
   });
+
+  it('tournament difficulty uses MCTS without illegal actions', () => {
+    const state = newVsAIGame(88, 'tournament', 1);
+    state.currentPlayer = 1;
+    state.actionsLeft = 1;
+    const action = planAIAction(state, 'tournament');
+    const issues = auditAIAction(state, action);
+    expect(issues.filter((i) => i.code === 'ILLEGAL_ACTION')).toEqual([]);
+  });
 });

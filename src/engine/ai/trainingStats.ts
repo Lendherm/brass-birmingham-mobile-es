@@ -50,6 +50,7 @@ const OPPONENT_ELO: Record<AIDifficulty, number> = {
   easy: 950,
   medium: 1100,
   hard: 1250,
+  tournament: 1400,
 };
 
 const WEAKNESS_LABELS: Record<string, string> = {
@@ -82,6 +83,7 @@ function defaultCareer(): TrainingCareerStats {
       easy: emptyDifficultyRecord(),
       medium: emptyDifficultyRecord(),
       hard: emptyDifficultyRecord(),
+      tournament: emptyDifficultyRecord(),
     },
     weaknessCounts: {},
     recentMistakes: [],
@@ -97,6 +99,7 @@ function normalizeCareer(raw: Partial<TrainingCareerStats>): TrainingCareerStats
       easy: { ...base.byDifficulty.easy, ...raw.byDifficulty?.easy },
       medium: { ...base.byDifficulty.medium, ...raw.byDifficulty?.medium },
       hard: { ...base.byDifficulty.hard, ...raw.byDifficulty?.hard },
+      tournament: { ...base.byDifficulty.tournament, ...raw.byDifficulty?.tournament },
     },
     weaknessCounts: raw.weaknessCounts ?? base.weaknessCounts,
     recentMistakes: raw.recentMistakes ?? base.recentMistakes,

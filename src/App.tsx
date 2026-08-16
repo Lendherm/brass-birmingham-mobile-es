@@ -343,6 +343,7 @@ function SetupScreen({
               <option value="easy">Fácil</option>
               <option value="medium">Media</option>
               <option value="hard">Difícil</option>
+              <option value="tournament">Torneo (MCTS ~350 ms)</option>
             </select>
           </label>
           <label>

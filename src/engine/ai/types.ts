@@ -1,6 +1,6 @@
 import type { PlayerAction } from '../game';
 
-export type AIDifficulty = 'easy' | 'medium' | 'hard';
+export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'tournament';
 
 export interface ScoredAction {
   action: PlayerAction;

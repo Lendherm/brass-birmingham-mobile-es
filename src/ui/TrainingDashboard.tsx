@@ -12,6 +12,7 @@ const DIFF_LABEL: Record<AIDifficulty, string> = {
   easy: 'Fácil',
   medium: 'Media',
   hard: 'Difícil',
+  tournament: 'Torneo',
 };
 
 export function TrainingDashboardModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -52,7 +53,7 @@ export function TrainingDashboardModal({ open, onClose }: { open: boolean; onClo
         <section className="training-dashboard-section">
           <h3>Resultados por dificultad</h3>
           <ul className="training-dashboard-diff">
-            {(['easy', 'medium', 'hard'] as AIDifficulty[]).map((d) => {
+            {(['easy', 'medium', 'hard', 'tournament'] as AIDifficulty[]).map((d) => {
               const rec = career.byDifficulty[d];
               const total = rec.wins + rec.losses + rec.ties;
               return (

@@ -318,6 +318,7 @@ const AI_DIFFICULTY_ES: Record<AIDifficulty, string> = {
   easy: 'Fácil',
   medium: 'Media',
   hard: 'Difícil',
+  tournament: 'Torneo',
 };
 
 export function newVsAIGame(seed: number, aiDifficulty: AIDifficulty, aiOpponents: AIOpponents = 1): GameState {

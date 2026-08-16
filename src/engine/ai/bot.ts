@@ -14,7 +14,10 @@ export { auditAIAction, auditAIGameplay, summarizeIssues, filterBySeverity } fro
 export { compareCoachMove, describeAction, shouldCoachHuman } from './coach';
 export type { CoachFeedback, CoachVerdict } from './coach';
 export { beliefHintForHuman, opponentFlexibility } from './beliefs';
+export { cardKey, unknownCardPool, sampleBeliefState, countPoolByKey } from './cardBeliefs';
 export { monteCarloActionValue, enhanceHardScore } from './search';
+export { mctsPickAction } from './mcts';
+export type { MCTSOptions } from './mcts';
 export type { AIAuditReport } from './audit';
 
 import type { GameState } from '../state';

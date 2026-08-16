@@ -4,6 +4,7 @@ import { HUMAN, activePlayer, type GameState, type PlayerId } from '../state';
 import { bestActionScore, rankCandidates, topCandidates } from './evaluate';
 import { evaluatePosition } from './positionEval';
 import { enhanceHardScore } from './search';
+import { mctsPickAction } from './mcts';
 import type { AIDifficulty } from './types';
 
 function cloneState(state: GameState): GameState {
@@ -56,11 +57,42 @@ export function planAIAction(state: GameState, difficulty: AIDifficulty): Player
   const candidates = rankCandidates(state);
   if (candidates.length === 0) throw new Error('La IA no tiene acciones legales');
 
+  const player = activePlayer(state);
+
+  if (difficulty === 'tournament') {
+    const fastSearch = typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test';
+    const budget = state.plannerSim || fastSearch ? 0 : 350;
+    const maxIter = state.plannerSim ? 6 : fastSearch ? 10 : undefined;
+    if (state.actionsLeft <= 1) {
+      return mctsPickAction(state, player, { timeBudgetMs: budget, maxIterations: maxIter, topN: 6 });
+    }
+    const firstOptions = topCandidates(candidates, 4);
+    let best: { action: PlayerAction; score: number } | null = null;
+    for (const first of firstOptions) {
+      const sim = cloneState(state);
+      applyPlayerAction(sim, first.action);
+      if (sim.gameOver) {
+        if (!best || first.score > best.score) best = { action: first.action, score: first.score };
+        continue;
+      }
+      const secondBest = bestActionScore(rankCandidates(sim));
+      let pairScore = first.score + secondBest * 0.9;
+      const lookahead = cloneState(sim);
+      finishCurrentTurn(lookahead);
+      if (!lookahead.gameOver && lookahead.currentPlayer !== player) {
+        pairScore = scoreWithRivalLookahead(lookahead, player, pairScore);
+      }
+      pairScore = enhanceHardScore(state, player, first.action, pairScore);
+      if (!best || pairScore > best.score) best = { action: first.action, score: pairScore };
+    }
+    const mcts = mctsPickAction(state, player, { timeBudgetMs: budget, maxIterations: maxIter, topN: 5 });
+    if (best && best.action.type !== 'pass') return best.action;
+    return mcts;
+  }
+
   if (state.actionsLeft <= 1 || difficulty === 'easy') {
     return pickByDifficulty(state, candidates, difficulty);
   }
-
-  const player = activePlayer(state);
   const firstOptions = topCandidates(candidates, difficulty === 'hard' ? 4 : 4);
   let best: { action: PlayerAction; score: number } | null = null;
 
@@ -105,7 +137,7 @@ export function pickByDifficulty(
     return top[nextInt(state.rng, top.length)].action;
   }
 
-  if (difficulty === 'hard') {
+  if (difficulty === 'hard' || difficulty === 'tournament') {
     const best = sorted[0].score;
     const tier = sorted.filter((c) => c.score >= best - 3 && c.action.type !== 'pass');
     const pool = tier.length > 0 ? tier : sorted.slice(0, 1);
