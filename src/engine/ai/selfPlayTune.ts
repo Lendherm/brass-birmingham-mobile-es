@@ -40,13 +40,17 @@ export interface TuneResult {
 }
 
 /** Lightweight coordinate search for evaluator weights (offline / tests). */
-export function tuneEvalWeights(seeds: readonly number[] = [1, 2, 3, 4, 5, 6], maxSteps = 40): TuneResult {
+export function tuneEvalWeights(
+  seeds: readonly number[] = [1, 2, 3, 4, 5, 6],
+  maxSteps = 40,
+  options: { rounds?: number; factors?: readonly number[] } = {},
+): TuneResult {
   resetEvalWeights();
   let best = { ...BASE_EVAL_WEIGHTS };
   let bestScore = scoreEvalWeights(seeds, best, maxSteps);
   const baselineScore = bestScore;
-  const rounds = process.env.CI ? 1 : 2;
-  const factors = process.env.CI ? [1.08] : [0.92, 1.08];
+  const rounds = options.rounds ?? 2;
+  const factors = options.factors ?? [0.92, 1.08];
 
   for (let round = 0; round < rounds; round++) {
     for (const key of TUNE_KEYS) {
