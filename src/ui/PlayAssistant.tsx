@@ -12,23 +12,16 @@ interface Props {
   state: GameState;
   refreshKey?: number;
   onClose?: () => void;
+  onRefresh?: () => void;
 }
 
-export function PlayAssistant({ state, refreshKey = 0, onClose }: Props) {
+export function PlayAssistant({ state, refreshKey = 0, onClose, onRefresh }: Props) {
   const suggestions = useMemo(
     () =>
-      computePlaySuggestions(
-        state,
-        (city, industry) => ({
-          city: CITIES[city].name,
-          industry: industria(industry),
-        }),
-        refreshKey,
-      ).map((s) =>
-        s.id.startsWith('net-')
-          ? { ...s, detail: s.detail.replace('Enlace', linkLabel(s.id.replace('net-', ''))) }
-          : s,
-      ),
+      computePlaySuggestions(state, (city, industry) => ({
+        city: CITIES[city].name,
+        industry: industria(industry),
+      }), refreshKey),
     [state, refreshKey],
   );
 
@@ -38,11 +31,19 @@ export function PlayAssistant({ state, refreshKey = 0, onClose }: Props) {
         <div>
           <h3>Asistente de jugadas</h3>
           <p className="play-assistant-meta">
-            {refreshKey > 0 ? `Actualizado · pulsa Sugerencias de nuevo para rotar` : 'Pulsa Sugerencias arriba para actualizar'}
+            Pulsa <strong>Sugerencias</strong> arriba para activar o desactivar.
+            {onRefresh ? (
+              <>
+                {' '}
+                <button type="button" className="play-assistant-refresh" onClick={onRefresh} data-testid="play-assistant-refresh">
+                  ↻ Actualizar lista
+                </button>
+              </>
+            ) : null}
           </p>
         </div>
         {onClose && (
-          <button type="button" className="play-assistant-close" onClick={onClose} aria-label="Ocultar asistente" data-testid="play-assistant-close">
+          <button type="button" className="play-assistant-close" onClick={onClose} aria-label="Ocultar sugerencias" data-testid="play-assistant-close">
             Ocultar
           </button>
         )}
@@ -52,6 +53,7 @@ export function PlayAssistant({ state, refreshKey = 0, onClose }: Props) {
         {suggestions.map((s) => (
           <li key={`${s.id}-${refreshKey}`}>
             <strong>{s.action}:</strong> {s.detail}
+            <span className="play-assistant-reason">{s.reason}</span>
           </li>
         ))}
       </ol>

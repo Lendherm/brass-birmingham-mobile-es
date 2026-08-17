@@ -1,6 +1,13 @@
 import type { CityId } from './types';
-import { CITIES } from './data/board';
+import { CITIES, LINKS } from './data/board';
 import { tileSpec } from './data/industries';
+import {
+  buildWhy,
+  developWhy,
+  networkWhy,
+  sellWhyFromState,
+  type ActionKind,
+} from './actionExplain';
 import {
   canLoan,
   legalBuilds,
@@ -17,6 +24,8 @@ export interface PlaySuggestion {
   priority: number;
   action: string;
   detail: string;
+  reason: string;
+  actionKind: ActionKind;
 }
 
 function buildSuggestion(b: BuildChoice, labels: { city: string; industry: string }): PlaySuggestion {
@@ -26,7 +35,9 @@ function buildSuggestion(b: BuildChoice, labels: { city: string; industry: strin
     id: `build-${option.city}-${option.industry}-${option.level}`,
     priority: spec.linkVP * 2 + spec.incomeBump + (spec.vp > 0 ? 1 : 0),
     action: 'Construir',
+    actionKind: 'build',
     detail: `${labels.city}: ${labels.industry} N${option.level} — £${option.totalCost}`,
+    reason: buildWhy(b),
   };
 }
 
@@ -46,7 +57,9 @@ export function computePlaySuggestions(
       id: 'loan',
       priority: 50,
       action: 'Préstamo',
-      detail: `Tienes £${money}. Un préstamo da +£30 (baja ingresos 3 espacios).`,
+      actionKind: 'loan',
+      detail: `Tienes £${money}. Un préstamo da +£30.`,
+      reason: 'Te falta efectivo para construir o enlazar; el préstamo baja ingresos 3 espacios.',
     });
   }
 
@@ -65,6 +78,7 @@ export function computePlaySuggestions(
     const s = buildSuggestion(b, labels);
     if (!affordable.includes(b)) {
       s.detail += ' (necesitas más dinero o recursos)';
+      s.reason = 'Buena jugada, pero te faltan recursos o dinero.';
       s.priority -= 20;
     }
     out.push(s);
@@ -73,31 +87,55 @@ export function computePlaySuggestions(
   const networks = legalNetworks(state);
   for (const n of networks.slice(0, 2)) {
     const cost = n.option.totalCost;
+    const link = LINKS.find((l) => l.id === n.option.linkIds[0]);
+    const linkName = link
+      ? `${CITIES[link.endpoints[0] as CityId].name}–${CITIES[link.endpoints[1] as CityId].name}`
+      : 'Enlace';
     out.push({
       id: `net-${n.option.linkIds[0]}`,
       priority: 30 - (cost > money ? 15 : 0),
       action: 'Red',
-      detail: `Enlace — £${cost}${cost > money ? ' (falta dinero)' : ''}`,
+      actionKind: 'network',
+      detail: `${linkName} — £${cost}${cost > money ? ' (falta dinero)' : ''}`,
+      reason: networkWhy(n),
     });
   }
 
   const sells = legalSells(state);
-  if (sells.length > 0) {
+  for (const s of sells.slice(0, 2)) {
+    const tile = state.board[s.sale.city][s.sale.slot]!;
+    const labels = labelFn(s.sale.city, tile.industry);
     out.push({
-      id: 'sell',
+      id: `sell-${s.sale.city}-${s.sale.slot}`,
       priority: 25,
       action: 'Vender',
-      detail: `${sells.length} venta${sells.length === 1 ? '' : 's'} posible${sells.length === 1 ? '' : 's'} esta ronda.`,
+      actionKind: 'sell',
+      detail: `${labels.city}: ${labels.industry} N${tile.level}`,
+      reason: sellWhyFromState(state, s),
+    });
+  }
+  if (sells.length > 2) {
+    out.push({
+      id: 'sell-more',
+      priority: 22,
+      action: 'Vender',
+      actionKind: 'sell',
+      detail: `+${sells.length - 2} venta${sells.length - 2 === 1 ? '' : 's'} más posible${sells.length - 2 === 1 ? '' : 's'}.`,
+      reason: 'Varias industrias conectadas a comerciantes pueden voltearse esta ronda.',
     });
   }
 
   const develops = legalDevelops(state);
-  if (develops.length > 0) {
+  for (const d of develops.slice(0, 2)) {
+    const ind = d.industries[0];
+    const labels = labelFn('birmingham', ind);
     out.push({
-      id: 'develop',
+      id: `develop-${ind}`,
       priority: 20,
       action: 'Desarrollar',
-      detail: `Puedes desarrollar ${develops.length} tipo${develops.length === 1 ? '' : 's'} de industria.`,
+      actionKind: 'develop',
+      detail: labels.industry,
+      reason: developWhy(state, ind, labels.industry),
     });
   }
 
@@ -106,7 +144,9 @@ export function computePlaySuggestions(
       id: 'scout',
       priority: 10,
       action: 'Explorar',
+      actionKind: 'scout',
       detail: 'Descarta 3 cartas y roba 3 nuevas del mazo.',
+      reason: 'Mejora la mano si no tienes cartas útiles para construir o enlazar.',
     });
   }
 
@@ -115,7 +155,9 @@ export function computePlaySuggestions(
       id: 'pass',
       priority: 0,
       action: 'Pasar',
+      actionKind: 'pass',
       detail: 'No hay jugadas obvias; considera pasar.',
+      reason: 'Descarta una carta y conserva recursos para el siguiente turno.',
     });
   }
 

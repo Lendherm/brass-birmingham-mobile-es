@@ -40,6 +40,7 @@ import { MerchantMapOverlay } from './ui/MerchantMapOverlay';
 import { EraScoreOverlay } from './ui/EraScoreOverlay';
 import { GameModeIntro } from './ui/GameModeIntro';
 import { formatBuildCost, formatNetworkCost } from './ui/formatCost';
+import { actionIntroHint, developWhy, networkWhy, sellWhyFromState } from './engine/actionExplain';
 import { ACCIONES, DEFAULT_PLAYER_NAMES, PLAYER_COLORS, type AccionId, eraNombre, industria, linkLabel } from './i18n/es';
 import { industryCssClass } from './ui/visual/industryTheme';
 import { ProjectCredits } from './ui/ProjectCredits';
@@ -59,7 +60,7 @@ export default function App() {
   const game = useGame();
   const { theme, toggle } = useTheme();
   const { largeText, toggleLargeText } = useAccessibility();
-  const { assistantEnabled, assistantRefresh, pressAssistant, disableAssistant } = usePlayAssistant();
+  const { assistantEnabled, assistantRefresh, pressAssistant, refreshAssistant, disableAssistant } = usePlayAssistant();
   const { coachEnabled, hotseatCoachEnabled, toggleCoach, toggleHotseatCoach } = useTrainingCoach();
   const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
@@ -179,7 +180,7 @@ export default function App() {
             onClick={pressAssistant}
             data-testid="assistant-toggle"
             aria-pressed={assistantEnabled}
-            title={assistantEnabled ? 'Actualizar sugerencias de jugada' : 'Activar asistente de jugadas'}
+            title={assistantEnabled ? 'Desactivar sugerencias de jugada' : 'Activar sugerencias de jugada'}
             className={`topbar-compact-btn topbar-assistant-btn${assistantEnabled ? ' active' : ''}`}
           >
             <span className="assistant-btn-icon" aria-hidden>
@@ -230,6 +231,7 @@ export default function App() {
           assistantEnabled={assistantEnabled}
           assistantRefresh={assistantRefresh}
           onDisableAssistant={disableAssistant}
+          onRefreshAssistant={refreshAssistant}
         />
       )}
     </div>
@@ -516,6 +518,7 @@ function GameScreen({
   assistantEnabled,
   assistantRefresh,
   onDisableAssistant,
+  onRefreshAssistant,
 }: {
   state: GameState;
   dispatch: (a: PlayerAction) => string | null;
@@ -535,6 +538,7 @@ function GameScreen({
   assistantEnabled: boolean;
   assistantRefresh: number;
   onDisableAssistant: () => void;
+  onRefreshAssistant: () => void;
 }) {
   const inTutorial = tutorialStep !== null && isTutorial(state);
   const humanTurn = !isVsAI(state) || state.currentPlayer === HUMAN;
@@ -691,7 +695,12 @@ function GameScreen({
             <PlayerMat state={state} />
             <MarketDisplay coalCubes={state.coalCubes} ironCubes={state.ironCubes} />
             {assistantEnabled && !inTutorial && (
-              <PlayAssistant state={state} refreshKey={assistantRefresh} onClose={onDisableAssistant} />
+              <PlayAssistant
+                state={state}
+                refreshKey={assistantRefresh}
+                onClose={onDisableAssistant}
+                onRefresh={onRefreshAssistant}
+              />
             )}
           </div>
 
@@ -725,18 +734,23 @@ function GameScreen({
             )}
 
             {flow.flow.action && (
-              <p style={{ margin: '8px 0 4px', fontSize: 13, color: 'var(--muted)' }} data-testid="flow-hint">
-                {flow.flow.cardIdx === null
-                  ? flow.flow.action === 'scout'
-                    ? 'Elige la carta de acción y luego 2 más para descartar.'
-                    : flow.flow.action === 'build'
-                      ? 'Casillas resaltadas en el mapa. Elige carta o toca una ciudad.'
-                      : `Elige una carta para ${ACCIONES[flow.flow.action].toLowerCase()}.`
-                  : flowHint(flow.flow.action)}
-                <button style={{ marginLeft: 8, fontSize: 12, padding: '2px 8px' }} onClick={flow.reset} data-testid="flow-cancel">
-                  cancelar
-                </button>
-              </p>
+              <>
+                <p className="action-intro-hint" data-testid="action-intro-hint">
+                  {actionIntroHint(state, flow.flow.action)}
+                </p>
+                <p style={{ margin: '8px 0 4px', fontSize: 13, color: 'var(--muted)' }} data-testid="flow-hint">
+                  {flow.flow.cardIdx === null
+                    ? flow.flow.action === 'scout'
+                      ? 'Elige la carta de acción y luego 2 más para descartar.'
+                      : flow.flow.action === 'build'
+                        ? 'Casillas resaltadas en el mapa. Elige carta o toca una ciudad.'
+                        : `Elige una carta para ${ACCIONES[flow.flow.action].toLowerCase()}.`
+                    : flowHint(flow.flow.action)}
+                  <button style={{ marginLeft: 8, fontSize: 12, padding: '2px 8px' }} onClick={flow.reset} data-testid="flow-cancel">
+                    cancelar
+                  </button>
+                </p>
+              </>
             )}
             {(flow.error || (inTutorial && tutorial.hint)) && (
               <p style={{ color: 'var(--danger)', fontSize: 13 }} data-testid="flow-error">
@@ -779,7 +793,8 @@ function GameScreen({
               <div className="option-list" style={{ marginTop: 8 }} data-testid="network-options">
                 {flow.networks.map((n, i) => (
                   <button key={i} className="option-btn option-network" onClick={() => flow.chooseNetwork(n)}>
-                    {linkLabel(n.option.linkIds[0])} — {formatNetworkCost(n.option)}
+                    <span>{linkLabel(n.option.linkIds[0])} — {formatNetworkCost(n.option)}</span>
+                    <span className="option-reason">{networkWhy(n)}</span>
                   </button>
                 ))}
               </div>
@@ -799,7 +814,10 @@ function GameScreen({
                         flow.toggleSale(s);
                       }}
                     >
-                      {CITIES[s.sale.city].name}: {industria(tile.industry)} N{tile.level} (cerveza ×{s.sale.beerNeeded})
+                      <span>
+                        {CITIES[s.sale.city].name}: {industria(tile.industry)} N{tile.level} (cerveza ×{s.sale.beerNeeded})
+                      </span>
+                      <span className="option-reason">{sellWhyFromState(state, s)}</span>
                     </button>
                   );
                 })}
@@ -828,7 +846,8 @@ function GameScreen({
                       flow.toggleDevelop(d.industries[0]);
                     }}
                   >
-                    {industria(d.industries[0])}
+                    <span>{industria(d.industries[0])}</span>
+                    <span className="option-reason">{developWhy(state, d.industries[0], industria(d.industries[0]))}</span>
                   </button>
                 ))}
                 <button
@@ -938,11 +957,15 @@ function flowHint(action: AccionId): string {
     case 'build':
       return 'Elige una ciudad resaltada o una opción abajo.';
     case 'network':
-      return 'Elige un enlace resaltado o una opción abajo.';
+      return 'Elige un enlace resaltado en el mapa o una opción abajo.';
     case 'sell':
-      return 'Marca los edificios a vender y confirma.';
+      return 'Marca los edificios a vender (cada uno muestra por qué conviene) y confirma.';
     case 'develop':
-      return 'Elige 1–2 industrias y confirma.';
+      return 'Elige 1–2 industrias a retirar de tu mat y confirma.';
+    case 'loan':
+      return 'Elige la carta de préstamo para recibir £30.';
+    case 'scout':
+      return 'Elige carta de acción y luego 2 más para descartar.';
     default:
       return '';
   }

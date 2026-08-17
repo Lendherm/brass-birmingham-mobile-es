@@ -1,5 +1,38 @@
 /* Forzar layout horizontal/vertical cuando el giro automático del teléfono falla */
 @media (max-width: 900px) {
+  /* Simular horizontal en teléfono vertical: rota la app sin voltear el dispositivo */
+  html[data-sim-landscape='1'] {
+    overflow: hidden;
+    height: 100dvh;
+    width: 100vw;
+  }
+
+  html[data-sim-landscape='1'] body {
+    overflow: hidden;
+    height: 100dvh;
+    width: 100vw;
+    margin: 0;
+  }
+
+  html[data-sim-landscape='1'] #root {
+    height: 100%;
+    width: 100%;
+  }
+
+  html[data-sim-landscape='1'] .app.in-game {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100dvh;
+    height: 100dvw;
+    max-width: 100dvh;
+    max-height: 100dvw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center center;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
   html[data-layout='landscape'] .app.in-game {
     height: 100dvh;
     max-height: 100dvh;
@@ -41,7 +74,7 @@
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(240px, 34vw, 320px);
+    grid-template-columns: minmax(0, 1fr) clamp(180px, 30vw, 280px);
     grid-template-rows: minmax(0, 1fr);
     gap: 4px;
     align-items: stretch;
@@ -104,7 +137,7 @@
 
   html[data-layout='landscape'] .toast-stack {
     bottom: 8px;
-    right: calc(clamp(240px, 34vw, 320px) + 12px);
+    right: calc(clamp(180px, 30vw, 280px) + 12px);
     left: 8px;
   }
 

@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.14] — 2026-08-17
+
+### Añadido
+- Vista **horizontal simulada** (botón ↻) sin voltear el celular.
+- Explicaciones al elegir acciones (construir, vender, desarrollar, red, etc.).
+- Sugerencias con **motivo** (por qué conviene cada jugada).
+
+### Cambiado
+- Botón **Sugerencias** funciona como interruptor (activar/desactivar); **↻ Actualizar** rota la lista dentro del panel.
+
 ## [1.0.13] — 2026-08-16
 
 ### Corregido
