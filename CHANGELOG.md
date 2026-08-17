@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.16] — 2026-08-17
+
+### Corregido
+- **Pantalla en blanco al elegir Red:** los enlaces hacia comerciantes (p. ej. Birmingham–Oxford) provocaban un error de JavaScript al mostrar el motivo de la jugada.
+
 ## [1.0.15] — 2026-08-17
 
 ### Corregido

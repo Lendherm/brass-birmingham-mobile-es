@@ -1,5 +1,5 @@
-import type { MerchantBonus, IndustryType } from '../engine/types';
-import { CITIES } from '../engine/data/board';
+import type { MerchantBonus, IndustryType, MerchantId } from '../engine/types';
+import { CITIES, MERCHANTS } from '../engine/data/board';
 import type { CityId } from '../engine/types';
 import { INDUSTRIA, eraNombre, enlaceTipo, industria } from '../engine/messages';
 
@@ -54,6 +54,7 @@ export function linkLabel(linkId: string): string {
     .map((id) => {
       if (id in FARM_LABELS) return FARM_LABELS[id];
       if (id in CITIES) return CITIES[id as CityId].name;
+      if (id in MERCHANTS) return MERCHANTS[id as MerchantId].name;
       return id;
     })
     .join(' – ');

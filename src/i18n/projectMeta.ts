@@ -30,4 +30,5 @@ export const FORK_CHANGES = [
   'APK firmada en CI (instalable en Pixel y Android reciente).',
   'Vista horizontal simulada, explicaciones de acciones y sugerencias con motivo.',
   'Correccion pantalla en blanco en movil (layout horizontal y caché APK).',
+  'Fix crash al elegir Red con enlaces a comerciantes (Oxford, etc.).',
 ] as const;

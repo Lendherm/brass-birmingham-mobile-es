@@ -1,5 +1,5 @@
-import type { CityId } from './types';
-import { CITIES, LINKS } from './data/board';
+import type { CityId, MerchantId } from './types';
+import { CITIES, LINKS, MERCHANTS } from './data/board';
 import { tileSpec } from './data/industries';
 import {
   buildWhy,
@@ -18,6 +18,12 @@ import {
   type BuildChoice,
 } from './options';
 import { activePlayer, type GameState } from './state';
+
+function locationLabel(id: string): string {
+  if (id in CITIES) return CITIES[id as CityId].name;
+  if (id in MERCHANTS) return MERCHANTS[id as MerchantId].name;
+  return id;
+}
 
 export interface PlaySuggestion {
   id: string;
@@ -88,9 +94,7 @@ export function computePlaySuggestions(
   for (const n of networks.slice(0, 2)) {
     const cost = n.option.totalCost;
     const link = LINKS.find((l) => l.id === n.option.linkIds[0]);
-    const linkName = link
-      ? `${CITIES[link.endpoints[0] as CityId].name}–${CITIES[link.endpoints[1] as CityId].name}`
-      : 'Enlace';
+    const linkName = link ? link.endpoints.map(locationLabel).join('–') : 'Enlace';
     out.push({
       id: `net-${n.option.linkIds[0]}`,
       priority: 30 - (cost > money ? 15 : 0),

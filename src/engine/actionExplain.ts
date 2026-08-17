@@ -1,5 +1,5 @@
-import type { CityId, IndustryType } from './types';
-import { CITIES, LINKS } from './data/board';
+import type { CityId, IndustryType, MerchantId } from './types';
+import { CITIES, LINKS, MERCHANTS } from './data/board';
 import { tileSpec } from './data/industries';
 import { activePlayer, type GameState } from './state';
 import {
@@ -16,6 +16,12 @@ import {
 import { developCost } from './actions';
 
 export type ActionKind = 'build' | 'network' | 'sell' | 'develop' | 'loan' | 'scout' | 'pass';
+
+function locationLabel(id: string): string {
+  if (id in CITIES) return CITIES[id as CityId].name;
+  if (id in MERCHANTS) return MERCHANTS[id as MerchantId].name;
+  return id;
+}
 
 /** Por qué conviene o cuándo usar esta acción (texto introductorio). */
 export function actionIntroHint(state: GameState, action: ActionKind): string {
@@ -72,8 +78,8 @@ export function buildWhy(b: BuildChoice): string {
 export function networkWhy(n: NetworkChoice): string {
   const link = LINKS.find((l) => l.id === n.option.linkIds[0]);
   if (!link) return 'Conecta ciudades para recursos y PV.';
-  const [a, b] = link.endpoints as [CityId, CityId];
-  return `Une ${CITIES[a].name}–${CITIES[b].name}: mueve recursos y suma PV por enlace.`;
+  const ends = link.endpoints.map(locationLabel).join('–');
+  return `Une ${ends}: mueve recursos y suma PV por enlace.`;
 }
 
 export function sellWhyFromState(state: GameState, s: SellChoice): string {
