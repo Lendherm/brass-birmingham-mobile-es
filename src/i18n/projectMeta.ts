@@ -29,4 +29,5 @@ export const FORK_CHANGES = [
   'Firma APK opcional en CI, tuning IA compuesto y benchmark Torneo>Difícil>Media.',
   'APK firmada en CI (instalable en Pixel y Android reciente).',
   'Vista horizontal simulada, explicaciones de acciones y sugerencias con motivo.',
+  'Correccion pantalla en blanco en movil (layout horizontal y caché APK).',
 ] as const;

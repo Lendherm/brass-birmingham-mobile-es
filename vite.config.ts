@@ -10,6 +10,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: 'Brass Birmingham — Edición Móvil (ES)',

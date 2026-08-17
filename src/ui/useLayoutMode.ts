@@ -15,22 +15,13 @@ function readMode(): LayoutMode {
   return v === 'landscape' || v === 'portrait' ? v : 'auto';
 }
 
-function applySimLandscape(mode: LayoutMode) {
-  const sim = mode === 'landscape' && window.innerWidth < window.innerHeight;
-  if (sim) {
-    document.documentElement.dataset.simLandscape = '1';
-  } else {
-    delete document.documentElement.dataset.simLandscape;
-  }
-}
-
 function applyMode(mode: LayoutMode) {
+  delete document.documentElement.dataset.simLandscape;
   if (mode === 'auto') {
     delete document.documentElement.dataset.layout;
   } else {
     document.documentElement.dataset.layout = mode;
   }
-  applySimLandscape(mode);
 }
 
 export function useLayoutMode() {
@@ -46,21 +37,13 @@ export function useLayoutMode() {
     window.dispatchEvent(new Event('orientationchange'));
   }, [mode]);
 
-  useEffect(() => {
-    const onResize = () => applySimLandscape(mode);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [mode]);
-
   const cycleLayout = () => {
     setMode((m) => (m === 'auto' ? 'landscape' : m === 'landscape' ? 'portrait' : 'auto'));
   };
 
-  const simLandscape = mode === 'landscape' && typeof window !== 'undefined' && window.innerWidth < window.innerHeight;
-
   return {
     layoutMode: mode,
-    layoutLabel: simLandscape ? 'Horizontal (sim.)' : LABELS[mode],
+    layoutLabel: LABELS[mode],
     cycleLayout,
   };
 }

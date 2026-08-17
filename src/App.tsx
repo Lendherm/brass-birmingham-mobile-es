@@ -69,40 +69,43 @@ export default function App() {
     game.startTrainingScenario(scenarioId, difficulty);
   };
 
+  const inGame = Boolean(game.state && !game.screenHidden && !game.modeIntroPending);
+  const gs = game.state;
+
   return (
-    <div className={`app${game.state && !game.screenHidden ? ' in-game' : ''}`}>
+    <div className={`app${inGame ? ' in-game' : ''}`}>
       <div className="topbar">
         <h1 className="app-title">{APP_NAME_SHORT}</h1>
-        {game.state && !game.screenHidden && game.state.trainingScenario && (
-          <span className="stat training-scenario-badge" data-testid="training-scenario-badge" title={trainingScenarioMeta(game.state.trainingScenario).objective}>
-            🎯 {trainingScenarioMeta(game.state.trainingScenario).title}
+        {inGame && gs!.trainingScenario && (
+          <span className="stat training-scenario-badge" data-testid="training-scenario-badge" title={trainingScenarioMeta(gs!.trainingScenario).objective}>
+            🎯 {trainingScenarioMeta(gs!.trainingScenario).title}
           </span>
         )}
-        {game.state && !game.screenHidden && (
+        {inGame && gs && (
           <>
-            <span className={`era-badge era-${game.state.era}`} data-testid="era-badge">
-              {game.state.era === 'canal' ? '⛵ Canal' : '🚂 Ferrocarril'}
+            <span className={`era-badge era-${gs.era}`} data-testid="era-badge">
+              {gs.era === 'canal' ? '⛵ Canal' : '🚂 Ferrocarril'}
             </span>
             <span className="stat" data-testid="era-turn">
-            {isVsAutoma(game.state) ? (
+            {isVsAutoma(gs) ? (
               <>
-                Era {eraNombre(game.state.era)} — Turno {game.state.turn} — {game.state.actionsLeft}{' '}
-                {game.state.actionsLeft === 1 ? 'acción restante' : 'acciones restantes'}
+                Era {eraNombre(gs.era)} — Turno {gs.turn} — {gs.actionsLeft}{' '}
+                {gs.actionsLeft === 1 ? 'acción restante' : 'acciones restantes'}
               </>
             ) : (
               <>
-                Era {eraNombre(game.state.era)} — Ronda {game.state.turn} —{' '}
-                <span style={{ color: PLAYER_COLORS[game.state.currentPlayer] }}>
-                  {game.state.playerNames[game.state.currentPlayer]}
+                Era {eraNombre(gs.era)} — Ronda {gs.turn} —{' '}
+                <span style={{ color: PLAYER_COLORS[gs.currentPlayer] }}>
+                  {gs.playerNames[gs.currentPlayer]}
                 </span>{' '}
-                — {game.state.actionsLeft} {game.state.actionsLeft === 1 ? 'acción' : 'acciones'}
+                — {gs.actionsLeft} {gs.actionsLeft === 1 ? 'acción' : 'acciones'}
               </>
             )}
           </span>
           </>
         )}
         <div className="spacer" />
-        {game.state && !game.screenHidden && game.tutorialStep === null && (
+        {inGame && game.tutorialStep === null && (
           <>
             <button onClick={game.undo} disabled={!game.canUndo} data-testid="undo">
               ⎌ Deshacer
@@ -135,9 +138,9 @@ export default function App() {
         >
           {largeText ? 'A' : 'A+'}
         </button>
-        {game.state && !game.screenHidden && isVsAI(game.state) && (
+        {inGame && gs && isVsAI(gs) && (
           <>
-            <OpeningsGuideButton playerCount={game.state.playerCount} compact />
+            <OpeningsGuideButton playerCount={gs.playerCount} compact />
             <button
             type="button"
             onClick={toggleCoach}
@@ -150,7 +153,7 @@ export default function App() {
           </button>
           </>
         )}
-        {game.state && !game.screenHidden && game.state.mode === 'hotseat' && (
+        {inGame && gs && gs.mode === 'hotseat' && (
           <button
             type="button"
             onClick={toggleHotseatCoach}
@@ -162,7 +165,7 @@ export default function App() {
             🎓
           </button>
         )}
-        {game.state && !game.screenHidden && (
+        {inGame && (
           <button
             type="button"
             onClick={cycleLayout}
@@ -174,7 +177,7 @@ export default function App() {
             {layoutMode === 'landscape' ? '⬒' : layoutMode === 'portrait' ? '⬓' : '↻'}
           </button>
         )}
-        {game.state && !game.screenHidden && (
+        {inGame && (
           <button
             type="button"
             onClick={pressAssistant}

@@ -2,6 +2,12 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.15] — 2026-08-17
+
+### Corregido
+- **Pantalla en blanco / app bloqueada en móvil:** eliminada la rotación CSS que rompía overlays y el intro de partida; el modo Horizontal usa layout lado a lado sin transform.
+- **APK nativa:** desactivado el service worker en Capacitor para evitar caché obsoleta tras actualizar.
+
 ## [1.0.14] — 2026-08-17
 
 ### Añadido

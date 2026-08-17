@@ -183,7 +183,7 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     chapter: 1,
     chapterTitle: 'Lo esencial',
     title: 'Girar pantalla',
-    body: 'Si el teléfono no gira solo, usa el botón **↻** (Horizontal): rota la vista sin voltear el celular. Vuelve a pulsar para Vertical o Auto.',
+    body: 'Si el teléfono no gira solo, usa el botón **↻** (Horizontal): mapa y panel quedan lado a lado sin voltear el celular. Vuelve a pulsar para Vertical o Auto.',
     wrongHint: '',
     step: { type: 'continue', focus: 'layout-toggle' },
   },
