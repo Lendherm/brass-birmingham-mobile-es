@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.23] — 2026-08-17
+
+### Cambiado
+- **Tema oscuro más suave:** fondos y paneles en gris (#2e323c) en lugar de negro puro; overlay de ciudad y modales menos agresivos para la vista.
+
 ## [1.0.22] — 2026-08-17
 
 ### Cambiado
@@ -132,6 +137,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.23]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.23
 [1.0.22]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.22
 [1.0.21]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.21
 [1.0.20]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.20
