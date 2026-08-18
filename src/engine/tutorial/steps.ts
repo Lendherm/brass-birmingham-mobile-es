@@ -417,7 +417,7 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     title: 'Capítulo 7 — Mejora con coach',
     body: 'Además de las reglas, la app incluye **modo entrenamiento 🎯**, comparativas numéricas, estrategias por carta y guías. Actívalas en partidas reales (no en este tutorial guiado).',
     wrongHint: '',
-    step: { type: 'continue', focus: 'action-panel' },
+    step: { type: 'continue', focus: 'training-mode-toggle' },
   },
   {
     id: 'training-mode',
@@ -433,9 +433,9 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     chapter: 7,
     chapterTitle: 'Coach y entrenamiento',
     title: 'Barra del coach',
-    body: 'Con 🎯 activo, la barra aparece **dentro del panel de acciones** (no tapa botones). Muestra **comparativa numérica** entre acciones, **estrategias posibles** y **consejo por cada carta**. Ciérrala con **×** cuando quieras.',
+    body: 'Con 🎯 activo, aparece una **franja sobre el mapa** (toca para expandir). Usa pestañas **Resumen, Comparar, Cartas y Plan**. Ciérrala con **×** cuando quieras.',
     wrongHint: '',
-    step: { type: 'continue', focus: 'action-panel' },
+    step: { type: 'continue', focus: 'board-viewport' },
   },
   {
     id: 'training-map',

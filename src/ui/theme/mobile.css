@@ -341,12 +341,7 @@
   }
 
   .game-layout.tutorial-active .game-play-dock {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .tutorial-coach-inner {
-    max-height: min(28vh, 220px);
-    overflow-y: auto;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 
   .tutorial-coach-body {

@@ -816,6 +816,27 @@ function GameScreen({
               }}
             />
           )}
+          {showTrainingHint && (
+            <TrainingHintBar
+              hint={trainingHint}
+              className="coach-dock-map-anchor"
+              onDismiss={dismissTrainingHint}
+              onStartDrill={onStartTrainingDrill}
+              onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
+              onResetMapView={mapGuideFocus ? () => setMapGuideFocus(false) : undefined}
+              mapFocused={mapGuideFocus}
+            />
+          )}
+          {trainingMode && trainingHint && hintDismissed && (
+            <button
+              type="button"
+              className="training-hint-reopen"
+              data-testid="training-hint-reopen"
+              onClick={() => setHintDismissed(false)}
+            >
+              🎯 Ver coach
+            </button>
+          )}
         </div>
 
         <div className="side side-scroll">
@@ -849,27 +870,6 @@ function GameScreen({
           </div>
 
           <div className="game-play-dock panel action-panel" data-testid="action-panel">
-            {showTrainingHint && (
-              <TrainingHintBar
-                hint={trainingHint}
-                className="training-hint-dock"
-                onDismiss={dismissTrainingHint}
-                onStartDrill={onStartTrainingDrill}
-                onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
-                onResetMapView={mapGuideFocus ? () => setMapGuideFocus(false) : undefined}
-                mapFocused={mapGuideFocus}
-              />
-            )}
-            {trainingMode && trainingHint && hintDismissed && (
-              <button
-                type="button"
-                className="training-hint-reopen"
-                data-testid="training-hint-reopen"
-                onClick={() => setHintDismissed(false)}
-              >
-                🎯 Ver coach
-              </button>
-            )}
             <h3>Acciones</h3>
             <ActionGrid
               selected={flow.flow.action}

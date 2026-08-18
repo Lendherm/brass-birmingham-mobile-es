@@ -223,18 +223,17 @@
     padding-bottom: 6px;
   }
 
-  /* Tutorial: panel flotante a la derecha, no tapa el mapa entero */
+  /* Tutorial: rail compacto a la derecha */
   .tutorial-coach {
     left: auto;
     right: max(4px, env(safe-area-inset-right));
     bottom: max(4px, env(safe-area-inset-bottom));
-    width: min(300px, 38vw);
+    width: min(320px, 40vw);
     padding: 4px;
   }
 
-  .tutorial-coach-inner {
-    max-height: min(72dvh, 260px);
-    margin: 0;
+  .tutorial-coach-sheet {
+    max-height: min(50dvh, 220px);
   }
 
   .tutorial-coach-title {

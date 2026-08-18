@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { InteractiveTutorialStep } from '../engine/tutorial/steps';
 import { TUTORIAL_CHAPTERS } from '../engine/tutorial/steps';
 
@@ -27,6 +27,8 @@ export function TutorialCoach({
   onContinue: () => void;
   onSkip: () => void;
 }) {
+  const [expanded, setExpanded] = useState(() => !isContinue || Boolean(hint));
+
   useEffect(() => {
     document.querySelectorAll('.tutorial-focus').forEach((el) => el.classList.remove('tutorial-focus'));
     if (!focus) return;
@@ -39,32 +41,47 @@ export function TutorialCoach({
     return () => el?.classList.remove('tutorial-focus');
   }, [focus, stepIndex]);
 
+  useEffect(() => {
+    setExpanded(!isContinue || Boolean(hint));
+  }, [stepIndex, isContinue, hint]);
+
   if (!step) return null;
 
   return (
     <div className="tutorial-coach" data-testid="tutorial-coach">
-      <div className="tutorial-coach-inner panel">
-        <div className="tutorial-coach-top">
+      <div className="tutorial-coach-rail">
+        <button
+          type="button"
+          className="tutorial-coach-meta"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
           <span className="tutorial-coach-badge">
-            Cap. {step.chapter}/{TUTORIAL_CHAPTERS.length} · {step.chapterTitle} · {stepIndex + 1}/{total}
+            Cap. {step.chapter}/{TUTORIAL_CHAPTERS.length} · {stepIndex + 1}/{total}
           </span>
-          <button type="button" className="tutorial-skip" onClick={onSkip} data-testid="tutorial-skip">
-            Salir
-          </button>
-        </div>
-        <h3 className="tutorial-coach-title">{step.title}</h3>
-        <p className="tutorial-coach-body">{renderInline(step.body)}</p>
-        {hint && (
-          <p className="tutorial-coach-hint" data-testid="tutorial-hint">
-            {hint}
-          </p>
-        )}
-        {isContinue && (
+          <strong className="tutorial-coach-title">{step.title}</strong>
+        </button>
+        {isContinue ? (
           <button type="button" className="primary tutorial-continue" onClick={onContinue} data-testid="tutorial-continue">
             Continuar
           </button>
+        ) : (
+          <span className="tutorial-coach-wait">Sigue la indicación</span>
         )}
+        <button type="button" className="tutorial-skip" onClick={onSkip} data-testid="tutorial-skip">
+          Salir
+        </button>
       </div>
+      {expanded && (
+        <div className="tutorial-coach-sheet">
+          <p className="tutorial-coach-body">{renderInline(step.body)}</p>
+          {hint && (
+            <p className="tutorial-coach-hint" data-testid="tutorial-hint">
+              {hint}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

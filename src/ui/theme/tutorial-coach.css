@@ -1,63 +1,107 @@
-/* Interactive tutorial coach */
+/* Interactive tutorial — rail + sheet (aligned with coach dock) */
 .tutorial-coach {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 60;
-  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+  padding: 0 8px max(8px, env(safe-area-inset-bottom));
   pointer-events: none;
 }
 
-.tutorial-coach-inner {
+.tutorial-coach-rail {
   pointer-events: auto;
-  max-width: 560px;
-  margin: 0 auto;
-  box-shadow: 0 -4px 24px rgb(0 0 0 / 25%);
-  border: 2px solid var(--accent);
-}
-
-.tutorial-coach-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--panel) 92%, var(--bg));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 24px rgb(0 0 0 / 28%);
+}
+
+.tutorial-coach-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
 }
 
 .tutorial-coach-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--accent);
 }
 
-.tutorial-skip {
-  font-size: 12px;
-  padding: 4px 10px;
+.tutorial-coach-title {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.tutorial-coach-title {
-  margin: 0 0 6px;
-  font-size: 17px;
+.tutorial-coach-wait {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.tutorial-continue {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.tutorial-skip {
+  flex: 0 0 auto;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.tutorial-coach-sheet {
+  pointer-events: auto;
+  max-width: 640px;
+  margin: 6px auto 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 96%, var(--bg));
+  box-shadow: 0 6px 20px rgb(0 0 0 / 22%);
+  max-height: min(32vh, 220px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tutorial-coach-body {
   margin: 0;
   line-height: 1.45;
   color: var(--text);
+  font-size: 0.88rem;
 }
 
 .tutorial-coach-hint {
   margin: 8px 0 0;
   color: var(--danger);
   font-size: 13px;
-}
-
-.tutorial-continue {
-  margin-top: 12px;
-  width: 100%;
 }
 
 .tutorial-live-badge {
@@ -84,5 +128,11 @@
   }
   50% {
     outline-color: var(--accent);
+  }
+}
+
+@media (max-width: 900px) {
+  .game-layout.tutorial-active .game-play-dock {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 }
