@@ -15,7 +15,7 @@ export interface TrainingMapGuide {
 function viewForCity(city: CityId): TrainingMapGuide['viewTarget'] {
   const pos = LAYOUT[city];
   if (!pos) return null;
-  return { x: pos.x, y: pos.y, scale: 1.12 };
+  return { x: pos.x, y: pos.y, scale: 1.04 };
 }
 
 function viewForLink(linkId: string): TrainingMapGuide['viewTarget'] {
@@ -23,7 +23,7 @@ function viewForLink(linkId: string): TrainingMapGuide['viewTarget'] {
   if (!link) return null;
   const a = LAYOUT[link.endpoints[0]];
   const b = LAYOUT[link.endpoints[link.endpoints.length - 1]];
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, scale: 1.18 };
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, scale: 1.08 };
 }
 
 /** Map highlights + camera target for the coach's recommended line. */

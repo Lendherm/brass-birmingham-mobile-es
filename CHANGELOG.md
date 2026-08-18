@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.19] — 2026-08-17
+
+### Añadido
+- **Estrategias por carta y tablero** en modo entrenamiento: temas posibles y línea por cada carta de la mano.
+- **Docker:** `Dockerfile`, `docker-compose.yml` y scripts `npm run docker:web` / `docker:dev` para jugar en navegador.
+
+### Corregido
+- **UI móvil del coach:** botón cerrar en todas las hints, barra dentro del panel de acciones (no tapa botones), mapa más grande.
+- **Ver en mapa:** zoom más suave y botón «Restablecer mapa».
+
 ## [1.0.18] — 2026-08-17
 
 ### Añadido
@@ -103,6 +113,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.19]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.19
 [1.0.18]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.18
 [1.0.10]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.10
 [1.0.9]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.9

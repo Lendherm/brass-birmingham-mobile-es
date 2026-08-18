@@ -12,11 +12,28 @@ interface Props {
   onDismiss?: () => void;
   onStartDrill?: (scenarioId: TrainingScenarioId) => void;
   onShowOnMap?: () => void;
+  onResetMapView?: () => void;
+  mapFocused?: boolean;
+  className?: string;
 }
 
-export function TrainingHintBar({ hint, onDismiss, onStartDrill, onShowOnMap }: Props) {
+export function TrainingHintBar({
+  hint,
+  onDismiss,
+  onStartDrill,
+  onShowOnMap,
+  onResetMapView,
+  mapFocused,
+  className,
+}: Props) {
   return (
-    <div className="training-hint-bar" data-testid="training-hint-bar" data-kind={hint.kind} role="status" aria-live="polite">
+    <div
+      className={['training-hint-bar', className].filter(Boolean).join(' ')}
+      data-testid="training-hint-bar"
+      data-kind={hint.kind}
+      role="status"
+      aria-live="polite"
+    >
       {hint.qualityPct != null && (
         <div className="training-hint-quality" aria-label={`Calidad de jugada ${hint.qualityPct} por ciento`}>
           <span className="training-hint-pct">{hint.qualityPct}%</span>
@@ -56,6 +73,37 @@ export function TrainingHintBar({ hint, onDismiss, onStartDrill, onShowOnMap }: 
             ))}
           </div>
         )}
+        {hint.boardSummary && (
+          <p className="training-hint-board-summary" data-testid="training-hint-board-summary">
+            {hint.boardSummary}
+          </p>
+        )}
+        {hint.strategyThemes && hint.strategyThemes.length > 0 && (
+          <div className="training-hint-strategies" data-testid="training-hint-strategies">
+            <p className="training-hint-section-label">Estrategias posibles</p>
+            {hint.strategyThemes.map((theme) => (
+              <div key={theme.id} className="training-hint-strategy-theme">
+                <strong>{theme.title}</strong>
+                <p>{theme.advice}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {hint.cardStrategies && hint.cardStrategies.length > 0 && (
+          <ul className="training-hint-card-list" data-testid="training-hint-cards">
+            <li className="training-hint-section-label">Por carta en mano</li>
+            {hint.cardStrategies.map((line) => (
+              <li key={line.cardIdx} className="training-hint-card-line">
+                <div className="training-hint-card-head">
+                  <strong>{line.cardLabel}</strong>
+                  {line.pct != null && <span>{line.pct}%</span>}
+                </div>
+                <span className="training-hint-card-play">{line.play}</span>
+                <span className="training-hint-card-strategy">{line.strategy}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         {hint.planSteps && hint.planSteps.length > 0 && (
           <ol className="training-hint-plan" data-testid="training-hint-plan">
             {hint.planSteps.map((step, i) => (
@@ -81,6 +129,11 @@ export function TrainingHintBar({ hint, onDismiss, onStartDrill, onShowOnMap }: 
             Ver en mapa
           </button>
         )}
+        {mapFocused && onResetMapView && (
+          <button type="button" className="training-hint-map-btn training-hint-map-reset" onClick={onResetMapView}>
+            Restablecer mapa
+          </button>
+        )}
         {hint.drillOffer && onStartDrill && (
           <button
             type="button"
@@ -92,8 +145,8 @@ export function TrainingHintBar({ hint, onDismiss, onStartDrill, onShowOnMap }: 
           </button>
         )}
       </div>
-      {hint.dismissible && onDismiss && (
-        <button type="button" className="training-hint-dismiss" aria-label="Cerrar feedback" onClick={onDismiss}>
+      {onDismiss && (
+        <button type="button" className="training-hint-dismiss" aria-label="Cerrar coach" onClick={onDismiss}>
           ×
         </button>
       )}

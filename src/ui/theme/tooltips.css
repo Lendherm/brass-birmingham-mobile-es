@@ -59,6 +59,8 @@
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
+  touch-action: manipulation;
+  z-index: 1;
 }
 
 .player-mat-era-note {

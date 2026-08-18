@@ -27,6 +27,7 @@ import { trainingScenarioMeta } from './scenarios';
 import { buildTrainingPlan, type TrainingPlanStep } from './trainingPlan';
 import { numericForkCompare, numericForkSummary, type NumericForkLine } from './actionCompare';
 import { buildTrainingMapGuide, mapGuideForAction, type TrainingMapGuide } from './trainingMapGuide';
+import { buildHandStrategyGuide, type CardStrategyLine, type StrategyTheme } from './handStrategy';
 import { mergePatternDetection, type TurnHistoryEntry } from './turnHistory';
 
 export interface TrainingPendingChoice {
@@ -64,6 +65,9 @@ export interface TrainingHint {
   scenarioProgress?: ScenarioProgress;
   numericCompare?: NumericForkLine[];
   mapGuide?: TrainingMapGuide | null;
+  strategyThemes?: StrategyTheme[];
+  cardStrategies?: CardStrategyLine[];
+  boardSummary?: string;
   dismissible?: boolean;
 }
 
@@ -462,10 +466,14 @@ function enrichHint(state: GameState, hint: TrainingHint, cardIdx?: number | nul
   const numericCompare = numericForkCompare(state, cardIdx);
   const summary = numericForkSummary(numericCompare);
   const mapGuide = buildTrainingMapGuide(state);
+  const strategy = buildHandStrategyGuide(state, cardIdx);
   return {
     ...hint,
     numericCompare: numericCompare.length >= 2 ? numericCompare.slice(0, 3) : undefined,
     mapGuide,
+    strategyThemes: strategy.themes,
+    cardStrategies: strategy.cardLines,
+    boardSummary: strategy.boardSummary,
     detail: summary && !hint.detail.includes(summary.slice(0, 12)) ? `${hint.detail} ${summary}` : hint.detail,
   };
 }

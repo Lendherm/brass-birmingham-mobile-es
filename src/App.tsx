@@ -19,7 +19,6 @@ import { useTrainingMode } from './ui/useTrainingMode';
 import { TrainingHintBar } from './ui/TrainingHintBar';
 import { getTrainingHint, postMoveTrainingHint, type TrainingPendingChoice } from './engine/training/trainingHints';
 import { mergeMapHighlights } from './engine/training/trainingMapGuide';
-import { networkBlockReasonDetailed } from './engine/actionBlockExplain';
 import { useTrainingTurnLog } from './ui/useTrainingTurnLog';
 import type { BuildChoice } from './engine/options';
 import { usePlayAssistant } from './ui/usePlayAssistant';
@@ -87,7 +86,7 @@ export default function App() {
   const gs = game.state;
 
   return (
-    <div className={`app${inGame ? ' in-game' : ''}${inGame && trainingMode ? ' training-hint-active' : ''}`}>
+    <div className={`app${inGame ? ' in-game' : ''}`}>
       <div className="topbar">
         <h1 className="app-title">{APP_NAME_SHORT}</h1>
         {inGame && gs!.trainingScenario && (
@@ -605,6 +604,7 @@ function GameScreen({
   const [focusedLinkId, setFocusedLinkId] = useState<string | null>(null);
   const [focusedBuild, setFocusedBuild] = useState<BuildChoice | null>(null);
   const [mapGuideFocus, setMapGuideFocus] = useState(false);
+  const [hintDismissed, setHintDismissed] = useState(false);
   const playerId = isVsAI(state) ? HUMAN : activePlayer(state);
   const hand = state.players[playerId].hand;
 
@@ -722,7 +722,17 @@ function GameScreen({
 
   useEffect(() => {
     setMapGuideFocus(false);
-  }, [flow.flow.action, flow.flow.cardIdx, trainingHint?.headline, coachFeedback]);
+    setHintDismissed(false);
+  }, [flow.flow.action, flow.flow.cardIdx, trainingHint?.headline, coachFeedback, state.turn]);
+
+  const showTrainingHint = trainingHint && !hintDismissed;
+
+  const dismissTrainingHint = () => {
+    setHintDismissed(true);
+    setMapGuideFocus(false);
+    setMapInfo(null);
+    if (coachFeedback) onDismissCoach();
+  };
 
   return (
     <>
@@ -773,8 +783,8 @@ function GameScreen({
               onTrainingLinkInspect={
                 trainingMode && !inTutorial
                   ? (linkId) => {
+                      setMapInfo(null);
                       setFocusedLinkId(linkId);
-                      setMapInfo(networkBlockReasonDetailed(state, linkId));
                     }
                   : undefined
               }
@@ -808,15 +818,6 @@ function GameScreen({
           )}
         </div>
 
-        {trainingHint && (
-          <TrainingHintBar
-            hint={trainingHint}
-            onDismiss={coachFeedback ? onDismissCoach : undefined}
-            onStartDrill={onStartTrainingDrill}
-            onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
-          />
-        )}
-
         <div className="side side-scroll">
           <div className="game-hud">
             <PlayerPanel state={state} />
@@ -848,6 +849,27 @@ function GameScreen({
           </div>
 
           <div className="game-play-dock panel action-panel" data-testid="action-panel">
+            {showTrainingHint && (
+              <TrainingHintBar
+                hint={trainingHint}
+                className="training-hint-dock"
+                onDismiss={dismissTrainingHint}
+                onStartDrill={onStartTrainingDrill}
+                onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
+                onResetMapView={mapGuideFocus ? () => setMapGuideFocus(false) : undefined}
+                mapFocused={mapGuideFocus}
+              />
+            )}
+            {trainingMode && trainingHint && hintDismissed && (
+              <button
+                type="button"
+                className="training-hint-reopen"
+                data-testid="training-hint-reopen"
+                onClick={() => setHintDismissed(false)}
+              >
+                🎯 Ver coach
+              </button>
+            )}
             <h3>Acciones</h3>
             <ActionGrid
               selected={flow.flow.action}

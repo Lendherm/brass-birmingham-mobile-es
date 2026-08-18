@@ -1,0 +1,13 @@
+node_modules
+dist
+android/app/build
+android/.gradle
+.git
+.github
+coverage
+test-results
+*.apk
+docs/*.pdf
+*.local
+.DS_Store
+tsconfig.tsbuildinfo

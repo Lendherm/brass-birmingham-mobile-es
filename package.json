@@ -1,7 +1,7 @@
 {
   "name": "brass-birmingham-mobile-es",
   "private": true,
-  "version": "1.0.18",
+  "version": "1.0.19",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,7 +15,10 @@
     "lint": "eslint src e2e scripts",
     "lint:fix": "eslint src e2e scripts --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"e2e/**/*.ts\"",
-    "tune:ai": "vite-node scripts/tune-ai.mjs"
+    "tune:ai": "vite-node scripts/tune-ai.mjs",
+    "docker:dev": "docker compose up dev --build",
+    "docker:web": "docker compose up web --build -d",
+    "docker:test": "docker compose --profile test run --rm test"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

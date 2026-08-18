@@ -31,6 +31,9 @@ describe('training mode integration', () => {
     expect(hint!.planSteps?.length).toBeGreaterThan(0);
     expect(hint!.numericCompare?.length).toBeGreaterThanOrEqual(2);
     expect(hint!.mapGuide?.viewTarget).not.toBeNull();
+    expect(hint!.strategyThemes?.length).toBeGreaterThan(0);
+    expect(hint!.cardStrategies?.length).toBeGreaterThan(0);
+    expect(hint!.boardSummary).toContain('Mano:');
   });
 
   it('post-move hint wires coach feedback to map guide', () => {
