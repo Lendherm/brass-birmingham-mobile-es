@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './ui/theme.css';
 import { HUMAN, activePlayer, isTutorial, isVsAI, isVsAutoma, type AIOpponents, type AutomaOpponents, type GameState, type PlayerCount } from './engine/state';
 import type { PlayerAction } from './engine/game';
@@ -15,6 +15,13 @@ import { useGame, useTheme } from './ui/useGame';
 import { useAccessibility } from './ui/useAccessibility';
 import { CoachPanel } from './ui/CoachPanel';
 import { useTrainingCoach } from './ui/useTrainingCoach';
+import { useTrainingMode } from './ui/useTrainingMode';
+import { TrainingHintBar } from './ui/TrainingHintBar';
+import { getTrainingHint, postMoveTrainingHint, type TrainingPendingChoice } from './engine/training/trainingHints';
+import { mergeMapHighlights } from './engine/training/trainingMapGuide';
+import { networkBlockReasonDetailed } from './engine/actionBlockExplain';
+import { useTrainingTurnLog } from './ui/useTrainingTurnLog';
+import type { BuildChoice } from './engine/options';
 import { usePlayAssistant } from './ui/usePlayAssistant';
 import { useLayoutMode } from './ui/useLayoutMode';
 import { TutorialLauncher } from './ui/Tutorial';
@@ -62,9 +69,16 @@ export default function App() {
   const { largeText, toggleLargeText } = useAccessibility();
   const { assistantEnabled, assistantRefresh, pressAssistant, refreshAssistant, disableAssistant } = usePlayAssistant();
   const { coachEnabled, hotseatCoachEnabled, toggleCoach, toggleHotseatCoach } = useTrainingCoach();
+  const { trainingMode, toggleTrainingMode } = useTrainingMode();
   const { layoutMode, layoutLabel, cycleLayout } = useLayoutMode();
 
   const startWeaknessDrill = (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => {
+    game.reset();
+    game.startTrainingScenario(scenarioId, difficulty);
+  };
+
+  const startTrainingDrill = (scenarioId: TrainingScenarioId) => {
+    const difficulty = game.state?.aiDifficulty ?? 'medium';
     game.reset();
     game.startTrainingScenario(scenarioId, difficulty);
   };
@@ -73,7 +87,7 @@ export default function App() {
   const gs = game.state;
 
   return (
-    <div className={`app${inGame ? ' in-game' : ''}`}>
+    <div className={`app${inGame ? ' in-game' : ''}${inGame && trainingMode ? ' training-hint-active' : ''}`}>
       <div className="topbar">
         <h1 className="app-title">{APP_NAME_SHORT}</h1>
         {inGame && gs!.trainingScenario && (
@@ -138,6 +152,22 @@ export default function App() {
         >
           {largeText ? 'A' : 'A+'}
         </button>
+        {inGame && (
+          <button
+            type="button"
+            onClick={toggleTrainingMode}
+            data-testid="training-mode-toggle"
+            aria-pressed={trainingMode}
+            title={
+              trainingMode
+                ? 'Desactivar modo entrenamiento (detección y ayuda proactiva)'
+                : 'Modo entrenamiento: detecta patrones, explica bloqueos y compara jugadas'
+            }
+            className={`topbar-compact-btn${trainingMode ? ' active' : ''}`}
+          >
+            🎯
+          </button>
+        )}
         {inGame && gs && isVsAI(gs) && (
           <>
             <OpeningsGuideButton playerCount={gs.playerCount} compact />
@@ -221,6 +251,7 @@ export default function App() {
           coachFeedback={game.coachFeedback}
           coachEnabled={coachEnabled}
           hotseatCoachEnabled={hotseatCoachEnabled}
+          trainingMode={trainingMode}
           coachHistory={game.coachHistory}
           replaySnapshots={game.replaySnapshots}
           onDismissCoach={game.dismissCoachFeedback}
@@ -231,6 +262,7 @@ export default function App() {
           onReset={game.reset}
           onDismissEraScore={game.dismissEraScore}
           onStartWeaknessDrill={startWeaknessDrill}
+          onStartTrainingDrill={startTrainingDrill}
           assistantEnabled={assistantEnabled}
           assistantRefresh={assistantRefresh}
           onDisableAssistant={disableAssistant}
@@ -269,6 +301,7 @@ function SetupScreen({
   const [names, setNames] = useState<string[]>([...DEFAULT_PLAYER_NAMES]);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
   const { hotseatCoachEnabled, toggleHotseatCoach } = useTrainingCoach();
+  const { trainingMode, toggleTrainingMode } = useTrainingMode();
 
   const previewCount =
     mode === 'solo' ? ((automaOpponents + 1) as PlayerCount) : mode === 'vsAI' ? ((aiOpponents + 1) as PlayerCount) : playerCount;
@@ -482,6 +515,15 @@ function SetupScreen({
         />
       </label>
 
+      <label className="setup-training-mode" data-testid="setup-training-mode">
+        <input type="checkbox" checked={trainingMode} onChange={toggleTrainingMode} />
+        <span>
+          <strong>Modo entrenamiento 🎯</strong>
+          Detecta patrones (mina + cerveza + red), explica bloqueos, compara jugadas con %,
+          plan a 3 turnos y feedback del entrenador integrado en la barra inferior.
+        </span>
+      </label>
+
       <button
         className="primary"
         onClick={() => {
@@ -508,6 +550,7 @@ function GameScreen({
   coachFeedback,
   coachEnabled,
   hotseatCoachEnabled,
+  trainingMode,
   coachHistory,
   replaySnapshots,
   onDismissCoach,
@@ -518,6 +561,7 @@ function GameScreen({
   onReset,
   onDismissEraScore,
   onStartWeaknessDrill,
+  onStartTrainingDrill,
   assistantEnabled,
   assistantRefresh,
   onDisableAssistant,
@@ -528,6 +572,7 @@ function GameScreen({
   coachFeedback: import('./engine/ai/coach').CoachFeedback | null;
   coachEnabled: boolean;
   hotseatCoachEnabled: boolean;
+  trainingMode: boolean;
   coachHistory: import('./engine/ai/coach').CoachFeedback[];
   replaySnapshots: GameState[];
   onDismissCoach: () => void;
@@ -538,6 +583,7 @@ function GameScreen({
   onReset: () => void;
   onDismissEraScore: () => void;
   onStartWeaknessDrill: (scenarioId: TrainingScenarioId, difficulty: AIDifficulty) => void;
+  onStartTrainingDrill: (scenarioId: TrainingScenarioId) => void;
   assistantEnabled: boolean;
   assistantRefresh: number;
   onDisableAssistant: () => void;
@@ -556,17 +602,23 @@ function GameScreen({
   const [inspectCity, setInspectCity] = useState<CityId | null>(null);
   const [inspectMerchant, setInspectMerchant] = useState<MerchantId | null>(null);
   const [mapInfo, setMapInfo] = useState<string | null>(null);
+  const [focusedLinkId, setFocusedLinkId] = useState<string | null>(null);
+  const [focusedBuild, setFocusedBuild] = useState<BuildChoice | null>(null);
+  const [mapGuideFocus, setMapGuideFocus] = useState(false);
   const playerId = isVsAI(state) ? HUMAN : activePlayer(state);
   const hand = state.players[playerId].hand;
 
   const tutorial = useInteractiveTutorial(tutorialStep ?? 0, onTutorialAdvance, hand);
+  const { turnLog, recordTurn } = useTrainingTurnLog(trainingMode ? state : null);
 
   const guardedDispatch = (action: PlayerAction): string | null => {
     if (inTutorial) {
       const block = tutorial.guardDispatch(action);
       if (block) return block;
     }
+    const before = state;
     const err = dispatch(action);
+    if (!err && trainingMode && humanTurn && !inTutorial) recordTurn(action, before);
     if (!err && inTutorial) tutorial.onDispatched(action);
     return err;
   };
@@ -597,14 +649,80 @@ function GameScreen({
     return false;
   };
 
+  const trainingPendingChoice = useMemo((): TrainingPendingChoice | null => {
+    if (focusedBuild) return { type: 'build', build: focusedBuild };
+    if (focusedLinkId && flow.flow.action === 'network') return { type: 'network', linkId: focusedLinkId };
+    if (flow.flow.action === 'sell' && flow.flow.sales.length === 1) return { type: 'sell', sell: flow.flow.sales[0] };
+    if (flow.flow.action === 'develop' && flow.flow.develops.length >= 1) {
+      return { type: 'develop', developIndustries: flow.flow.develops };
+    }
+    return null;
+  }, [focusedBuild, focusedLinkId, flow.flow.action, flow.flow.sales, flow.flow.develops]);
+
+  const trainingHint = useMemo(() => {
+    if (!trainingMode || !humanTurn || inTutorial) return null;
+    if (coachFeedback) return postMoveTrainingHint(state, coachFeedback);
+    return getTrainingHint(state, {
+      action: flow.flow.action,
+      cardIdx: flow.flow.cardIdx,
+      inspectCity,
+      focusedLinkId,
+      pendingChoice: trainingPendingChoice,
+      turnLog,
+      flowError: flow.error,
+    });
+  }, [
+    trainingMode,
+    humanTurn,
+    inTutorial,
+    coachFeedback,
+    state,
+    flow.flow.action,
+    flow.flow.cardIdx,
+    inspectCity,
+    focusedLinkId,
+    trainingPendingChoice,
+    turnLog,
+    flow.error,
+  ]);
+
+  const boardHighlights = useMemo(() => {
+    if (!trainingMode || !trainingHint?.mapGuide) {
+      return {
+        cities: flow.highlightCities,
+        slots: flow.highlightBuildSlots,
+        links: flow.highlightLinks,
+        proLinks: new Set<string>(),
+        proSlots: new Set<string>(),
+      };
+    }
+    return mergeMapHighlights(
+      flow.highlightCities,
+      flow.highlightBuildSlots,
+      flow.highlightLinks,
+      trainingHint.mapGuide,
+    );
+  }, [
+    trainingMode,
+    trainingHint?.mapGuide,
+    flow.highlightCities,
+    flow.highlightBuildSlots,
+    flow.highlightLinks,
+  ]);
+
   const boardViewTarget = useMemo(() => {
     if (inTutorial) return tutorialBoardView(tutorial.step);
+    if (mapGuideFocus && trainingHint?.mapGuide?.viewTarget) return trainingHint.mapGuide.viewTarget;
     if (focusCity) {
       const pos = LAYOUT[focusCity];
       return { x: pos.x, y: pos.y, scale: 1.08 };
     }
     return null;
-  }, [inTutorial, tutorial.step, focusCity]);
+  }, [inTutorial, tutorial.step, focusCity, mapGuideFocus, trainingHint?.mapGuide]);
+
+  useEffect(() => {
+    setMapGuideFocus(false);
+  }, [flow.flow.action, flow.flow.cardIdx, trainingHint?.headline, coachFeedback]);
 
   return (
     <>
@@ -613,12 +731,17 @@ function GameScreen({
       )}
       <div className={`game-layout map-locked-layout${inTutorial ? ' tutorial-active' : ''}`}>
         <div className="game-map-zone board-wrap map-locked">
-          <PanZoomBoard viewRevision={(tutorial.stepIndex ?? 0) + (focusCity ? 500 : 0)} viewTarget={boardViewTarget}>
+          <PanZoomBoard
+            viewRevision={(tutorial.stepIndex ?? 0) + (focusCity ? 500 : 0) + (mapGuideFocus ? 900 : 0)}
+            viewTarget={boardViewTarget}
+          >
             <BoardMap
               state={state}
-              highlightCities={flow.highlightCities}
-              highlightBuildSlots={flow.highlightBuildSlots}
-              highlightLinks={flow.highlightLinks}
+              highlightCities={boardHighlights.cities}
+              highlightBuildSlots={boardHighlights.slots}
+              highlightLinks={boardHighlights.links}
+              trainingProLinks={boardHighlights.proLinks}
+              trainingProBuildSlots={boardHighlights.proSlots}
               cardFocusCity={focusCity}
               selectedCity={inspectCity}
               onCityClick={(city) => {
@@ -647,6 +770,14 @@ function GameScreen({
                 const choice = flow.networks.find((n) => n.option.linkIds[0] === linkId);
                 if (choice) flow.chooseNetwork(choice);
               }}
+              onTrainingLinkInspect={
+                trainingMode && !inTutorial
+                  ? (linkId) => {
+                      setFocusedLinkId(linkId);
+                      setMapInfo(networkBlockReasonDetailed(state, linkId));
+                    }
+                  : undefined
+              }
               onMapInfo={setMapInfo}
             />
           </PanZoomBoard>
@@ -677,10 +808,19 @@ function GameScreen({
           )}
         </div>
 
+        {trainingHint && (
+          <TrainingHintBar
+            hint={trainingHint}
+            onDismiss={coachFeedback ? onDismissCoach : undefined}
+            onStartDrill={onStartTrainingDrill}
+            onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
+          />
+        )}
+
         <div className="side side-scroll">
           <div className="game-hud">
             <PlayerPanel state={state} />
-            {coachActive && coachFeedback && (
+            {coachActive && coachFeedback && !trainingMode && (
               <CoachPanel feedback={coachFeedback} onDismiss={onDismissCoach} />
             )}
             {(isVsAI(state) || state.mode === 'hotseat') && !inTutorial && coachHistory.length > 0 && (
@@ -777,7 +917,15 @@ function GameScreen({
             {flow.flow.action === 'build' && (
               <div className="option-list" style={{ marginTop: 8 }} data-testid="build-options">
                 {(flow.flow.cardIdx !== null ? flow.cardBuilds : flow.allBuilds).map((b, i) => (
-                  <button key={i} className={`option-btn ${industryCssClass(b.option.industry)}`} onClick={() => flow.chooseBuild(b)}>
+                  <button
+                    key={i}
+                    className={`option-btn ${industryCssClass(b.option.industry)}`}
+                    onMouseEnter={() => setFocusedBuild(b)}
+                    onMouseLeave={() => setFocusedBuild(null)}
+                    onFocus={() => setFocusedBuild(b)}
+                    onBlur={() => setFocusedBuild(null)}
+                    onClick={() => flow.chooseBuild(b)}
+                  >
                     {CITIES[b.option.city].name}: {industria(b.option.industry)} N{b.option.level} — {formatBuildCost(b.option)}
                     {b.option.overbuild ? ' (reconstruir)' : ''}
                   </button>
@@ -795,7 +943,15 @@ function GameScreen({
             {flow.flow.action === 'network' && (
               <div className="option-list" style={{ marginTop: 8 }} data-testid="network-options">
                 {flow.networks.map((n, i) => (
-                  <button key={i} className="option-btn option-network" onClick={() => flow.chooseNetwork(n)}>
+                  <button
+                    key={i}
+                    className="option-btn option-network"
+                    onMouseEnter={() => setFocusedLinkId(n.option.linkIds[0])}
+                    onMouseLeave={() => setFocusedLinkId(null)}
+                    onFocus={() => setFocusedLinkId(n.option.linkIds[0])}
+                    onBlur={() => setFocusedLinkId(null)}
+                    onClick={() => flow.chooseNetwork(n)}
+                  >
                     <span>{linkLabel(n.option.linkIds[0])} — {formatNetworkCost(n.option)}</span>
                     <span className="option-reason">{networkWhy(n)}</span>
                   </button>

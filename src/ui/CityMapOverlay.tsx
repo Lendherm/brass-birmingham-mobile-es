@@ -2,7 +2,7 @@ import { useState, type KeyboardEvent } from 'react';
 import type { CityId, IndustryType } from '../engine/types';
 import { CITIES, LINKS } from '../engine/data/board';
 import { tileSpec } from '../engine/data/industries';
-import { buildBlockReason } from '../engine/buildExplain';
+import { buildBlockReason, buildBlockReasonDetailed } from '../engine/buildExplain';
 import { eligibleSlots, lowestBuildable, tileAllowedInEra } from '../engine/actions';
 import { activePlayer, type Card, type GameState } from '../engine/state';
 import { industria, linkLabel } from '../i18n/es';
@@ -59,7 +59,7 @@ function slotIndustryBlockReason(
   slotIndex: number,
 ): string | null {
   const general = buildBlockReason(state, card, cityId, industry);
-  if (general) return general;
+  if (general) return buildBlockReasonDetailed(state, card, cityId, industry);
   if (!eligibleSlots(state, cityId, industry).includes(slotIndex)) {
     return 'Usa primero las casillas dedicadas';
   }

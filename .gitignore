@@ -6,6 +6,7 @@ docs/*.pdf
 .DS_Store
 coverage/
 test-results/
+tsconfig.tsbuildinfo
 *.apk
 Brass-Birmingham-Solo-debug.apk
 android/app/build/

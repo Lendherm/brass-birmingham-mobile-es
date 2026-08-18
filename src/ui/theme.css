@@ -3144,6 +3144,34 @@ button.selected {
   }
 }
 
+.board-training-pro line {
+  stroke: var(--accent) !important;
+  stroke-width: 9;
+  stroke-dasharray: 8 5;
+  animation: board-training-pro-stroke 1.2s ease-in-out infinite;
+}
+
+.board-training-pro-slot .board-slot-glow-ring {
+  stroke: var(--accent);
+  stroke-dasharray: 5 3;
+  animation: board-training-pro-stroke 1.2s ease-in-out infinite;
+}
+
+.board-training-pro-slot rect,
+.board-training-pro-slot circle {
+  stroke: var(--accent) !important;
+}
+
+@keyframes board-training-pro-stroke {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.65;
+  }
+}
+
 .tile-flipped {
   opacity: 0.72;
 }
@@ -4638,6 +4666,286 @@ button.selected {
 .training-career p {
   margin: 4px 0 0;
   color: var(--muted);
+}
+
+.training-hint-bar {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  z-index: 120;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 94%, var(--accent) 6%);
+  box-shadow: var(--card-shadow-lift);
+  max-width: 640px;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.training-hint-bar[data-kind='block'] {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+  background: color-mix(in srgb, var(--panel) 90%, var(--danger) 10%);
+}
+
+.training-hint-bar[data-kind='pattern'] {
+  border-color: color-mix(in srgb, var(--warning, #c9a227) 50%, var(--border));
+}
+
+.training-hint-bar[data-kind='choice'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.training-hint-bar[data-kind='plan'] {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.training-hint-plan {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.training-hint-plan li {
+  margin-bottom: 4px;
+}
+
+.training-hint-plan-phase {
+  display: inline-block;
+  min-width: 4.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.training-hint-plan-label {
+  margin-right: 6px;
+}
+
+.training-hint-plan-pct {
+  color: var(--accent);
+}
+
+.training-hint-bar[data-kind='postmove'] {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+
+.training-hint-bar[data-kind='scenario'] {
+  border-color: color-mix(in srgb, #3a8f5c 45%, var(--border));
+}
+
+.training-scenario-status {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.training-scenario-status[data-status='completed'] {
+  color: #3a8f5c;
+}
+
+.training-scenario-status[data-status='on-track'] {
+  color: var(--accent);
+}
+
+.training-hint-drill {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.training-hint-drill:active {
+  transform: scale(0.99);
+}
+
+.training-hint-dismiss {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 4px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.training-hint-quality {
+  flex: 0 0 auto;
+  min-width: 52px;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: var(--accent-soft, rgba(90, 120, 160, 0.15));
+}
+
+.training-hint-pct {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent);
+}
+
+.training-hint-pct-label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.training-hint-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.training-hint-headline {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.training-hint-detail {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.training-hint-best {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.training-hint-best-label {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.training-hint-alts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.training-hint-alt {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.training-hint-alt strong {
+  color: var(--accent);
+}
+
+.training-hint-numeric {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.training-hint-numeric-line {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 88%, var(--accent) 12%);
+  border: 1px solid var(--border);
+}
+
+.training-hint-numeric-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.training-hint-numeric-head strong {
+  color: var(--accent);
+}
+
+.training-hint-numeric-bullets {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.training-hint-map-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.training-hint-map-btn:active {
+  transform: scale(0.99);
+}
+
+@media (min-width: 900px) {
+  .training-hint-bar {
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+    max-width: 420px;
+  }
+}
+
+.in-game .game-layout {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+.in-game.training-hint-active .game-layout {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+.setup-training-mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 92%, var(--accent) 8%);
+  font-size: 0.88rem;
+}
+
+.setup-training-mode input {
+  margin-top: 3px;
+}
+
+.setup-training-mode strong {
+  display: block;
+  margin-bottom: 4px;
 }
 
 @media (max-width: 900px) {

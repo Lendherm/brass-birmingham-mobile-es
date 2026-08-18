@@ -15,6 +15,7 @@ const parts = [
   'board-enhancements.css',
   'city-overlay.css',
   'tooltips.css',
+  'training-hint.css',
   'mobile.css',
   'landscape.css',
   'forced-layout.css',

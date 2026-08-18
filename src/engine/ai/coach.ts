@@ -78,7 +78,7 @@ export function describeAction(state: GameState, action: PlayerAction): string {
   }
 }
 
-function reasonsForAction(state: GameState, scored: ScoredAction, player: PlayerId): string[] {
+export function reasonsForAction(state: GameState, scored: ScoredAction, player: PlayerId): string[] {
   const reasons: string[] = [];
   const action = scored.action;
 

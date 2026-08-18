@@ -21,12 +21,15 @@ interface Props {
   highlightCities?: Set<string>;
   highlightBuildSlots?: Set<string>;
   highlightLinks?: Set<string>;
+  trainingProLinks?: Set<string>;
+  trainingProBuildSlots?: Set<string>;
   /** Location card selected — spotlight this city (zone color). */
   cardFocusCity?: CityId | null;
   selectedCity?: string | null;
   onCityClick?: (city: CityId) => void;
   onMerchantClick?: (merchant: MerchantId) => void;
   onLinkClick?: (linkId: string) => void;
+  onTrainingLinkInspect?: (linkId: string) => void;
   onMapInfo?: (text: string) => void;
 }
 
@@ -70,6 +73,7 @@ function IndustrySlot({
   tile,
   state,
   buildTarget,
+  trainingPro,
 }: {
   x: number;
   y: number;
@@ -77,11 +81,14 @@ function IndustrySlot({
   tile: GameState['board'][CityId][number];
   state: GameState;
   buildTarget: boolean;
+  trainingPro?: boolean;
 }) {
   const r = SLOT / 2;
   const cx = x + r;
   const cy = y + r;
-  const slotClass = buildTarget ? 'board-slot-build-target' : '';
+  const slotClass = [buildTarget ? 'board-slot-build-target' : '', trainingPro ? 'board-training-pro-slot' : '']
+    .filter(Boolean)
+    .join(' ');
 
   if (!tile) {
     const icons = allowed.slice(0, 2);
@@ -271,7 +278,21 @@ function FarmBreweryMarker({
   );
 }
 
-export function BoardMap({ state, highlightCities, highlightBuildSlots, highlightLinks, cardFocusCity, selectedCity, onCityClick, onMerchantClick, onLinkClick, onMapInfo }: Props) {
+export function BoardMap({
+  state,
+  highlightCities,
+  highlightBuildSlots,
+  highlightLinks,
+  trainingProLinks,
+  trainingProBuildSlots,
+  cardFocusCity,
+  selectedCity,
+  onCityClick,
+  onMerchantClick,
+  onLinkClick,
+  onTrainingLinkInspect,
+  onMapInfo,
+}: Props) {
   return (
     <svg viewBox="0 0 900 860" width={900} height={860} role="img" aria-label="Tablero de juego" data-testid="board" className="board-svg" shapeRendering="geometricPrecision" textRendering="optimizeLegibility">
       <defs>
@@ -284,6 +305,7 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
         const owner = state.links[link.id];
         if (owner == null && !linkActiveInEra(link, state.era)) return null;
         const highlighted = highlightLinks?.has(link.id);
+        const trainingPro = trainingProLinks?.has(link.id) ?? false;
         const isCanalOnly = link.canal && !link.rail;
         const canalEra = state.era === 'canal';
         const stroke =
@@ -307,11 +329,12 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
           <g
             key={link.id}
             data-testid={`link-${link.id}`}
-            className={highlighted ? 'board-highlight-pulse' : ''}
-            style={{ cursor: onLinkClick || onMapInfo ? 'pointer' : 'default' }}
+            className={[highlighted ? 'board-highlight-pulse' : '', trainingPro ? 'board-training-pro' : ''].filter(Boolean).join(' ')}
+            style={{ cursor: onLinkClick || onMapInfo || onTrainingLinkInspect ? 'pointer' : 'default' }}
             onClick={(e) => {
               e.stopPropagation();
               if (highlighted && onLinkClick) onLinkClick(link.id);
+              else if (onTrainingLinkInspect) onTrainingLinkInspect(link.id);
               else onMapInfo?.(linkInfo);
             }}
           >
@@ -454,8 +477,18 @@ export function BoardMap({ state, highlightCities, highlightBuildSlots, highligh
                 const sx = pos.x - w / 2 + 6 + i * (SLOT + SLOT_GAP);
                 const sy = pos.y - 14;
                 const buildTarget = highlightBuildSlots?.has(`${city.id}:${i}`) ?? false;
+                const trainingPro = trainingProBuildSlots?.has(`${city.id}:${i}`) ?? false;
                 return (
-                  <IndustrySlot key={i} x={sx} y={sy} allowed={allowed} tile={tile} state={state} buildTarget={buildTarget} />
+                  <IndustrySlot
+                    key={i}
+                    x={sx}
+                    y={sy}
+                    allowed={allowed}
+                    tile={tile}
+                    state={state}
+                    buildTarget={buildTarget}
+                    trainingPro={trainingPro}
+                  />
                 );
               })}
           </g>
