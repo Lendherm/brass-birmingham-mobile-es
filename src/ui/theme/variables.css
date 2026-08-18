@@ -165,11 +165,11 @@
   --res-iron-stroke: #ffd8a8;
   --overlay-backdrop: color-mix(in srgb, var(--bg) 78%, transparent);
   --overlay-shadow: 0 12px 40px rgba(0, 0, 0, 0.32);
-  --overlay-panel: #3a3f4b;
-  --overlay-panel-2: #454b58;
-  --overlay-text: #f2ede4;
-  --overlay-muted: #b8b2c4;
-  --overlay-border: #565d6c;
+  --overlay-panel: var(--panel);
+  --overlay-panel-2: var(--panel-2);
+  --overlay-text: var(--text);
+  --overlay-muted: var(--muted);
+  --overlay-border: var(--border);
   --mat-tile-bg-top: #4a4438;
   --mat-tile-bg-bottom: #3a3428;
   --mat-tile-text: #f5f0e6;
