@@ -327,7 +327,7 @@ function SetupScreen({
       />
 
       <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
-        <strong>Tutorial interactivo</strong> (6 capítulos jugables) · <strong>Guía de estrategia</strong> (11 capítulos:
+        <strong>Tutorial interactivo</strong> (7 capítulos jugables) · <strong>Guía de estrategia</strong> (11 capítulos:
         cómo ganar, eras, economía, Automa…)
       </p>
 

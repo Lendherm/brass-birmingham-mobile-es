@@ -247,7 +247,7 @@ export const STRATEGY_CHAPTERS: StrategyChapter[] = [
       },
       {
         heading: 'Siguiente paso',
-        body: 'Practica cada mecánica en el **tutorial interactivo** (6 capítulos). Luego juega en **fácil vs 1 Automa** aplicando una estrategia por partida: una vez prioriza ventas, otra enlaces, otra minas.',
+        body: 'Practica cada mecánica en el **tutorial interactivo** (7 capítulos). Luego juega en **fácil vs 1 Automa** con **modo entrenamiento 🎯** activado, aplicando una estrategia por partida: una vez prioriza ventas, otra enlaces, otra minas.',
       },
     ],
   },

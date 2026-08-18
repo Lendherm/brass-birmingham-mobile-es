@@ -26,7 +26,7 @@ test('tutorial chapter 1: continue through map intro', async ({ page }) => {
 });
 
 test('all tutorial chapters are defined', async ({ page }) => {
-  expect(TUTORIAL_CHAPTERS).toHaveLength(6);
+  expect(TUTORIAL_CHAPTERS).toHaveLength(7);
   expect(TUTORIAL_CHAPTERS).toEqual([
     'Lo esencial',
     'Vender',
@@ -34,6 +34,7 @@ test('all tutorial chapters are defined', async ({ page }) => {
     'Préstamo',
     'Explorar',
     'Partida completa',
+    'Coach y entrenamiento',
   ]);
   await page.goto('/');
 });

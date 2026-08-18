@@ -2,6 +2,14 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.20] — 2026-08-17
+
+### Añadido
+- **Tutorial capítulo 7 — Coach y entrenamiento:** modo 🎯, barra del coach, comparativa numérica, estrategias por carta, «Ver en mapa», entrenador 🎓, guía 📘, aperturas y panel 📊.
+
+### Cambiado
+- Textos del tutorial y guía de estrategia actualizados de 6 a **7 capítulos**.
+
 ## [1.0.19] — 2026-08-17
 
 ### Añadido
@@ -113,6 +121,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.20]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.20
 [1.0.19]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.19
 [1.0.18]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.18
 [1.0.10]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.10

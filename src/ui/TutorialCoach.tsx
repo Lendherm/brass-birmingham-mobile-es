@@ -78,8 +78,8 @@ export function TutorialCompleteOverlay({ onPlay, onSetup }: { onPlay: () => voi
         </div>
         <h2 style={{ margin: '0 0 8px' }}>¡Tutorial completado!</h2>
         <p style={{ color: 'var(--muted)', margin: '0 0 20px' }}>
-          Completaste los 6 capítulos: construir, vender, desarrollar, préstamo, explorar y reglas de partida. ¿Listo
-          para jugar de verdad?
+          Completaste los 7 capítulos: mecánicas del juego, reglas de partida y herramientas de coach (🎯, guías y
+          comparativas). ¿Listo para jugar de verdad?
         </p>
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button type="button" className="primary" onClick={onPlay} data-testid="tutorial-play">

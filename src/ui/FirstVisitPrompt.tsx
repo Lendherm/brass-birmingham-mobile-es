@@ -17,7 +17,7 @@ export function FirstVisitPrompt({ onStart }: { onStart: () => void }) {
   return (
     <div className="first-visit-banner panel" data-testid="first-visit-banner">
       <p>
-        <strong>¿Primera vez?</strong> Prueba el tutorial interactivo (6 capítulos) o lee la guía de estrategia.
+        <strong>¿Primera vez?</strong> Prueba el tutorial interactivo (7 capítulos) o lee la guía de estrategia.
       </p>
       <div className="actions">
         <button

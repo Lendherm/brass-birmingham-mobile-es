@@ -48,8 +48,8 @@ describe('interactive tutorial', () => {
     expect(state.players[HUMAN].hand.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('has 6 chapters and 30+ steps', () => {
-    expect(INTERACTIVE_TUTORIAL.length).toBeGreaterThanOrEqual(30);
-    expect(new Set(INTERACTIVE_TUTORIAL.map((s) => s.chapter)).size).toBe(6);
+  it('has 7 chapters and 40+ steps', () => {
+    expect(INTERACTIVE_TUTORIAL.length).toBeGreaterThanOrEqual(40);
+    expect(new Set(INTERACTIVE_TUTORIAL.map((s) => s.chapter)).size).toBe(7);
   });
 });
