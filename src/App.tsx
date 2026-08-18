@@ -51,6 +51,7 @@ import { ACCIONES, DEFAULT_PLAYER_NAMES, PLAYER_COLORS, type AccionId, eraNombre
 import { industryCssClass } from './ui/visual/industryTheme';
 import { ProjectCredits } from './ui/ProjectCredits';
 import { TapInfoBubble } from './ui/TapInfoBubble';
+import { RoundSpendingTopbar } from './ui/RoundSpending';
 import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
 import { setupModeCards } from './i18n/gameModes';
 import { TRAINING_SCENARIOS, trainingScenarioMeta, type TrainingScenarioId } from './engine/training/scenarios';
@@ -115,6 +116,7 @@ export default function App() {
               </>
             )}
           </span>
+            <RoundSpendingTopbar state={gs} />
           </>
         )}
         <div className="spacer" />

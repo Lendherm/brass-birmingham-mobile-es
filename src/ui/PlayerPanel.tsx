@@ -5,6 +5,7 @@ import { LINK_SUPPLY, playerLinksRemaining } from '../engine/links';
 import { BRASS_DECK_SIZE, MAUTOMA_ERA_CARDS } from '../i18n/gameModes';
 import { playCoinSound, playEraSound, playVpSound } from './visual/sounds';
 import { LinkTransportIcon } from './visual/LinkTransportIcon';
+import { RoundSpendingStat } from './RoundSpending';
 
 interface Props {
   state: GameState;
@@ -93,6 +94,7 @@ function PlayerCard({
           <span className="stat-money">
             £<b>{player.money}</b>
           </span>
+          <RoundSpendingStat state={state} playerId={playerId} />
           <span className="stat-vp" data-testid={vpTestId}>
             <b>{player.vp}</b> PV
           </span>
@@ -168,6 +170,7 @@ export function PlayerPanel({ state }: Props) {
                 <span className="stat-money">
                   £<b>{state.players[HUMAN].money}</b>
                 </span>
+                <RoundSpendingStat state={state} playerId={HUMAN} />
                 <span className={`stat-vp${vpBump ? ' vp-bump' : ''}`} data-testid="player-vp">
                   <b>{state.players[HUMAN].vp}</b> PV
                 </span>
@@ -215,6 +218,7 @@ export function PlayerPanel({ state }: Props) {
                 <span className="stat-money">
                   £<b>{current.money}</b>
                 </span>
+                <RoundSpendingStat state={state} playerId={playerId} />
                 <span className={`stat-vp${vpBump ? ' vp-bump' : ''}`}>
                   <b>{current.vp}</b> PV
                 </span>

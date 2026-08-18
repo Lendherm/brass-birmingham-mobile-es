@@ -437,6 +437,21 @@ export function spendMoney(state: GameState, player: PlayerId, amount: number): 
   }
 }
 
+/** Pounds spent this round (build, network, market purchases). Used for next-round turn order. */
+export function roundSpending(state: GameState, player: PlayerId): number {
+  return state.moneySpentThisRound[player] ?? 0;
+}
+
+/** Turn order at the start of the next round (lowest spend first; tie keeps current order). */
+export function nextRoundTurnOrder(state: GameState): PlayerId[] {
+  return [...state.turnOrder].sort((a, b) => {
+    const spentA = roundSpending(state, a);
+    const spentB = roundSpending(state, b);
+    if (spentA !== spentB) return spentA - spentB;
+    return state.turnOrder.indexOf(a) - state.turnOrder.indexOf(b);
+  });
+}
+
 export function addMoney(state: GameState, player: PlayerId, amount: number): void {
   if (!isPayingPlayer(state, player)) return;
   state.players[player].money += amount;
