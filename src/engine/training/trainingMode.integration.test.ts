@@ -38,7 +38,7 @@ describe('training mode integration', () => {
     state.actionsLeft = 8;
     const build = legalBuilds(state)[0];
     expect(build).toBeDefined();
-    const feedback = compareCoachMove(state, { type: 'pass' });
+    const feedback = compareCoachMove(state, { type: 'pass', cardIdx: 0 });
     const hint = postMoveTrainingHint(state, feedback);
     expect(hint.kind).toBe('postmove');
     expect(hint.dismissible).toBe(true);
@@ -165,7 +165,7 @@ describe('training mode integration', () => {
     const state = newTrainingScenario('network-timing');
     const net = legalNetworks(state)[0];
     if (!net) return;
-    const guide = mapGuideForAction(state, { type: 'network', option: net.option });
+    const guide = mapGuideForAction(state, { type: 'network', cardIdx: 0, option: net.option });
     expect(guide.linkIds.length).toBeGreaterThan(0);
     expect(guide.viewTarget).not.toBeNull();
   });

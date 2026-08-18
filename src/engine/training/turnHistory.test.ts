@@ -17,6 +17,7 @@ describe('turnHistory', () => {
         overbuild: false,
         coalPlan: null,
         ironPlan: null,
+        moneyCost: 5,
         totalCost: 5,
       },
     };

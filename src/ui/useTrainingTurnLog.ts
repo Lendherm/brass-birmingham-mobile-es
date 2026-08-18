@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PlayerAction } from '../game';
-import type { GameState } from '../state';
+import type { PlayerAction } from '../engine/game';
+import type { GameState } from '../engine/state';
 import { recordTurnHistory, type TurnHistoryEntry } from '../engine/training/turnHistory';
 
 /** Tracks human moves for training pattern detection (resets each new game). */

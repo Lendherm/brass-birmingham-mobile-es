@@ -211,7 +211,7 @@ function networkActionBlockSummary(state: GameState): string {
 function pendingChoiceHint(state: GameState, ctx: TrainingHintContext): TrainingHint | null {
   const choice = ctx.pendingChoice;
   if (!choice) return null;
-  const { ranked, best, worst } = rankedSpread(state);
+  const { ranked } = rankedSpread(state);
   const top = ranked.sort((a, b) => b.score - a.score)[0];
 
   if (choice.type === 'build' && choice.build) {
@@ -522,7 +522,7 @@ export function getTrainingHint(state: GameState, ctx: TrainingHintContext): Tra
   if (ctx.action === 'build' && ctx.cardIdx != null && card) {
     const focusCity = card.kind === 'location' ? card.city : ctx.inspectCity;
     if (focusCity) {
-      const industries: IndustryType[] =
+      const industries: readonly IndustryType[] =
         card.kind === 'industry' ? card.industries : (['cotton', 'goods', 'pottery', 'coal', 'iron', 'brewery'] as IndustryType[]);
       for (const industry of industries) {
         const reason = buildBlockReason(state, card, focusCity, industry);

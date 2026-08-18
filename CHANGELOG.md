@@ -2,6 +2,15 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.18] — 2026-08-17
+
+### Añadido
+- **Modo entrenamiento 🎯:** barra de coach activa con % de calidad, plan de 3 turnos y detección de hábitos (bucle mina/cerveza/red).
+- **Comparativa numérica** vender vs construir vs desarrollar (PV, ingresos, £).
+- **Guía visual en mapa:** resalta jugada pro, botón «Ver en mapa» y explicación al tocar enlaces ilegales.
+- **Escenarios y drills** automáticos cuando repites el mismo patrón.
+- Script `npm run test:training` y suite de integración (196 tests).
+
 ## [1.0.16] — 2026-08-17
 
 ### Corregido
@@ -94,6 +103,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.18]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.18
 [1.0.10]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.10
 [1.0.9]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.9
 [1.0.8]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.8

@@ -5,7 +5,6 @@ import { describeAction } from '../ai/coach';
 import { rankCandidates } from '../ai/evaluate';
 import { activePlayer, type GameState } from '../state';
 import { industria } from '../messages';
-import type { IndustryType } from '../types';
 import { scoreToQualityPct } from './trainingHints';
 
 export interface NumericForkLine {

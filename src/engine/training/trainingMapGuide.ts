@@ -27,7 +27,7 @@ function viewForLink(linkId: string): TrainingMapGuide['viewTarget'] {
 }
 
 /** Map highlights + camera target for the coach's recommended line. */
-export function mapGuideForAction(state: GameState, action: PlayerAction): TrainingMapGuide {
+export function mapGuideForAction(_state: GameState, action: PlayerAction): TrainingMapGuide {
   const guide: TrainingMapGuide = {
     linkIds: [],
     buildSlots: [],

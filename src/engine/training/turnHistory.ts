@@ -67,7 +67,7 @@ export function detectHistoryPattern(log: TurnHistoryEntry[]): PlayPattern | nul
 }
 
 export function mergePatternDetection(
-  state: GameState,
+  _state: GameState,
   log: TurnHistoryEntry[],
   boardPattern: PlayPattern | null,
 ): PlayPattern | null {

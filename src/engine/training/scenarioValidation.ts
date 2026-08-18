@@ -1,8 +1,6 @@
-import { tileSpec } from '../data/industries';
 import { playerLinksPlaced } from '../links';
 import { legalBuilds, legalDevelops, legalNetworks, legalSells } from '../options';
 import { HUMAN, type GameState } from '../state';
-import type { TrainingScenarioId } from './scenarios';
 import { trainingScenarioMeta } from './scenarios';
 
 export type ScenarioStatus = 'pending' | 'on-track' | 'completed' | 'missed';

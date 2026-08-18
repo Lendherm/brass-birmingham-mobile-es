@@ -169,7 +169,7 @@ function countOwnedUnflipped(state: GameState, player: number): number {
 function countDisconnectedSellableIndustry(state: GameState, player: number): number {
   let n = 0;
   for (const [cityId, slots] of Object.entries(state.board)) {
-    for (const [slot, tile] of slots.entries()) {
+    for (const [_slot, tile] of slots.entries()) {
       if (!tile || tile.owner !== player || tile.flipped) continue;
       const spec = tileSpec(tile.industry, tile.level);
       if (spec.beerToSell === undefined) continue;
