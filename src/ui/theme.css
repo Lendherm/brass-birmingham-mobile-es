@@ -4720,45 +4720,68 @@ button.selected {
   color: var(--muted);
 }
 
-/* Coach dock: rail on map + expandable sheet (replaces bulky action-panel box) */
+/* Coach integrado en panel Acciones — inline, sin popup flotante */
 .coach-dock {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  z-index: 35;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0;
-  pointer-events: none;
+  width: 100%;
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
 
-.coach-dock > * {
+.coach-dock-in-panel {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
   pointer-events: auto;
+}
+
+.coach-section-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .coach-rail {
   display: flex;
   align-items: stretch;
   gap: 0;
-  min-height: 44px;
-  border-radius: 12px;
+  min-height: 42px;
+  border-radius: 10px;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
-  background: color-mix(in srgb, var(--panel) 88%, var(--bg) 12%);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 6px 22px rgb(0 0 0 / 28%);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--bg) 92%, var(--accent) 8%);
 }
 
 .coach-dock[data-kind='block'] .coach-rail {
-  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
-  background: color-mix(in srgb, var(--panel) 84%, var(--danger) 16%);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+  background: color-mix(in srgb, var(--bg) 90%, var(--danger) 10%);
 }
 
 .coach-dock[data-kind='postmove'] .coach-rail,
 .coach-dock[data-kind='choice'] .coach-rail,
 .coach-dock[data-kind='fork'] .coach-rail {
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.coach-dock[data-kind='pattern'] .coach-rail {
+  border-color: color-mix(in srgb, var(--warning, #c9a227) 45%, var(--border));
+}
+
+.coach-dock[data-kind='plan'] .coach-rail {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+.coach-dock[data-kind='scenario'] .coach-rail {
+  border-color: color-mix(in srgb, #3a8f5c 40%, var(--border));
 }
 
 .coach-rail-score {
@@ -4766,9 +4789,9 @@ button.selected {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  padding: 0 8px;
-  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  min-width: 48px;
+  padding: 0 6px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
   border-right: 1px solid var(--border);
 }
 
@@ -4779,7 +4802,7 @@ button.selected {
   flex-direction: column;
   justify-content: center;
   gap: 2px;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border: none;
   background: transparent;
   text-align: left;
@@ -4788,7 +4811,7 @@ button.selected {
 }
 
 .coach-rail-headline {
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
@@ -4816,36 +4839,30 @@ button.selected {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  min-height: 44px;
+  width: 34px;
+  min-height: 42px;
   padding: 0;
   border: none;
   border-left: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   background: transparent;
   color: var(--text);
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1;
   cursor: pointer;
   touch-action: manipulation;
 }
 
-.coach-rail-icon:first-child {
-  border-left: none;
-}
-
 .coach-rail-expand {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--accent);
 }
 
 .coach-sheet {
   margin-top: 6px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--panel) 96%, var(--bg));
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 28px rgb(0 0 0 / 32%);
-  max-height: min(38vh, 280px);
+  background: var(--bg);
+  max-height: min(32vh, 220px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -4853,34 +4870,37 @@ button.selected {
 
 .coach-tabs {
   display: flex;
-  gap: 4px;
-  padding: 6px 8px 0;
+  gap: 2px;
+  padding: 4px 6px 0;
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  background: color-mix(in srgb, var(--panel) 96%, var(--bg));
 }
 
 .coach-tab {
-  flex: 0 0 auto;
-  padding: 6px 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
   border: none;
-  border-radius: 999px 999px 0 0;
+  border-radius: 8px 8px 0 0;
   background: transparent;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   cursor: pointer;
 }
 
 .coach-tab.active {
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  background: var(--bg);
+  box-shadow: inset 0 1px 0 var(--accent);
 }
 
 .coach-sheet-body {
-  padding: 8px 10px 10px;
+  padding: 8px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -4891,41 +4911,23 @@ button.selected {
   gap: 8px;
 }
 
-.coach-dock-map-anchor {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-}
-
 .training-hint-reopen {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  z-index: 34;
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--accent);
-  background: color-mix(in srgb, var(--panel) 90%, var(--accent) 10%);
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
   color: var(--text);
   font-size: 0.78rem;
   font-weight: 700;
+  text-align: left;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 22%);
-  pointer-events: auto;
-}
-
-.coach-dock[data-kind='pattern'] .coach-rail {
-  border-color: color-mix(in srgb, var(--warning, #c9a227) 50%, var(--border));
-}
-
-.coach-dock[data-kind='plan'] .coach-rail {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
-}
-
-.coach-dock[data-kind='scenario'] .coach-rail {
-  border-color: color-mix(in srgb, #3a8f5c 45%, var(--border));
 }
 
 .training-hint-plan {
@@ -4986,7 +4988,7 @@ button.selected {
 
 .training-hint-pct {
   display: block;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.1;
   color: var(--accent);
@@ -5020,7 +5022,7 @@ button.selected {
   font-size: 0.72rem;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--bg);
+  background: var(--panel);
   border: 1px solid var(--border);
   white-space: nowrap;
 }
@@ -5032,7 +5034,7 @@ button.selected {
 .training-hint-numeric-line {
   padding: 6px 8px;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--bg) 88%, var(--accent) 12%);
+  background: color-mix(in srgb, var(--panel) 90%, var(--accent) 10%);
   border: 1px solid var(--border);
 }
 
@@ -5063,7 +5065,7 @@ button.selected {
   font-size: 0.72rem;
   line-height: 1.35;
   color: var(--muted);
-  background: color-mix(in srgb, var(--bg) 90%, var(--panel));
+  background: var(--panel);
   border: 1px solid var(--border);
 }
 
@@ -5086,7 +5088,7 @@ button.selected {
   padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 88%, var(--accent) 12%);
+  background: var(--panel);
   font-size: 0.76rem;
   line-height: 1.35;
 }
@@ -5114,7 +5116,7 @@ button.selected {
   padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--panel);
   font-size: 0.74rem;
   line-height: 1.35;
 }
@@ -5144,24 +5146,8 @@ button.selected {
 }
 
 @media (min-width: 900px) {
-  .coach-dock {
-    left: auto;
-    right: 12px;
-    bottom: 12px;
-    width: min(400px, calc(100% - 24px));
-  }
-
-  .coach-dock-map-anchor {
-    left: auto;
-    right: 12px;
-    bottom: 12px;
-    width: min(400px, calc(100% - 24px));
-  }
-
-  .training-hint-reopen {
-    left: auto;
-    right: 12px;
-    bottom: 12px;
+  .coach-sheet {
+    max-height: min(40vh, 280px);
   }
 }
 
@@ -5774,18 +5760,17 @@ button.selected {
     padding-bottom: 6px;
   }
 
-  /* Tutorial: panel flotante a la derecha, no tapa el mapa entero */
+  /* Tutorial: rail compacto a la derecha */
   .tutorial-coach {
     left: auto;
     right: max(4px, env(safe-area-inset-right));
     bottom: max(4px, env(safe-area-inset-bottom));
-    width: min(300px, 38vw);
+    width: min(320px, 40vw);
     padding: 4px;
   }
 
-  .tutorial-coach-inner {
-    max-height: min(72dvh, 260px);
-    margin: 0;
+  .tutorial-coach-sheet {
+    max-height: min(50dvh, 220px);
   }
 
   .tutorial-coach-title {

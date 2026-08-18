@@ -433,7 +433,7 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     chapter: 7,
     chapterTitle: 'Coach y entrenamiento',
     title: 'Barra del coach',
-    body: 'Con 🎯 activo, aparece una **franja sobre el mapa** (toca para expandir). Usa pestañas **Resumen, Comparar, Cartas y Plan**. Ciérrala con **×** cuando quieras.',
+    body: 'Con 🎯 activo, aparece una **franja sobre el mapa** (toca para expandir). Usa pestañas **Resumen, Comparar, Cartas y Plan**. Ciérrala con **×**.',
     wrongHint: '',
     step: { type: 'continue', focus: 'board-viewport' },
   },

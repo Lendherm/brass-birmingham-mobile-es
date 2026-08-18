@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.22] — 2026-08-17
+
+### Cambiado
+- **Coach sobre el mapa:** franja + pestañas con más altura, texto en 2 líneas y scroll completo (sin recortes).
+
 ## [1.0.21] — 2026-08-17
 
 ### Cambiado
@@ -127,6 +132,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.22]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.22
 [1.0.21]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.21
 [1.0.20]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.20
 [1.0.19]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.19

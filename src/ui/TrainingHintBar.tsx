@@ -62,20 +62,20 @@ export function TrainingHintBar({
   }, [tab, tabs]);
 
   const stripDetail =
-    hint.bestLine && hint.kind !== 'block'
-      ? hint.bestLine
-      : hint.detail.length > 72
-        ? `${hint.detail.slice(0, 69)}…`
-        : hint.detail;
+    hint.bestLine && hint.kind !== 'block' ? hint.bestLine : hint.detail;
+
+  const onMap = className?.includes('coach-dock-map');
 
   return (
-    <div
+    <section
       className={['coach-dock', expanded ? 'coach-dock-open' : '', className].filter(Boolean).join(' ')}
       data-testid="training-hint-bar"
       data-kind={hint.kind}
       role="status"
       aria-live="polite"
+      aria-label="Coach de entrenamiento"
     >
+      {!onMap && <h3 className="coach-section-label">Coach 🎯</h3>}
       <div className="coach-rail">
         {hint.qualityPct != null && (
           <div className="coach-rail-score" aria-label={`Calidad ${hint.qualityPct} por ciento`}>
@@ -257,6 +257,6 @@ export function TrainingHintBar({
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

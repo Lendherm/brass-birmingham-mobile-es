@@ -819,7 +819,7 @@ function GameScreen({
           {showTrainingHint && (
             <TrainingHintBar
               hint={trainingHint}
-              className="coach-dock-map-anchor"
+              className="coach-dock-map"
               onDismiss={dismissTrainingHint}
               onStartDrill={onStartTrainingDrill}
               onShowOnMap={trainingHint.mapGuide?.viewTarget ? () => setMapGuideFocus(true) : undefined}
