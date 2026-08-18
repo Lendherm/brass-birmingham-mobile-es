@@ -91,7 +91,7 @@
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--overlay-muted);
 }
 
 /* One quadrant per physical board slot */
@@ -607,7 +607,7 @@
 
 .city-slot-guide-empty-icon {
   font-size: 18px;
-  color: var(--muted);
+  color: var(--overlay-muted);
   line-height: 1;
 }
 

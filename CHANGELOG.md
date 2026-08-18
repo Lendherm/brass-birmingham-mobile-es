@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.24] — 2026-08-17
+
+### Corregido
+- **Overlay de ciudad/comerciante en modo oscuro:** panel en gris oscuro con texto claro (ya no fondo blanco al abrir una ciudad).
+
 ## [1.0.23] — 2026-08-17
 
 ### Cambiado
@@ -137,6 +142,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 - Modo Contra IA con reglas oficiales.
 - Resumen de entrenamiento y estadísticas de carrera.
 
+[1.0.24]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.24
 [1.0.23]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.23
 [1.0.22]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.22
 [1.0.21]: https://github.com/Lendherm/brass-birmingham-mobile-es/releases/tag/v1.0.21
