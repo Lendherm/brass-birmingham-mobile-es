@@ -194,15 +194,100 @@
 
 .city-overlay-blocked-msg {
   margin: 0;
-  font-size: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6b6b;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  max-width: 100%;
+  line-height: 1.35;
+  padding: 4px 2px 0;
+}
+
+.city-overlay-inspect-hint {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.city-overlay-reqs-toggle {
+  margin-top: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--accent);
+  cursor: pointer;
+  width: 100%;
+}
+
+.city-overlay-reqs {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 220px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.city-overlay-reqs li {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.city-overlay-reqs .req-mark {
+  flex-shrink: 0;
   font-weight: 800;
-  color: #ff5555;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  max-width: 72px;
-  line-height: 1.25;
-  padding-top: 2px;
+  width: 12px;
+}
+
+.city-overlay-reqs .req-ok {
+  color: var(--ok);
+}
+
+.city-overlay-reqs .req-fail {
+  color: #ff6b6b;
+}
+
+.city-overlay-no-tile {
+  width: 54px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+}
+
+.city-overlay-option.is-expanded {
+  max-width: 240px;
+}
+
+.city-overlay-option.blocked {
+  border-color: rgba(224, 48, 48, 0.35);
+  opacity: 1;
 }
 
 .city-overlay-confirm {

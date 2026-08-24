@@ -78,6 +78,9 @@ export function CitySlotGuide({
               <div className="city-slot-guide-meta">
                 <strong>Casilla {slotIndex + 1}: vacía</strong>
                 <span className="city-slot-guide-detail">{emptySlotDetail(allowed)}</span>
+                <span className="city-slot-guide-detail muted-inline">
+                  Toca la industria abajo → «Ver qué necesito» (carta, red, recursos).
+                </span>
                 <span className="city-slot-guide-icons">
                   {allowed.map((ind) => (
                     <IndustryIcon key={ind} industry={ind} size={16} colorful />
