@@ -27,6 +27,7 @@ import { TutorialLauncher } from './ui/Tutorial';
 import { FirstVisitPrompt } from './ui/FirstVisitPrompt';
 import { StrategyGuideButton } from './ui/StrategyGuide';
 import { OpeningsGuideButton } from './ui/OpeningsGuide';
+import { ConceptHelpButton } from './ui/ConceptHelp';
 import { TrainingDashboardButton, TrainingDashboardModal } from './ui/TrainingDashboard';
 import { TutorialCoach, TutorialCompleteOverlay } from './ui/TutorialCoach';
 import { useInteractiveTutorial } from './ui/useInteractiveTutorial';
@@ -143,6 +144,7 @@ export default function App() {
           </span>
         )}
         {game.state && (game.screenHidden || game.tutorialStep !== null) && <StrategyGuideButton compact />}
+        {game.state && (game.screenHidden || game.tutorialStep !== null) && <ConceptHelpButton compact />}
         <button
           type="button"
           onClick={toggleLargeText}
@@ -223,6 +225,7 @@ export default function App() {
             <span className="assistant-btn-label">Sugerencias</span>
           </button>
         )}
+        {inGame && <ConceptHelpButton compact />}
         <button onClick={toggle} data-testid="theme-toggle" aria-label="Cambiar modo oscuro">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
@@ -315,6 +318,7 @@ function SetupScreen({
       <div className="setup-guides">
         <TutorialLauncher onStart={onStartTutorial} prominent />
         <StrategyGuideButton />
+        <ConceptHelpButton />
         {mode === 'vsAI' && (
           <>
             <OpeningsGuideButton playerCount={previewCount} />
@@ -330,7 +334,7 @@ function SetupScreen({
 
       <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
         <strong>Tutorial interactivo</strong> (7 capítulos jugables) · <strong>Guía de estrategia</strong> (11 capítulos:
-        cómo ganar, eras, economía, Automa…)
+        cómo ganar, eras, economía, Automa…) · <strong>? Ayuda</strong> (conceptos: peaje de la red en PV)
       </p>
 
       <div className="mode-compare" data-testid="mode-compare">

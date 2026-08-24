@@ -126,6 +126,16 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     step: { type: 'apply-network', linkId: 'birmingham-dudley', focus: 'board' },
   },
   {
+    id: 'explain-network-toll',
+    chapter: 1,
+    chapterTitle: 'Lo esencial',
+    title: 'El peaje de la red',
+    body:
+      'Aunque el juego **no te da monedas** de los rivales, la red funciona como un peaje industrial: controlas el transporte y, al puntuar, cobras en **PV** (no en £). Carbón, hierro, cerveza y mercancías pasan por tus rutas; al final de cada era esos enlaces suman puntos por el tráfico que dominas. Más detalle: botón **? Ayuda** en el menú.',
+    wrongHint: '',
+    step: { type: 'continue', focus: 'board' },
+  },
+  {
     id: 'pick-pass',
     chapter: 1,
     chapterTitle: 'Lo esencial',
@@ -387,7 +397,7 @@ export const INTERACTIVE_TUTORIAL: InteractiveTutorialStep[] = [
     chapter: 6,
     chapterTitle: 'Partida completa',
     title: 'Dos eras',
-    body: 'La partida tiene **Era Canal** y **Era Ferrocarril**. Termina cada era cuando se agotan mazo y manos. Se puntúan industrias volteadas y enlaces; en Canal se retiran del tablero las industrias **nivel I** y los enlaces solo canal sin construir.',
+    body: 'La partida tiene **Era Canal** y **Era Ferrocarril**. Termina cada era cuando se agotan mazo y manos. Se puntúan industrias volteadas y **enlaces** (el “peaje” conceptual de tu red, cobrado en PV). En Canal se retiran del tablero las industrias **nivel I** y los enlaces solo canal.',
     wrongHint: '',
     step: { type: 'continue', focus: 'era-turn' },
   },

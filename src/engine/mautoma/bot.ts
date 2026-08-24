@@ -332,6 +332,7 @@ function tryRearSell(state: GameState, rear: MautomaCard): number {
   let sold = 0;
   // Sell all it can (FAQ), choosing by tiebreaker when order matters
   for (;;) {
+    if (sold >= 20) break;
     const candidates = sellableBuildings(state, bot(state)).filter((s) => {
       const beer: BeerSource[] = [];
       for (let i = 0; i < s.beerNeeded; i++) {

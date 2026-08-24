@@ -20,7 +20,8 @@ export const BOARD_SYMBOL_LEGEND: { id: string; sample: string; label: string; d
     id: 'linkvp',
     sample: '+2',
     label: 'PV de enlace',
-    detail: 'Al puntuar cada era, sumas esos PV por cada vía tuya conectada a esa ciudad o comerciante.',
+    detail:
+      'Al puntuar cada era, sumas esos PV por cada vía tuya conectada a esa ciudad o comerciante. Es el “peaje” conceptual de tu red: no quitas monedas a rivales; cobras dominio del transporte en puntos. Más detalle: ? Ayuda.',
   },
   {
     id: 'coal',

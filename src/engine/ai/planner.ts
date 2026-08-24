@@ -61,7 +61,7 @@ export function planAIAction(state: GameState, difficulty: AIDifficulty): Player
 
   if (difficulty === 'tournament') {
     const fastSearch = typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test';
-    const budget = state.plannerSim || fastSearch ? 0 : 350;
+    const budget = state.plannerSim || fastSearch ? 0 : 180;
     const maxIter = state.plannerSim ? 6 : fastSearch ? 10 : undefined;
     if (state.actionsLeft <= 1) {
       return mctsPickAction(state, player, { timeBudgetMs: budget, maxIterations: maxIter, topN: 6 });

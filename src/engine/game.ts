@@ -161,9 +161,51 @@ export function processAITurns(state: GameState): void {
     let safety = 0;
     while (isAIPlayer(state, state.currentPlayer) && !state.gameOver && safety < 100) {
       safety++;
-      while (isAIPlayer(state, state.currentPlayer) && state.actionsLeft > 0 && !state.gameOver) {
-        applyPlayerAction(state, pickAIAction(state));
+      const playerBefore = state.currentPlayer;
+      let actionSafety = 0;
+      while (
+        isAIPlayer(state, state.currentPlayer) &&
+        state.currentPlayer === playerBefore &&
+        state.actionsLeft > 0 &&
+        !state.gameOver &&
+        actionSafety < 8
+      ) {
+        actionSafety++;
+        try {
+          applyPlayerAction(state, pickAIAction(state));
+        } catch {
+          const hand = state.players[state.currentPlayer].hand;
+          if (hand.length === 0 || state.actionsLeft <= 0) break;
+          log(state, `${state.playerNames[state.currentPlayer]} — IA sin jugada válida; pasa.`);
+          applyPlayerAction(state, { type: 'pass', cardIdx: 0 });
+        }
       }
+      // Stuck: same AI still has actions after the safety cap → force-pass remaining.
+      if (
+        isAIPlayer(state, state.currentPlayer) &&
+        state.currentPlayer === playerBefore &&
+        state.actionsLeft > 0 &&
+        actionSafety >= 8 &&
+        !state.gameOver &&
+        state.players[state.currentPlayer].hand.length > 0
+      ) {
+        log(state, `${state.playerNames[state.currentPlayer]} — se fuerza pasar para evitar un cuelgue.`);
+        let force = 0;
+        while (
+          isAIPlayer(state, state.currentPlayer) &&
+          state.currentPlayer === playerBefore &&
+          state.actionsLeft > 0 &&
+          !state.gameOver &&
+          state.players[state.currentPlayer].hand.length > 0 &&
+          force < 4
+        ) {
+          force++;
+          applyPlayerAction(state, { type: 'pass', cardIdx: 0 });
+        }
+      }
+    }
+    if (isAIPlayer(state, state.currentPlayer) && !state.gameOver) {
+      log(state, 'Se interrumpió un bucle de turnos de IA para desbloquear la partida.');
     }
   } finally {
     aiTurnProcessing = false;

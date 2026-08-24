@@ -17,7 +17,7 @@ export const STRATEGY_CHAPTERS: StrategyChapter[] = [
       },
       {
         heading: 'De dónde salen los PV',
-        body: '• **Industrias volteadas** (algodón, manufacturas, cerámica): puntúan al final de **cada era**.\n• **Enlaces**: al final de cada era sumas PV según los iconos de enlace de las ciudades y comerciantes conectados.\n• **Ventas**: suben ingresos (indirectamente te dan más dinero por ronda) y dejan fichas volteadas que puntúan.\n• **Bonificaciones** de comerciantes al vender con su cerveza.\n• La Automa puede ganar PV extra al pasar o desarrollar — tú no.',
+        body: '• **Industrias volteadas** (algodón, manufacturas, cerámica): puntúan al final de **cada era**.\n• **Enlaces**: al final de cada era sumas PV según los iconos de enlace de las ciudades y comerciantes conectados (el “peaje” de tu red — ver capítulo Red).\n• **Ventas**: suben ingresos (indirectamente te dan más dinero por ronda) y dejan fichas volteadas que puntúan.\n• **Bonificaciones** de comerciantes al vender con su cerveza.\n• La Automa puede ganar PV extra al pasar o desarrollar — tú no.',
       },
       {
         heading: 'Cómo compararte con rivales',
@@ -121,6 +121,10 @@ export const STRATEGY_CHAPTERS: StrategyChapter[] = [
       {
         heading: 'Regla de la red',
         body: 'Solo construyes en ciudades **conectadas a tu red** (excepto tu **primera ficha**). Sin enlaces no expandes. Cada enlace es inversión en futuras construcciones y en PV.',
+      },
+      {
+        heading: 'El peaje conceptual',
+        body: 'Aunque mecánicamente el juego **no te da monedas** de los demás jugadores, a nivel de diseño de la Revolución Industrial la red comercial funciona como impuesto o beneficio por monopolizar el transporte.\n\n**El peaje se cobra en PV**, no restando £ a los rivales (eso rompería la economía). Controlar rutas simula un dominio regional que se traduce en puntos al final de cada era.\n\n**Cobras por el flujo:** carbón, hierro, cerveza y mercancías pasan por esas vías hacia los mercados; tú, como magnate del transporte, te llevas la tajada grande al puntuar por haber facilitado (o controlado) ese tráfico.\n\nTambién puedes abrir **? Ayuda** en el menú para releer este concepto.',
       },
       {
         heading: 'Cartas de ubicación vs industria',
