@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+const repoBase = '/brass-birmingham-mobile-es/';
+
 export default defineConfig({
-  base: './',
+  base: isGitHubPages ? repoBase : './',
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   server: {
     host: true,
@@ -14,7 +17,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: false,
       includeAssets: ['favicon.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {

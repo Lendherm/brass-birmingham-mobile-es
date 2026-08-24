@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/concat-theme.mjs && tsc -b && vite build",
+    "build:pages": "node scripts/build-pages.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:training": "vitest run src/engine/training src/engine/actionBlockExplain.test.ts",

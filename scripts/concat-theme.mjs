@@ -22,6 +22,7 @@ const parts = [
   'accessibility.css',
   'first-visit.css',
   'credits.css',
+  'pwa.css',
 ];
 
 const out = parts.map((f) => fs.readFileSync(`${dir}/${f}`, 'utf8').trim()).join('\n\n') + '\n';

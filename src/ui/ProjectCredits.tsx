@@ -1,4 +1,4 @@
-import { AUTHOR_GITHUB, AUTHOR_NAME, FORK_CHANGES, THIS_REPO, UPSTREAM_REPO } from '../i18n/projectMeta';
+import { AUTHOR_GITHUB, AUTHOR_NAME, FORK_CHANGES, PWA_WEB_URL, THIS_REPO, UPSTREAM_REPO } from '../i18n/projectMeta';
 
 /** Créditos y atribución — solo en pantalla de inicio, no durante la partida. */
 export function ProjectCredits() {
@@ -22,10 +22,15 @@ export function ProjectCredits() {
         </a>
       </p>
       <p className="project-credits-repo">
+        <a href={PWA_WEB_URL} target="_blank" rel="noreferrer" data-testid="project-pwa-link">
+          Instalar en PC (Linux / Windows / Mac)
+        </a>{' '}
+        · app ligera (~3 MB) con actualizaciones automáticas
+      </p>
+      <p className="project-credits-repo">
         <a href={`${THIS_REPO}/releases/latest`} target="_blank" rel="noreferrer" data-testid="project-apk-link">
           Descargar APK Android
-        </a>{' '}
-        · Código abierto en GitHub
+        </a>
       </p>
       <p className="project-credits-upstream">
         Basado en el{' '}

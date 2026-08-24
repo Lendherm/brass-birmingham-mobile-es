@@ -13,8 +13,12 @@ export const AUTHOR_GITHUB = 'https://github.com/Lendherm';
 /** Nombre completo (web, créditos, stores). */
 export const APP_NAME_FULL = 'Brass Birmingham — Edición Móvil (ES)';
 
-/** Nombre corto (icono Android, barra superior, PWA). */
+/** Nombre corto (título en pantalla, PWA, Android). */
 export const APP_NAME_SHORT = 'Brass Móvil ES';
+
+/** URL pública (GitHub Pages) — instalar como app de escritorio (PWA). */
+export const PWA_WEB_URL = 'https://lendherm.github.io/brass-birmingham-mobile-es/';
+
 
 export const FORK_CHANGES = [
   'Interfaz completa en español y diseño optimizado para móvil (vertical y horizontal).',

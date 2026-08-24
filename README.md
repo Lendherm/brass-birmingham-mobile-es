@@ -208,6 +208,46 @@ git push origin v1.0.11
 
 
 
+## App de escritorio (Linux / Windows / Mac)
+
+
+
+Versión **PWA** ligera (~3 MB) con actualizaciones automáticas, publicada en GitHub Pages:
+
+
+
+**https://lendherm.github.io/brass-birmingham-mobile-es/**
+
+
+
+### Instalar en Linux
+
+
+
+1. Abre la URL en **Chrome** o **Chromium**.
+2. Menú **⋮** → **Instalar Brass Móvil ES…** (o el icono **⊕** en la barra de direcciones).
+3. La app queda en el menú de aplicaciones como ventana independiente.
+
+Guía detallada: [docs/INSTALAR-LINUX.md](./docs/INSTALAR-LINUX.md)
+
+
+
+Build para Pages (mantenedores):
+
+
+
+```sh
+
+npm run build:pages
+
+```
+
+
+
+Cada push a `main` despliega automáticamente vía GitHub Actions (`.github/workflows/pages.yml`).
+
+
+
 ## Changelog
 
 

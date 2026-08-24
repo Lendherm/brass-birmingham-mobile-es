@@ -51,6 +51,7 @@ import { actionIntroHint, developWhy, networkWhy, sellWhyFromState } from './eng
 import { ACCIONES, DEFAULT_PLAYER_NAMES, PLAYER_COLORS, type AccionId, eraNombre, industria, linkLabel } from './i18n/es';
 import { industryCssClass } from './ui/visual/industryTheme';
 import { ProjectCredits } from './ui/ProjectCredits';
+import { PwaUpdateBanner } from './ui/PwaUpdateBanner';
 import { TapInfoBubble } from './ui/TapInfoBubble';
 import { RoundSpendingTopbar } from './ui/RoundSpending';
 import { CanalEraMapAlert, CanalEraSidebarWarning } from './ui/CanalEraWarning';
@@ -273,6 +274,7 @@ export default function App() {
           onRefreshAssistant={refreshAssistant}
         />
       )}
+      <PwaUpdateBanner />
     </div>
   );
 }

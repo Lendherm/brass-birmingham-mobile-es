@@ -1,0 +1,30 @@
+.pwa-update-banner {
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: min(520px, calc(100vw - 24px));
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+.pwa-update-banner .primary {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.pwa-update-banner button:not(.primary) {
+  padding: 5px 10px;
+  font-size: 13px;
+}
