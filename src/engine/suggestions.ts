@@ -1,5 +1,5 @@
-import type { CityId, MerchantId } from './types';
-import { CITIES, LINKS, MERCHANTS } from './data/board';
+import type { CityId } from './types';
+import { CITIES } from './data/board';
 import { tileSpec } from './data/industries';
 import {
   buildWhy,
@@ -8,6 +8,8 @@ import {
   sellWhyFromState,
   type ActionKind,
 } from './actionExplain';
+import { describeAction } from './ai/coach';
+import { rankCandidatesForCoach } from './coachRank';
 import {
   canLoan,
   legalBuilds,
@@ -19,12 +21,6 @@ import {
 } from './options';
 import { activePlayer, type GameState } from './state';
 
-function locationLabel(id: string): string {
-  if (id in CITIES) return CITIES[id as CityId].name;
-  if (id in MERCHANTS) return MERCHANTS[id as MerchantId].name;
-  return id;
-}
-
 export interface PlaySuggestion {
   id: string;
   priority: number;
@@ -32,22 +28,41 @@ export interface PlaySuggestion {
   detail: string;
   reason: string;
   actionKind: ActionKind;
+  recommended?: boolean;
 }
+
+const ACTION_LABEL: Record<ActionKind, string> = {
+  build: 'Construir',
+  network: 'Red',
+  sell: 'Vender',
+  develop: 'Desarrollar',
+  loan: 'Préstamo',
+  scout: 'Explorar',
+  pass: 'Pasar',
+};
 
 function buildSuggestion(b: BuildChoice, labels: { city: string; industry: string }): PlaySuggestion {
   const { option } = b;
   const spec = tileSpec(option.industry, option.level);
+  const sellable = spec.vp > 0;
   return {
     id: `build-${option.city}-${option.industry}-${option.level}`,
-    priority: spec.linkVP * 2 + spec.incomeBump + (spec.vp > 0 ? 1 : 0),
+    priority: spec.linkVP * 2 + spec.incomeBump + (sellable ? 6 : 0) + (spec.producesBeer ? 2 : 0),
     action: 'Construir',
     actionKind: 'build',
     detail: `${labels.city}: ${labels.industry} N${option.level} — £${option.totalCost}`,
-    reason: buildWhy(b),
+    reason: sellable
+      ? `${buildWhy(b)} Industria volteable: prepara ventas con cerveza.`
+      : buildWhy(b),
   };
 }
 
-/** Rule-based hints from legal moves (no external AI). */
+function priorityFromRank(score: number, best: number, worst: number): number {
+  const range = Math.max(8, best - worst);
+  return Math.round(40 + ((score - worst) / range) * 55);
+}
+
+/** Rule-based hints aligned with rankCandidates (no external AI). */
 export function computePlaySuggestions(
   state: GameState,
   labelFn: (city: CityId, industry: BuildChoice['option']['industry']) => { city: string; industry: string },
@@ -58,99 +73,131 @@ export function computePlaySuggestions(
   const money = state.players[player].money;
   const out: PlaySuggestion[] = [];
 
-  if (canLoan(state) && money < 20) {
+  const ranked = rankCandidatesForCoach(state)
+    .filter((c) => c.action.type !== 'pass')
+    .sort((a, b) => b.score - a.score);
+  const best = ranked[0];
+  const bestScore = best?.score ?? 0;
+  const worstScore = ranked[ranked.length - 1]?.score ?? bestScore - 12;
+  const bestType = best?.action.type as ActionKind | undefined;
+
+  const seenTypes = new Set<string>();
+  for (const candidate of ranked) {
+    const kind = candidate.action.type as ActionKind;
+    if (kind === 'pass' || seenTypes.has(kind)) continue;
+    seenTypes.add(kind);
+    const priority = priorityFromRank(candidate.score, bestScore, worstScore);
+    const label = ACTION_LABEL[kind];
+    let detail = describeAction(state, candidate.action);
+    let reason = '';
+
+    switch (kind) {
+      case 'build': {
+        const action = candidate.action;
+        if (action.type !== 'build') break;
+        const b = legalBuilds(state).find(
+          (x) =>
+            x.option.city === action.option.city &&
+            x.option.industry === action.option.industry &&
+            x.option.level === action.option.level,
+        );
+        if (b) {
+          const labels = labelFn(b.option.city, b.option.industry);
+          const s = buildSuggestion(b, labels);
+          detail = s.detail;
+          reason = s.reason;
+          if (b.option.totalCost > money) {
+            detail += ' (necesitas más dinero o recursos)';
+            reason = 'Buena jugada estratégica, pero te faltan recursos o dinero.';
+          }
+        }
+        break;
+      }
+      case 'network': {
+        if (candidate.action.type !== 'network') break;
+        const n = legalNetworks(state).find((x) => x.cardIdx === candidate.action.cardIdx);
+        if (n) reason = networkWhy(n);
+        break;
+      }
+      case 'sell': {
+        if (candidate.action.type !== 'sell') break;
+        const sale = candidate.action.sales[0]?.sale;
+        if (sale) {
+          const s = legalSells(state).find(
+            (x) => x.sale.city === sale.city && x.sale.slot === sale.slot,
+          );
+          if (s) reason = sellWhyFromState(state, s);
+        }
+        break;
+      }
+      case 'develop': {
+        if (candidate.action.type !== 'develop') break;
+        const ind = candidate.action.industries[0];
+        if (ind) {
+          const labels = labelFn('birmingham', ind);
+          reason = developWhy(state, ind, labels.industry);
+          detail = labels.industry;
+        }
+        break;
+      }
+      case 'scout':
+        reason =
+          'Mejora la mano si no tienes cartas útiles. Descarta 3 cartas débiles y roba 3 nuevas — busca manufacturas, cerámica o la ciudad que necesitas.';
+        detail = 'Descarta 3 cartas y roba 3 nuevas del mazo.';
+        break;
+      case 'loan':
+        reason = 'Te falta efectivo; el préstamo baja ingresos 3 espacios.';
+        detail = `Tienes £${money}. Un préstamo da +£30.`;
+        break;
+      default:
+        break;
+    }
+
     out.push({
-      id: 'loan',
-      priority: 50,
+      id: `rank-${kind}`,
+      priority,
+      action: label,
+      actionKind: kind,
+      detail,
+      reason: reason || `Opción sólida según el evaluador (${Math.round(priority)}%).`,
+      recommended: kind === bestType,
+    });
+    if (out.length >= 5) break;
+  }
+
+  if (canLoan(state) && money < 20 && !seenTypes.has('loan')) {
+    out.push({
+      id: 'loan-fallback',
+      priority: 35,
       action: 'Préstamo',
       actionKind: 'loan',
       detail: `Tienes £${money}. Un préstamo da +£30.`,
-      reason: 'Te falta efectivo para construir o enlazar; el préstamo baja ingresos 3 espacios.',
-    });
-  }
-
-  const builds = legalBuilds(state);
-  const affordable = builds.filter((b) => b.option.totalCost <= money);
-  const buildPool = affordable.length > 0 ? affordable : builds;
-  const topBuilds = [...buildPool]
-    .sort((a, b) => {
-      const pa = buildSuggestion(a, labelFn(a.option.city, a.option.industry)).priority;
-      const pb = buildSuggestion(b, labelFn(b.option.city, b.option.industry)).priority;
-      return pb - pa;
-    })
-    .slice(0, 3);
-  for (const b of topBuilds) {
-    const labels = labelFn(b.option.city, b.option.industry);
-    const s = buildSuggestion(b, labels);
-    if (!affordable.includes(b)) {
-      s.detail += ' (necesitas más dinero o recursos)';
-      s.reason = 'Buena jugada, pero te faltan recursos o dinero.';
-      s.priority -= 20;
-    }
-    out.push(s);
-  }
-
-  const networks = legalNetworks(state);
-  for (const n of networks.slice(0, 2)) {
-    const cost = n.option.totalCost;
-    const link = LINKS.find((l) => l.id === n.option.linkIds[0]);
-    const linkName = link ? link.endpoints.map(locationLabel).join('–') : 'Enlace';
-    out.push({
-      id: `net-${n.option.linkIds[0]}`,
-      priority: 30 - (cost > money ? 15 : 0),
-      action: 'Red',
-      actionKind: 'network',
-      detail: `${linkName} — £${cost}${cost > money ? ' (falta dinero)' : ''}`,
-      reason: networkWhy(n),
-    });
-  }
-
-  const sells = legalSells(state);
-  for (const s of sells.slice(0, 2)) {
-    const tile = state.board[s.sale.city][s.sale.slot]!;
-    const labels = labelFn(s.sale.city, tile.industry);
-    out.push({
-      id: `sell-${s.sale.city}-${s.sale.slot}`,
-      priority: 25,
-      action: 'Vender',
-      actionKind: 'sell',
-      detail: `${labels.city}: ${labels.industry} N${tile.level}`,
-      reason: sellWhyFromState(state, s),
-    });
-  }
-  if (sells.length > 2) {
-    out.push({
-      id: 'sell-more',
-      priority: 22,
-      action: 'Vender',
-      actionKind: 'sell',
-      detail: `+${sells.length - 2} venta${sells.length - 2 === 1 ? '' : 's'} más posible${sells.length - 2 === 1 ? '' : 's'}.`,
-      reason: 'Varias industrias conectadas a comerciantes pueden voltearse esta ronda.',
+      reason: 'Considera préstamo si ninguna construcción/enlace es asequible.',
     });
   }
 
   const develops = legalDevelops(state);
-  for (const d of develops.slice(0, 2)) {
-    const ind = d.industries[0];
+  if (develops.length > 2 && !seenTypes.has('develop')) {
+    const ind = develops[0].industries[0];
     const labels = labelFn('birmingham', ind);
     out.push({
-      id: `develop-${ind}`,
-      priority: 20,
+      id: 'develop-extra',
+      priority: 28,
       action: 'Desarrollar',
       actionKind: 'develop',
-      detail: labels.industry,
+      detail: `+${develops.length - 1} industrias más en mat`,
       reason: developWhy(state, ind, labels.industry),
     });
   }
 
-  if (scoutAllowed(state)) {
+  if (scoutAllowed(state) && !seenTypes.has('scout')) {
     out.push({
-      id: 'scout',
-      priority: 10,
+      id: 'scout-fallback',
+      priority: 18,
       action: 'Explorar',
       actionKind: 'scout',
       detail: 'Descarta 3 cartas y roba 3 nuevas del mazo.',
-      reason: 'Mejora la mano si no tienes cartas útiles para construir o enlazar.',
+      reason: 'Si tu mano no encaja con manufacturas, cerámica o fundiciones, explora.',
     });
   }
 

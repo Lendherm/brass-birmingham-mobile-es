@@ -51,8 +51,12 @@ export function PlayAssistant({ state, refreshKey = 0, onClose, onRefresh }: Pro
       <p className="play-assistant-note">Ideas según tu dinero, cartas y reglas. No juega por ti.</p>
       <ol className="play-assistant-list">
         {suggestions.map((s) => (
-          <li key={`${s.id}-${refreshKey}`}>
-            <strong>{s.action}:</strong> {s.detail}
+          <li key={`${s.id}-${refreshKey}`} className={s.recommended ? 'recommended-line' : undefined}>
+            <strong>
+              {s.recommended ? '★ ' : ''}
+              {s.action}:
+            </strong>{' '}
+            {s.detail}
             <span className="play-assistant-reason">{s.reason}</span>
           </li>
         ))}

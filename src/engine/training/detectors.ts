@@ -44,7 +44,7 @@ export function detectPlayPattern(state: GameState, player: PlayerId = activePla
   const coreLoop = counts.coal + counts.brewery + counts.cotton;
   const coreRatio = coreLoop / total;
 
-  if (coreRatio >= 0.65 && counts.coal >= 1 && counts.brewery >= 1 && counts.cotton >= 1) {
+  if (coreRatio >= 0.55 && counts.coal >= 1 && (counts.brewery >= 1 || counts.cotton >= 1)) {
     return {
       id: 'coal-brewery-loop',
       title: 'Patrón: mina + cerveza + algodón',

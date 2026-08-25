@@ -1,14 +1,15 @@
 import type { PlayerAction } from '../game';
 import { LINKS } from '../data/board';
 import { LAYOUT } from '../data/layout';
-import { rankCandidates } from '../ai/evaluate';
+import { rankCandidatesForCoach } from '../coachRank';
 import { HUMAN, type GameState } from '../state';
-import type { CityId } from '../types';
+import type { CityId, IndustryType } from '../types';
 
 export interface TrainingMapGuide {
   linkIds: string[];
   buildSlots: string[];
   cities: CityId[];
+  developIndustries: IndustryType[];
   viewTarget: { x: number; y: number; scale?: number } | null;
 }
 
@@ -32,6 +33,7 @@ export function mapGuideForAction(_state: GameState, action: PlayerAction): Trai
     linkIds: [],
     buildSlots: [],
     cities: [],
+    developIndustries: [],
     viewTarget: null,
   };
 
@@ -58,7 +60,11 @@ export function mapGuideForAction(_state: GameState, action: PlayerAction): Trai
       break;
     }
     case 'develop':
+      guide.developIndustries = [...action.industries];
       guide.viewTarget = { x: 450, y: 430, scale: 0.95 };
+      break;
+    case 'scout':
+      guide.viewTarget = { x: 450, y: 520, scale: 0.92 };
       break;
     default:
       break;
@@ -71,7 +77,7 @@ export function mapGuideForAction(_state: GameState, action: PlayerAction): Trai
 export function buildTrainingMapGuide(state: GameState): TrainingMapGuide | null {
   if (state.gameOver) return null;
   if (state.mode === 'vsAI' && state.currentPlayer !== HUMAN) return null;
-  const ranked = rankCandidates(state);
+  const ranked = rankCandidatesForCoach(state);
   const best =
     ranked.filter((c) => c.action.type !== 'pass').sort((a, b) => b.score - a.score)[0] ??
     ranked.sort((a, b) => b.score - a.score)[0];
@@ -102,4 +108,8 @@ export function mergeMapHighlights(
     proLinks.add(id);
   }
   return { cities, slots, links, proLinks, proSlots };
+}
+
+export function developIndustriesFromGuide(guide: TrainingMapGuide | null): IndustryType[] {
+  return guide?.developIndustries ?? [];
 }

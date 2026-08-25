@@ -16,6 +16,15 @@ describe('cityBuildOptions', () => {
       '3:goods',
     ]);
   });
+
+  it('shows blocked industries when industry card does not match (not hidden)', () => {
+    const state = newGame(1, 'easy', 1);
+    const coalCard = { kind: 'industry' as const, industries: ['coal' as const] };
+    const options = cityBuildOptions(state, 'birmingham', [], coalCard, true);
+    const goods = options.find((o) => o.industry === 'goods');
+    expect(goods).toBeDefined();
+    expect(goods?.blockReason).toMatch(/Tu carta solo permite/i);
+  });
 });
 
 describe('cityBuildSections', () => {

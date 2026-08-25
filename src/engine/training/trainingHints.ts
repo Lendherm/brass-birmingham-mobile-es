@@ -9,7 +9,7 @@ import {
 } from '../actionBlockExplain';
 import { describeAction, reasonsForAction } from '../ai/coach';
 import { actionKey } from '../ai/actionKey';
-import { rankCandidates } from '../ai/evaluate';
+import { rankCandidatesForCoach } from '../coachRank';
 import type { ActionKind } from '../actionExplain';
 import { CITIES, LINKS } from '../data/board';
 import { connectedToMarket, playerNetwork } from '../connectivity';
@@ -77,7 +77,7 @@ export function scoreToQualityPct(score: number, best: number, worst: number): n
 }
 
 function rankedSpread(state: GameState) {
-  const ranked = rankCandidates(state);
+  const ranked = rankCandidatesForCoach(state);
   const sorted = [...ranked].sort((a, b) => b.score - a.score);
   const best = sorted[0]?.score ?? 0;
   const worst = sorted[sorted.length - 1]?.score ?? best - 10;
@@ -93,7 +93,7 @@ function bestByType(state: GameState) {
     if (!prev || c.score > prev.score) byType.set(t, c);
   }
   const alts: TrainingAlternative[] = [...byType.entries()]
-    .filter(([t]) => t !== 'pass' && t !== 'scout')
+    .filter(([t]) => t !== 'pass')
     .map(([, c]) => ({
       label: describeAction(state, c.action).split(':')[0] ?? c.action.type,
       pct: scoreToQualityPct(c.score, best, worst),

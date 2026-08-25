@@ -11,9 +11,18 @@ const MAT_ORDER: IndustryType[] = ['cotton', 'goods', 'pottery', 'coal', 'iron',
 
 interface Props {
   state: GameState;
+  highlightDevelop?: IndustryType[];
 }
 
-function PlayerMatGrid({ state, className }: { state: GameState; className?: string }) {
+function PlayerMatGrid({
+  state,
+  className,
+  highlightDevelop = [],
+}: {
+  state: GameState;
+  className?: string;
+  highlightDevelop?: IndustryType[];
+}) {
   const player = state.players[activePlayer(state)];
   const era = state.era;
   const [infoText, setInfoText] = useState<string | null>(null);
@@ -32,7 +41,11 @@ function PlayerMatGrid({ state, className }: { state: GameState; className?: str
           const counts = player.mat[industry];
           const totalLeft = counts.reduce((a, c) => a + c, 0);
           return (
-            <div key={industry} className={`mat-row ind-${industry}`} aria-label={`${industria(industry)}: ${totalLeft} fichas`}>
+            <div
+              key={industry}
+              className={`mat-row ind-${industry}${highlightDevelop.includes(industry) ? ' mat-row-recommended' : ''}`}
+              aria-label={`${industria(industry)}: ${totalLeft} fichas`}
+            >
               <div className="mat-row-label">
                 <IndustryIcon industry={industry} size={14} colorful />
                 <span className="mat-row-name">{industria(industry)}</span>
@@ -64,7 +77,7 @@ function PlayerMatGrid({ state, className }: { state: GameState; className?: str
   );
 }
 
-export function PlayerMat({ state }: Props) {
+export function PlayerMat({ state, highlightDevelop = [] }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const close = useCallback(() => setExpanded(false), []);
@@ -100,7 +113,7 @@ export function PlayerMat({ state }: Props) {
             ⛶ Ampliar
           </button>
         </summary>
-        <PlayerMatGrid state={state} />
+        <PlayerMatGrid state={state} highlightDevelop={highlightDevelop} />
       </details>
 
       {expanded && (
@@ -113,7 +126,7 @@ export function PlayerMat({ state }: Props) {
                 Cerrar
               </button>
             </header>
-            <PlayerMatGrid state={state} className="player-mat-grid-large" />
+            <PlayerMatGrid state={state} className="player-mat-grid-large" highlightDevelop={highlightDevelop} />
           </div>
         </div>
       )}

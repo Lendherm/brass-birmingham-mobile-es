@@ -93,8 +93,9 @@ function cityBuildOptions(
     );
 
     for (const industry of industries) {
+      let cardMismatch: string | null = null;
       if (buildMode && selectedCard?.kind === 'industry' && !selectedCard.industries.includes(industry)) {
-        continue;
+        cardMismatch = `Tu carta solo permite: ${selectedCard.industries.map((i) => industria(i)).join(', ')}. Necesitas carta de ${industria(industry)} o comodín.`;
       }
 
       const level = lowestBuildable(state, player, industry);
@@ -111,8 +112,8 @@ function cityBuildOptions(
           : null;
 
       const blockReason = buildMode
-        ? slotIndustryBlockReason(state, selectedCard, cityId, industry, slotIndex)
-        : null;
+        ? cardMismatch ?? slotIndustryBlockReason(state, selectedCard, cityId, industry, slotIndex)
+        : cardMismatch;
 
       const requirements = buildRequirementsChecklist(
         state,

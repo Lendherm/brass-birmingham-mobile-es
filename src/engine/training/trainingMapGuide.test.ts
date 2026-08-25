@@ -31,6 +31,7 @@ describe('mergeMapHighlights', () => {
       linkIds: [],
       buildSlots: ['coventry:1'],
       cities: ['coventry'],
+      developIndustries: [],
       viewTarget: null,
     });
     expect(merged.cities.has('coventry')).toBe(true);

@@ -6,9 +6,12 @@ const KEY = 'bbsolo-training-mode';
 export function useTrainingMode() {
   const [enabled, setEnabled] = useState(() => {
     try {
-      return localStorage.getItem(KEY) === '1';
+      const saved = localStorage.getItem(KEY);
+      if (saved === '0') return false;
+      if (saved === '1') return true;
+      return true;
     } catch {
-      return false;
+      return true;
     }
   });
 

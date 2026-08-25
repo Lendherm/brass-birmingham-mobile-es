@@ -6,9 +6,10 @@ interface Props {
   availability: Record<AccionId, boolean>;
   disabled: (a: AccionId) => boolean;
   onChoose: (a: AccionId) => void;
+  recommended?: AccionId | null;
 }
 
-export function ActionGrid({ selected, availability, disabled, onChoose }: Props) {
+export function ActionGrid({ selected, availability, disabled, onChoose, recommended }: Props) {
   const actions: AccionId[] = ['build', 'network', 'sell', 'develop', 'loan', 'scout', 'pass'];
 
   return (
@@ -18,7 +19,14 @@ export function ActionGrid({ selected, availability, disabled, onChoose }: Props
           key={a}
           type="button"
           data-testid={`action-${a}`}
-          className={['action-tile', selected === a ? 'selected' : '', !availability[a] ? 'unavailable' : ''].filter(Boolean).join(' ')}
+          className={[
+            'action-tile',
+            selected === a ? 'selected' : '',
+            !availability[a] ? 'unavailable' : '',
+            recommended === a && availability[a] ? 'recommended' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
           disabled={disabled(a)}
           onClick={() => {
             playActionSound();
@@ -31,6 +39,11 @@ export function ActionGrid({ selected, availability, disabled, onChoose }: Props
             {ACCION_ICON[a]}
           </span>
           <span className="action-label">{ACCIONES[a]}</span>
+          {recommended === a && availability[a] && (
+            <span className="action-rec-badge" aria-label="Mejor jugada sugerida">
+              ★
+            </span>
+          )}
         </button>
       ))}
     </div>

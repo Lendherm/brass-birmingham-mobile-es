@@ -1795,6 +1795,7 @@ button.selected {
 }
 
 .action-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1826,6 +1827,50 @@ button.selected {
 
 .action-tile.unavailable:not(:disabled) {
   opacity: 0.55;
+}
+
+.action-tile.recommended:not(.selected) {
+  border-color: #d4a020;
+  box-shadow: 0 0 0 2px rgba(212, 160, 32, 0.35);
+}
+
+.action-rec-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: #d4a020;
+}
+
+.action-intro-rec,
+.live-guide-line {
+  color: #d4a020;
+  font-weight: 600;
+}
+
+.live-guide-line {
+  margin: 6px 0 4px;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(212, 160, 32, 0.12);
+  border: 1px solid rgba(212, 160, 32, 0.35);
+}
+
+.mat-row-recommended {
+  outline: 2px solid #d4a020;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.option-btn.recommended:not(.selected) {
+  border-color: #d4a020;
+  box-shadow: inset 3px 0 0 #d4a020;
+}
+
+.play-assistant-list li.recommended-line {
+  border-left: 3px solid #d4a020;
+  padding-left: 8px;
 }
 
 .player-header {

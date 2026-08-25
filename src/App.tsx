@@ -18,7 +18,8 @@ import { useTrainingCoach } from './ui/useTrainingCoach';
 import { useTrainingMode } from './ui/useTrainingMode';
 import { TrainingHintBar } from './ui/TrainingHintBar';
 import { getTrainingHint, postMoveTrainingHint, type TrainingPendingChoice } from './engine/training/trainingHints';
-import { mergeMapHighlights } from './engine/training/trainingMapGuide';
+import { getLivePlayGuide } from './engine/playGuide';
+import { developIndustriesFromGuide, mergeMapHighlights } from './engine/training/trainingMapGuide';
 import { useTrainingTurnLog } from './ui/useTrainingTurnLog';
 import type { BuildChoice } from './engine/options';
 import { usePlayAssistant } from './ui/usePlayAssistant';
@@ -667,6 +668,12 @@ function GameScreen({
     return null;
   }, [focusedBuild, focusedLinkId, flow.flow.action, flow.flow.sales, flow.flow.develops]);
 
+  const liveGuide = useMemo(() => {
+    if (!humanTurn || inTutorial || state.gameOver) return null;
+    if (!trainingMode && !(isVsAI(state) && coachEnabled)) return null;
+    return getLivePlayGuide(state);
+  }, [humanTurn, inTutorial, state, trainingMode, coachEnabled]);
+
   const trainingHint = useMemo(() => {
     if (!trainingMode || !humanTurn || inTutorial) return null;
     if (coachFeedback) return postMoveTrainingHint(state, coachFeedback);
@@ -695,7 +702,8 @@ function GameScreen({
   ]);
 
   const boardHighlights = useMemo(() => {
-    if (!trainingMode || !trainingHint?.mapGuide) {
+    const guide = trainingHint?.mapGuide ?? liveGuide?.mapGuide ?? null;
+    if (!guide) {
       return {
         cities: flow.highlightCities,
         slots: flow.highlightBuildSlots,
@@ -708,15 +716,24 @@ function GameScreen({
       flow.highlightCities,
       flow.highlightBuildSlots,
       flow.highlightLinks,
-      trainingHint.mapGuide,
+      guide,
     );
   }, [
-    trainingMode,
     trainingHint?.mapGuide,
+    liveGuide?.mapGuide,
     flow.highlightCities,
     flow.highlightBuildSlots,
     flow.highlightLinks,
   ]);
+
+  const highlightDevelopIndustries = useMemo(() => {
+    const guide = trainingHint?.mapGuide ?? liveGuide?.mapGuide ?? null;
+    const fromGuide = developIndustriesFromGuide(guide);
+    if (flow.flow.action === 'develop' && liveGuide?.recommendedDevelop) {
+      return [liveGuide.recommendedDevelop];
+    }
+    return fromGuide;
+  }, [trainingHint?.mapGuide, liveGuide, flow.flow.action]);
 
   const boardViewTarget = useMemo(() => {
     if (inTutorial) return tutorialBoardView(tutorial.step);
@@ -865,7 +882,7 @@ function GameScreen({
             )}
             <CanalEraSidebarWarning state={state} />
             <ZoneLegend />
-            <PlayerMat state={state} />
+            <PlayerMat state={state} highlightDevelop={highlightDevelopIndustries} />
             <MarketDisplay coalCubes={state.coalCubes} ironCubes={state.ironCubes} />
             {assistantEnabled && !inTutorial && (
               <PlayAssistant
@@ -883,6 +900,7 @@ function GameScreen({
               selected={flow.flow.action}
               availability={flow.availability}
               disabled={actionDisabled}
+              recommended={liveGuide?.recommendedAction ?? null}
               onChoose={(a) => {
                 if (inTutorial && !tutorial.guardChooseAction(a)) return;
                 flow.chooseAction(a);
@@ -910,7 +928,15 @@ function GameScreen({
               <>
                 <p className="action-intro-hint" data-testid="action-intro-hint">
                   {actionIntroHint(state, flow.flow.action)}
+                  {liveGuide && flow.flow.action === liveGuide.recommendedAction && (
+                    <span className="action-intro-rec"> ★ Mejor jugada sugerida este turno.</span>
+                  )}
                 </p>
+                {liveGuide && !trainingMode && coachEnabled && !flow.flow.action && (
+                  <p className="live-guide-line" data-testid="live-guide-line">
+                    ★ Sugerencia: <strong>{liveGuide.topLine}</strong>
+                  </p>
+                )}
                 <p style={{ margin: '8px 0 4px', fontSize: 13, color: 'var(--muted)' }} data-testid="flow-hint">
                   {flow.flow.cardIdx === null
                     ? flow.flow.action === 'scout'
@@ -1029,13 +1055,16 @@ function GameScreen({
                 {flow.develops.map((d, i) => (
                   <button
                     key={i}
-                    className={`option-btn ${industryCssClass(d.industries[0])}${flow.flow.develops.includes(d.industries[0]) ? ' selected' : ''}`}
+                    className={`option-btn ${industryCssClass(d.industries[0])}${flow.flow.develops.includes(d.industries[0]) ? ' selected' : ''}${liveGuide?.recommendedDevelop === d.industries[0] ? ' recommended' : ''}`}
                     onClick={() => {
                       if (inTutorial && !tutorial.guardToggleDevelop(d.industries[0])) return;
                       flow.toggleDevelop(d.industries[0]);
                     }}
                   >
-                    <span>{industria(d.industries[0])}</span>
+                    <span>
+                      {industria(d.industries[0])}
+                      {liveGuide?.recommendedDevelop === d.industries[0] && ' ★'}
+                    </span>
                     <span className="option-reason">{developWhy(state, d.industries[0], industria(d.industries[0]))}</span>
                   </button>
                 ))}
