@@ -6,7 +6,7 @@ import { connectedToMarket } from '../connectivity';
 import { CITIES } from '../data/board';
 import { tileSpec } from '../data/industries';
 import { playerLinksPlaced } from '../links';
-import { legalBuilds, legalDevelops, legalNetworks, legalSells } from '../options';
+import { legalBuilds, legalDevelops, legalNetworks, legalSells, scoutAllowed } from '../options';
 import { activePlayer, type Card, type GameState } from '../state';
 import { eraNombre, industria } from '../messages';
 import type { IndustryType } from '../types';
@@ -241,6 +241,20 @@ function strategyThemes(state: GameState): StrategyTheme[] {
       title: 'Romper el bucle mina/cerveza/algodón',
       advice:
         'Ya tienes la cadena básica. El salto pro es vender algodón conectado, desarrollar mat o entrar en cerámica/bienes — no otro N1 igual.',
+    });
+  }
+
+  const sellableBuilds = builds.filter((b) => b.option.industry === 'goods' || b.option.industry === 'pottery' || b.option.industry === 'cotton');
+  if (
+    scoutAllowed(state) &&
+    sellableBuilds.length === 0 &&
+    counts.coal.total + counts.brewery.total >= 1
+  ) {
+    themes.unshift({
+      id: 'scout-unlock',
+      title: 'Explorar para desbloquear',
+      advice:
+        'Tu mano no encaja con manufacturas/cerámica ahora. Explora → roba carta de industria o ubicación → enlaza → construye. Mira la pestaña Plan del coach.',
     });
   }
 

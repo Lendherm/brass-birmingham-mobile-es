@@ -2,20 +2,21 @@ import type { PlayerAction } from '../game';
 import { tileSpec } from '../data/industries';
 import { developCost } from '../actions';
 import { describeAction } from '../ai/coach';
-import { rankCandidates } from '../ai/evaluate';
+import { rankCandidatesForCoach } from '../coachRank';
+import { scoutAllowed } from '../options';
 import { activePlayer, type GameState } from '../state';
 import { industria } from '../messages';
 import { scoreToQualityPct } from './trainingHints';
 
 export interface NumericForkLine {
-  action: 'sell' | 'build' | 'develop' | 'network';
+  action: 'sell' | 'build' | 'develop' | 'network' | 'scout';
   label: string;
   pct: number;
   bullets: string[];
 }
 
 function rankedSpread(state: GameState) {
-  const ranked = rankCandidates(state);
+  const ranked = rankCandidatesForCoach(state);
   const sorted = [...ranked].sort((a, b) => b.score - a.score);
   return {
     ranked,
@@ -69,19 +70,26 @@ function bulletsForScored(state: GameState, action: PlayerAction): string[] {
       bullets.push('Mejora acceso a recursos y ventas');
       break;
     }
+    case 'scout':
+      bullets.push('Descarta 3 cartas y roba 3 del mazo');
+      bullets.push('Busca carta de industria (manufacturas, cerámica…) o ubicación clave');
+      bullets.push('Útil si tu mano no encaja con lo que quieres construir');
+      break;
     default:
       break;
   }
   return bullets.slice(0, 4);
 }
 
-/** Numeric sell vs build vs develop comparison for training bar. */
+/** Numeric comparison: sell vs build vs develop vs network vs scout. */
 export function numericForkCompare(state: GameState, cardIdx?: number | null): NumericForkLine[] {
   const { ranked, best, worst } = rankedSpread(state);
-  const types: Array<'sell' | 'build' | 'develop' | 'network'> = ['sell', 'build', 'develop', 'network'];
+  const types: Array<NumericForkLine['action']> = ['sell', 'build', 'develop', 'network', 'scout'];
   const lines: NumericForkLine[] = [];
 
   for (const type of types) {
+    if (type === 'scout' && !scoutAllowed(state)) continue;
+
     const pool = ranked.filter((c) => {
       if (c.action.type !== type) return false;
       if (type === 'build' && cardIdx != null) return c.action.cardIdx === cardIdx;
@@ -100,12 +108,25 @@ export function numericForkCompare(state: GameState, cardIdx?: number | null): N
   return lines.sort((a, b) => b.pct - a.pct);
 }
 
-/** Short one-liner comparing top sell vs top build. */
+/** Short one-liner comparing top lines. */
 export function numericForkSummary(lines: NumericForkLine[]): string | null {
   const sell = lines.find((l) => l.action === 'sell');
   const build = lines.find((l) => l.action === 'build');
   const dev = lines.find((l) => l.action === 'develop');
-  if (!sell || !build) return null;
+  const scout = lines.find((l) => l.action === 'scout');
+  const net = lines.find((l) => l.action === 'network');
+
+  if (scout && build && scout.pct > build.pct + 8 && (!sell || scout.pct >= sell.pct - 5)) {
+    return `Explorar puede darte la carta para construir (${scout.bullets[1] ?? 'mejor mano'}).`;
+  }
+  if (net && build && net.pct > build.pct + 6) {
+    return `Enlaza primero (${net.bullets[0]}) para poder construir después.`;
+  }
+  if (!sell || !build) {
+    if (dev && dev.pct >= 70) return `Desarrollar (${dev.bullets[0]}) prepara más que otro N1.`;
+    if (scout && scout.pct >= 65) return 'Explorar mejora la mano si buscas manufacturas, cerámica o una ciudad concreta.';
+    return null;
+  }
   if (sell.pct > build.pct + 10) {
     const b = sell.bullets.slice(0, 2).join(', ');
     return `Vender gana ahora (${b}).`;

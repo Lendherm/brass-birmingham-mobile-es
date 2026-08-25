@@ -250,6 +250,7 @@ export function TrainingHintBar({
                     <span className="training-hint-plan-phase">{PHASE_LABEL[step.phase]}</span>
                     <span className="training-hint-plan-label">{step.label}</span>
                     <strong className="training-hint-plan-pct">{step.pct}%</strong>
+                    {step.reason && <p className="training-hint-plan-reason">{step.reason}</p>}
                   </li>
                 ))}
               </ol>

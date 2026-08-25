@@ -15,6 +15,16 @@ describe('numericForkCompare', () => {
     }
   });
 
+  it('includes scout when scout is legal', () => {
+    const state = newGame(9, 'medium', 1);
+    state.actionsLeft = 8;
+    const lines = numericForkCompare(state);
+    const scout = lines.find((l) => l.action === 'scout');
+    if (scout) {
+      expect(scout.bullets.some((b) => /explor|roba|mazo/i.test(b))).toBe(true);
+    }
+  });
+
   it('filters build lines to selected card', () => {
     const state = newGame(3, 'easy', 1);
     state.actionsLeft = 8;

@@ -269,6 +269,13 @@
   color: var(--accent);
 }
 
+.training-hint-plan-reason {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .training-scenario-status {
   margin: 0;
   font-size: 0.75rem;

@@ -24,6 +24,7 @@ import { detectPlayPattern } from './detectors';
 import { drillOfferForPattern, type HabitDrillOffer } from './habitDrills';
 import { evaluateScenarioProgress, type ScenarioProgress } from './scenarioValidation';
 import { trainingScenarioMeta } from './scenarios';
+import { buildStrategyChain } from './strategyChain';
 import { buildTrainingPlan, type TrainingPlanStep } from './trainingPlan';
 import { numericForkCompare, numericForkSummary, type NumericForkLine } from './actionCompare';
 import { buildTrainingMapGuide, mapGuideForAction, type TrainingMapGuide } from './trainingMapGuide';
@@ -416,7 +417,10 @@ function forkHint(state: GameState, turnLog: TurnHistoryEntry[] = []): TrainingH
   const drillOffer = pattern ? drillOfferForPattern(pattern.id) : undefined;
   const { top, alts } = bestByType(state);
   const era = eraHint(state);
-  const planSteps = buildTrainingPlan(state, 3);
+  const chainPlan = buildStrategyChain(state);
+  const simPlan = buildTrainingPlan(state, 3);
+  const planSteps = chainPlan.length >= 2 ? chainPlan : simPlan.length >= 2 ? simPlan : chainPlan;
+  const hasExplorePlan = planSteps.some((s) => s.label.toLowerCase().includes('explorar'));
 
   if (pattern) {
     return {
@@ -451,7 +455,7 @@ function forkHint(state: GameState, turnLog: TurnHistoryEntry[] = []): TrainingH
 
   return {
     kind: planSteps.length >= 2 ? 'plan' : 'fork',
-    headline: planSteps.length >= 2 ? 'Plan pro (3 turnos)' : '¿Qué hacer este turno?',
+    headline: hasExplorePlan ? 'Plan: explorar → construir' : planSteps.length >= 2 ? 'Plan pro (3 turnos)' : '¿Qué hacer este turno?',
     detail,
     qualityPct: top ? scoreToQualityPct(top.score, top.score, top.score - 12) : null,
     bestLine: top ? describeAction(state, top.action) : null,
