@@ -3,7 +3,12 @@ import { useEffect, useState } from 'react';
 const KEY = 'bbsolo-play-assistant';
 
 export function usePlayAssistant() {
-  const [enabled, setEnabled] = useState(() => localStorage.getItem(KEY) === '1');
+  const [enabled, setEnabled] = useState(() => {
+    const saved = localStorage.getItem(KEY);
+    if (saved === '0') return false;
+    if (saved === '1') return true;
+    return true;
+  });
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {

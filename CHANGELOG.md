@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
+## [1.0.29] — 2026-08-25
+
+### Añadido
+- **Entrenador mejorado (web + APK):** todas las industrias visibles al inspeccionar ciudades; ★ en la mejor acción (Construir, Desarrollar, Explorar, Vender); sugerencia por turno; mat resaltado al desarrollar.
+- **PWA de escritorio** en GitHub Pages con guía de instalación Linux.
+
+### Cambiado
+- Modo entrenamiento 🎯 y sugerencias ✦ **activos por defecto** (web y APK).
+- Asistente rebalanceado: menos sesgo hacia minas/algodón; prioriza ventas, desarrollo y exploración.
+
 ## [1.0.24] — 2026-08-17
 
 ### Corregido

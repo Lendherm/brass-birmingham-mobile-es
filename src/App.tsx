@@ -668,11 +668,12 @@ function GameScreen({
     return null;
   }, [focusedBuild, focusedLinkId, flow.flow.action, flow.flow.sales, flow.flow.develops]);
 
+  const coachingUiActive = trainingMode || coachActive;
+
   const liveGuide = useMemo(() => {
-    if (!humanTurn || inTutorial || state.gameOver) return null;
-    if (!trainingMode && !(isVsAI(state) && coachEnabled)) return null;
+    if (!humanTurn || inTutorial || state.gameOver || !coachingUiActive) return null;
     return getLivePlayGuide(state);
-  }, [humanTurn, inTutorial, state, trainingMode, coachEnabled]);
+  }, [humanTurn, inTutorial, state, coachingUiActive]);
 
   const trainingHint = useMemo(() => {
     if (!trainingMode || !humanTurn || inTutorial) return null;
@@ -932,7 +933,7 @@ function GameScreen({
                     <span className="action-intro-rec"> ★ Mejor jugada sugerida este turno.</span>
                   )}
                 </p>
-                {liveGuide && !trainingMode && coachEnabled && !flow.flow.action && (
+                {liveGuide && coachingUiActive && !flow.flow.action && (
                   <p className="live-guide-line" data-testid="live-guide-line">
                     ★ Sugerencia: <strong>{liveGuide.topLine}</strong>
                   </p>

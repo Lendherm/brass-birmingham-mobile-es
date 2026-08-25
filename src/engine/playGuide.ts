@@ -18,7 +18,7 @@ function scoreSpreadPct(score: number, best: number, worst: number): number {
   return Math.min(100, Math.max(15, Math.round(28 + ((score - worst) / range) * 72)));
 }
 
-/** Mejor línea del turno para entrenador / guía en vivo (vs IA o modo entrenamiento). */
+/** Mejor línea del turno — web, PWA y APK (todos los modos con entrenador activo). */
 export function getLivePlayGuide(state: GameState): LivePlayGuide | null {
   if (state.gameOver) return null;
   const player = activePlayer(state);

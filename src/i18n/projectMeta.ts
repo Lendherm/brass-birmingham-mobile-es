@@ -33,6 +33,7 @@ export const FORK_CHANGES = [
   'Firma APK opcional en CI, tuning IA compuesto y benchmark Torneo>Difícil>Media.',
   'APK firmada en CI (instalable en Pixel y Android reciente).',
   'Vista horizontal simulada, explicaciones de acciones y sugerencias con motivo.',
-  'Correccion pantalla en blanco en movil (layout horizontal y caché APK).',
+  'Modo entrenamiento y sugerencias activos por defecto; ★ marca la mejor jugada (web y APK).',
+  'Todas las industrias visibles al construir; entrenador favorece ventas, desarrollo y exploración.',
   'Fix crash al elegir Red con enlaces a comerciantes (Oxford, etc.).',
 ] as const;
